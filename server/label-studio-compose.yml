@@ -1,0 +1,14 @@
+services:
+  labelstudio:
+    container_name: labelstudio
+    image: heartexlabs/label-studio:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /home/ubuntu/data:/label-studio/data
+    environment:
+      - LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED=true
+      - LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT=/label-studio/data
+
+include:
+  - /home/ubuntu/label-studio-ml-backend/label_studio_ml/examples/llm_interactive/docker-compose.yml
