@@ -31,6 +31,9 @@ SUBCATEGORIES_TXT_PATH = METADATA_DIR / "all_subcategories.txt"
 
 CATEGORY_BATCH_SIZE = 500
 FILEINFO_BATCH_SIZE = 25
+MEDIAINFO_BATCH_SIZE = 50
+WIKIDATA_LABEL_BATCH_SIZE = 50
+
 API_PAUSE_SECONDS = (1.5, 3.0)
 DOWNLOAD_PAUSE_SECONDS = (2.5, 5.0)
 MAX_RETRIES = 6
@@ -97,12 +100,18 @@ def request_with_retry(
     url: str,
     *,
     params=None,
+    data=None,
     stream: bool = False,
     timeout: int = REQUEST_TIMEOUT,
     max_retries: int = MAX_RETRIES,
 ):
     for attempt in range(max_retries):
-        response = session.get(url, params=params, stream=stream, timeout=timeout)
+        if data is not None:
+            response = session.post(
+                url, params=params, data=data, stream=stream, timeout=timeout
+            )
+        else:
+            response = session.get(url, params=params, stream=stream, timeout=timeout)
 
         if response.status_code == 429:
             retry_after = response.headers.get("Retry-After")
@@ -111,16 +120,18 @@ def request_with_retry(
             else:
                 wait = min(60 * (2**attempt), 1800)
             print(f"429 Too Many Requests. Sleeping {wait}s and retrying...")
+            response.close()
             time.sleep(wait)
             continue
 
         if response.status_code == 503 and not stream:
             try:
-                data = response.json()
-                error = data.get("error", {})
+                data_json = response.json()
+                error = data_json.get("error", {})
                 if error.get("code") == "maxlag":
                     wait = min(10 * (attempt + 1), 60)
                     print(f"maxlag hit. Sleeping {wait}s and retrying...")
+                    response.close()
                     time.sleep(wait)
                     continue
             except Exception:
@@ -145,8 +156,23 @@ def api_get(params: dict) -> dict:
     return data
 
 
-def wikidata_get(params: dict) -> dict:
-    response = request_with_retry(WIKIDATA_API, params=params, stream=False)
+def api_post(params: dict) -> dict:
+    merged = {"format": "json", "maxlag": MAXLAG}
+    merged.update(params)
+    response = request_with_retry(API, data=merged, stream=False)
+    data = response.json()
+
+    error = data.get("error")
+    if error and error.get("code") == "maxlag":
+        raise RuntimeError(f"MediaWiki maxlag response: {error}")
+
+    return data
+
+
+def wikidata_post(params: dict) -> dict:
+    merged = {"format": "json"}
+    merged.update(params)
+    response = request_with_retry(WIKIDATA_API, data=merged, stream=False)
     return response.json()
 
 
@@ -211,32 +237,44 @@ def get_file_pages_info(file_titles):
 def get_mediainfo_entities(m_ids):
     if not m_ids:
         return {}
-    params = {
-        "action": "wbgetentities",
-        "ids": "|".join(m_ids),
-        "props": "labels|descriptions|claims",
-        "format": "json",
-        "maxlag": MAXLAG,
-    }
-    response = request_with_retry(API, params=params, stream=False)
-    return response.json().get("entities", {})
+
+    all_entities = {}
+
+    for start in range(0, len(m_ids), MEDIAINFO_BATCH_SIZE):
+        batch = m_ids[start : start + MEDIAINFO_BATCH_SIZE]
+        params = {
+            "action": "wbgetentities",
+            "ids": "|".join(batch),
+            "props": "labels|descriptions|claims",
+        }
+        data = api_post(params)
+        all_entities.update(data.get("entities", {}))
+        sleep_range(API_PAUSE_SECONDS)
+
+    return all_entities
 
 
 def get_wikidata_labels(qids, lang="en"):
     if not qids:
         return {}
-    params = {
-        "action": "wbgetentities",
-        "format": "json",
-        "ids": "|".join(sorted(set(qids))),
-        "languages": lang,
-        "props": "labels",
-    }
-    entities = wikidata_get(params).get("entities", {})
-    return {
-        qid: ent.get("labels", {}).get(lang, {}).get("value", "")
-        for qid, ent in entities.items()
-    }
+
+    result = {}
+    unique_qids = sorted(set(qids))
+
+    for start in range(0, len(unique_qids), WIKIDATA_LABEL_BATCH_SIZE):
+        batch = unique_qids[start : start + WIKIDATA_LABEL_BATCH_SIZE]
+        params = {
+            "action": "wbgetentities",
+            "ids": "|".join(batch),
+            "languages": lang,
+            "props": "labels",
+        }
+        entities = wikidata_post(params).get("entities", {})
+        for qid, ent in entities.items():
+            result[qid] = ent.get("labels", {}).get(lang, {}).get("value", "")
+        sleep_range(API_PAUSE_SECONDS)
+
+    return result
 
 
 def extract_extmetadata(extmeta):
@@ -628,8 +666,8 @@ def download_image(url: str, dest: Path):
             else:
                 wait = min(60 * (2**attempt), 1800)
             print(f"429 on file download. Sleeping {wait}s before retry...")
-            time.sleep(wait)
             response.close()
+            time.sleep(wait)
             continue
 
         try:
