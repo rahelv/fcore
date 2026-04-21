@@ -1,7 +1,6 @@
 # This is the second try of training a model, using dataset with 9 labels and approx. 100 images per label
 # 1. 15 epochs
 # 2. 30 epochs
-# 3. add
 
 import json
 import os
@@ -60,6 +59,8 @@ train_transforms = transforms.Compose(
     [
         transforms.RandomResizedCrop(IMAGE_SIZE),  # resize and crop
         transforms.RandomHorizontalFlip(),  # spiegeln
+        transforms.RandomRotation(degrees=10),
+        transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),
         transforms.ToTensor(),
         transforms.Normalize(
             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
