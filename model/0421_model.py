@@ -1,6 +1,7 @@
-# This is the second try of training a model, using dataset with 9 labels and approx. 100 images per label
+# This is the second try of training a model, using dataset with 10 labels and approx. 100 images per label
 # 1. 15 epochs
 # 2. 30 epochs
+# 3. ohne anpassungen
 
 import json
 import os
@@ -57,10 +58,11 @@ print(f"Using device: {device}")
 
 train_transforms = transforms.Compose(
     [
-        transforms.RandomResizedCrop(IMAGE_SIZE),  # resize and crop
-        transforms.RandomHorizontalFlip(),  # spiegeln
-        transforms.RandomRotation(degrees=10),
-        transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),
+        transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
+        # transforms.RandomResizedCrop(IMAGE_SIZE),  # resize and crop
+        # transforms.RandomHorizontalFlip(),  # spiegeln
+        # transforms.RandomRotation(degrees=10),
+        # transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),
         transforms.ToTensor(),
         transforms.Normalize(
             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
@@ -235,8 +237,9 @@ best_val_acc = 0.0
 run = wandb.init(
     project="costume-recognition",
     config=config,
-    name="0421_model_v2",
+    name="0421_model_v03",
 )
+
 run.watch(model)
 wandb.config.update(dataset_info)
 
