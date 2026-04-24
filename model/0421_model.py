@@ -29,7 +29,6 @@ NUM_WORKERS = min(
     4, os.cpu_count() if os.cpu_count() is not None else 0
 )  # TODO: change
 
-USE_PRETRAINED = False  # TODO: remove everywhere
 SAVE_PATH = "/home/ubuntu/data/models/0421_model.pt"
 LABELS_PATH = DATA_DIR / "labels.json"  # TODO: create
 
@@ -43,8 +42,7 @@ config = {
     "epochs": EPOCHS,
     "learning_rate": LR,
     "weight_decay": WEIGHT_DECAY,
-    "model": "resnet18",
-    "pretrained": USE_PRETRAINED,
+    "model": "resnet18"
 }
 
 torch.manual_seed(SEED)
@@ -75,7 +73,7 @@ eval_transforms = transforms.Compose(
         transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),  # no randomness for test / val
         transforms.ToTensor(),
         transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+            mean=[0.485, 0.456, 0.405], std=[0.229, 0.224, 0.225]
         ),  # TODO: keep same as in training set
     ]
 )
@@ -85,6 +83,8 @@ eval_transforms = transforms.Compose(
 train_dataset = datasets.ImageFolder(TRAIN_DIR, transform=train_transforms)
 val_dataset = datasets.ImageFolder(VAL_DIR, transform=eval_transforms)
 test_dataset = datasets.ImageFolder(TEST_DIR, transform=eval_transforms)
+
+img_tensor, label = train_dataset[0]
 
 # Make sure class mapping is consistent
 assert (
@@ -273,17 +273,14 @@ for epoch in range(1, EPOCHS + 1):
                 "model_state_dict": model.state_dict(),
                 "class_to_idx": class_to_idx,
                 "num_classes": num_classes,
-                "use_pretrained": USE_PRETRAINED,
                 "image_size": IMAGE_SIZE,
             },
             SAVE_PATH,
         )
 
 checkpoint = torch.load(SAVE_PATH, map_location=device)
-if checkpoint.get("use_pretrained", False):
-    best_model = resnet18(weights="DEFAULT")
-else:
-    best_model = resnet18(weights=None)
+
+best_model = resnet18(weights=None)
 
 best_model.fc = nn.Linear(best_model.fc.in_features, checkpoint["num_classes"])
 best_model.load_state_dict(checkpoint["model_state_dict"])
