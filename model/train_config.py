@@ -16,7 +16,7 @@ LR = 1e-3
 WEIGHT_DECAY = 1e-4
 NUM_WORKERS = min(4, os.cpu_count() or 1)
 
-SAVE_PATH = "/home/ubuntu/data/models/0421_model.pt"
+SAVE_PATH = "/home/ubuntu/data/models/0421_v1.pt"
 # SAVE_PATH = "/Users/rahel/code/FS26/playground/data/models/0421_model.pt"
 LABELS_PATH = DATA_DIR / "labels.json"
 

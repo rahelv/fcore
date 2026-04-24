@@ -36,6 +36,7 @@ dataset_info = {
     "train_size": len(train_dataset),
     "val_size": len(val_dataset),
     "test_size": len(test_dataset),
+    "transforms": str(cfg.train_transforms)
 }
 
 print(f"Number of classes: {num_classes}")
