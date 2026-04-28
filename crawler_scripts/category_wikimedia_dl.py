@@ -14,20 +14,38 @@ import requests
 API = "https://commons.wikimedia.org/w/api.php"
 WIKIDATA_API = "https://www.wikidata.org/w/api.php"
 
-ROOT_CATEGORY = "Category:Cosplay"
+ROOT_CATEGORIES = [
+    "Category:Cosplay of Mandalorians",
+    "Category:Cosplay of March 7th",
+    "Category:Cosplay of Naruto Uzumaki",
+    "Category:Cosplay of Raiden Shogun",
+    "Category:Cosplay of Goku",
+    "Category:Cosplay of Sailor Moon (character)",
+    "Category:Cosplay of Sakura Haruno",
+    "Category:Cosplay of Harley Quinn",
+    "Category:Cosplay of Vi (League of Legends)",
+    "Category:Cosplay of Hinata Hyuga",
+    "Category:Cosplay of Wolverine",
+    "Category:Cosplay of Izuku Midoriya",
+    "Category:Cosplay of Jujutsu Kaisen"
+    ]
+
 USER_AGENT = "CostumeRecognitionBot/0.1 (contact: rha.kempf@gmail.com)"
 
-OUT_DIR = Path("/home/ubuntu/data2")
-METADATA_DIR = OUT_DIR / "metadata"
-IMAGES_DIR = OUT_DIR / "images"
-METADATA_DIR.mkdir(parents=True, exist_ok=True)
-IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+# Base output directory. Each root category gets its own subfolder.
+# OUT_DIR = Path("/home/ubuntu/data2")
+OUT_DIR = Path("/Users/rahel/code/FS26/playground/data/categories")
 
-JSONL_PATH = METADATA_DIR / "metadata.jsonl"
-CSV_PATH = METADATA_DIR / "metadata.csv"
-FAILED_DOWNLOADS_PATH = METADATA_DIR / "failed_downloads.jsonl"
-STATE_PATH = METADATA_DIR / "crawl_state.json"
-SUBCATEGORIES_TXT_PATH = METADATA_DIR / "all_subcategories.txt"
+# These are configured per root category by configure_category_paths().
+ROOT_CATEGORY = None
+CATEGORY_OUT_DIR = None
+METADATA_DIR = None
+IMAGES_DIR = None
+JSONL_PATH = None
+CSV_PATH = None
+FAILED_DOWNLOADS_PATH = None
+STATE_PATH = None
+SUBCATEGORIES_TXT_PATH = None
 
 CATEGORY_BATCH_SIZE = 500
 FILEINFO_BATCH_SIZE = 25
@@ -75,6 +93,52 @@ def filename_from_url(url: str) -> str:
     return safe_filename(path.split("/")[-1])
 
 
+def category_slug(category_title: str) -> str:
+    """
+    Makes a stable folder name from a Commons category title.
+    Example: Category:Cosplay of Batman -> Cosplay_of_Batman
+    """
+    title = normalize_category_title(category_title)
+    title = title.removeprefix("Category:")
+    title = safe_filename(title)
+    title = re.sub(r"\s+", "_", title)
+    return title.strip("_") or "category"
+
+
+def configure_category_paths(root_category: str):
+    """
+    Sets all per-category paths globally so the existing stage functions can
+    run independently for each root category.
+    """
+    global ROOT_CATEGORY
+    global CATEGORY_OUT_DIR
+    global METADATA_DIR
+    global IMAGES_DIR
+    global JSONL_PATH
+    global CSV_PATH
+    global FAILED_DOWNLOADS_PATH
+    global STATE_PATH
+    global SUBCATEGORIES_TXT_PATH
+
+    ROOT_CATEGORY = normalize_category_title(root_category)
+
+    slug = category_slug(ROOT_CATEGORY)
+    CATEGORY_OUT_DIR = OUT_DIR / slug
+    METADATA_DIR = CATEGORY_OUT_DIR / "metadata"
+    IMAGES_DIR = CATEGORY_OUT_DIR / "images"
+
+    METADATA_DIR.mkdir(parents=True, exist_ok=True)
+    IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+
+    JSONL_PATH = METADATA_DIR / "metadata.jsonl"
+    CSV_PATH = METADATA_DIR / "metadata.csv"
+    FAILED_DOWNLOADS_PATH = METADATA_DIR / "failed_downloads.jsonl"
+    STATE_PATH = METADATA_DIR / "crawl_state.json"
+    SUBCATEGORIES_TXT_PATH = METADATA_DIR / "all_subcategories.txt"
+
+    return ROOT_CATEGORY
+
+
 def load_state() -> dict:
     if not STATE_PATH.exists():
         return {
@@ -87,6 +151,7 @@ def load_state() -> dict:
             "pending_metadata_categories": [],
             "processed_metadata_categories": [],
         }
+
     with open(STATE_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -108,10 +173,19 @@ def request_with_retry(
     for attempt in range(max_retries):
         if data is not None:
             response = session.post(
-                url, params=params, data=data, stream=stream, timeout=timeout
+                url,
+                params=params,
+                data=data,
+                stream=stream,
+                timeout=timeout,
             )
         else:
-            response = session.get(url, params=params, stream=stream, timeout=timeout)
+            response = session.get(
+                url,
+                params=params,
+                stream=stream,
+                timeout=timeout,
+            )
 
         if response.status_code == 429:
             retry_after = response.headers.get("Retry-After")
@@ -119,6 +193,7 @@ def request_with_retry(
                 wait = int(retry_after)
             else:
                 wait = min(60 * (2**attempt), 1800)
+
             print(f"429 Too Many Requests. Sleeping {wait}s and retrying...")
             response.close()
             time.sleep(wait)
@@ -146,6 +221,7 @@ def request_with_retry(
 def api_get(params: dict) -> dict:
     merged = {"format": "json", "maxlag": MAXLAG}
     merged.update(params)
+
     response = request_with_retry(API, params=merged, stream=False)
     data = response.json()
 
@@ -159,6 +235,7 @@ def api_get(params: dict) -> dict:
 def api_post(params: dict) -> dict:
     merged = {"format": "json", "maxlag": MAXLAG}
     merged.update(params)
+
     response = request_with_retry(API, data=merged, stream=False)
     data = response.json()
 
@@ -172,6 +249,7 @@ def api_post(params: dict) -> dict:
 def wikidata_post(params: dict) -> dict:
     merged = {"format": "json"}
     merged.update(params)
+
     response = request_with_retry(WIKIDATA_API, data=merged, stream=False)
     return response.json()
 
@@ -179,6 +257,7 @@ def wikidata_post(params: dict) -> dict:
 def get_category_members(category_title: str, cmtype: str):
     """
     cmtype: 'subcat' or 'file'
+
     Yields categorymembers rows with pagination.
     """
     cmcontinue = None
@@ -191,16 +270,19 @@ def get_category_members(category_title: str, cmtype: str):
             "cmtype": cmtype,
             "cmlimit": CATEGORY_BATCH_SIZE,
         }
+
         if cmcontinue:
             params["cmcontinue"] = cmcontinue
 
         data = api_get(params)
         members = data.get("query", {}).get("categorymembers", [])
+
         for member in members:
             yield member
 
         cont = data.get("continue", {})
         cmcontinue = cont.get("cmcontinue")
+
         if not cmcontinue:
             break
 
@@ -218,6 +300,7 @@ def get_file_pages_info(file_titles):
 
     for start in range(0, len(file_titles), FILEINFO_BATCH_SIZE):
         batch = file_titles[start : start + FILEINFO_BATCH_SIZE]
+
         params = {
             "action": "query",
             "titles": "|".join(batch),
@@ -226,9 +309,11 @@ def get_file_pages_info(file_titles):
             "cllimit": "max",
             "iiprop": "url|extmetadata",
         }
+
         data = api_get(params)
         pages = data.get("query", {}).get("pages", {})
         all_pages.extend(pages.values())
+
         sleep_range(API_PAUSE_SECONDS)
 
     return all_pages
@@ -242,13 +327,16 @@ def get_mediainfo_entities(m_ids):
 
     for start in range(0, len(m_ids), MEDIAINFO_BATCH_SIZE):
         batch = m_ids[start : start + MEDIAINFO_BATCH_SIZE]
+
         params = {
             "action": "wbgetentities",
             "ids": "|".join(batch),
             "props": "labels|descriptions|claims",
         }
+
         data = api_post(params)
         all_entities.update(data.get("entities", {}))
+
         sleep_range(API_PAUSE_SECONDS)
 
     return all_entities
@@ -263,15 +351,19 @@ def get_wikidata_labels(qids, lang="en"):
 
     for start in range(0, len(unique_qids), WIKIDATA_LABEL_BATCH_SIZE):
         batch = unique_qids[start : start + WIKIDATA_LABEL_BATCH_SIZE]
+
         params = {
             "action": "wbgetentities",
             "ids": "|".join(batch),
             "languages": lang,
             "props": "labels",
         }
+
         entities = wikidata_post(params).get("entities", {})
+
         for qid, ent in entities.items():
             result[qid] = ent.get("labels", {}).get(lang, {}).get("value", "")
+
         sleep_range(API_PAUSE_SECONDS)
 
     return result
@@ -294,23 +386,30 @@ def extract_extmetadata(extmeta):
 
 def extract_categories(page):
     cats = []
+
     for c in page.get("categories", []):
         title = c.get("title", "")
+
         if title.startswith("Category:"):
             title = title[len("Category:") :]
+
         cats.append(title)
+
     return cats
 
 
 def extract_p180_qids(entity):
     claims = entity.get("claims", {})
     out = []
+
     for stmt in claims.get("P180", []):
         mainsnak = stmt.get("mainsnak", {})
         datavalue = mainsnak.get("datavalue", {})
         value = datavalue.get("value", {})
+
         if isinstance(value, dict) and "id" in value:
             out.append(value["id"])
+
     return out
 
 
@@ -335,6 +434,7 @@ def build_costume_hint(depicts_labels, categories):
             ]
         )
     ]
+
     return "; ".join(costumeish[:10])
 
 
@@ -349,10 +449,13 @@ def load_existing_records(jsonl_path: Path):
     with open(jsonl_path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
+
             if not line:
                 continue
+
             rec = json.loads(line)
             records.append(rec)
+
             pageid = rec.get("pageid")
             if pageid is not None:
                 by_pageid[pageid] = rec
@@ -397,6 +500,7 @@ def write_csv_from_records(records, csv_path: Path):
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
+
         for row in records:
             row = row.copy()
             row["depicts_qids"] = "|".join(row.get("depicts_qids", []))
@@ -409,10 +513,13 @@ def refresh_download_flags(records):
     for rec in records:
         local_path = Path(rec["local_image_path"])
         exists = local_path.exists()
+
         rec["is_downloaded"] = exists
+
         if exists:
             rec["download_status"] = "downloaded"
             rec["last_error"] = ""
+
     return records
 
 
@@ -426,6 +533,7 @@ def stage0_discover_categories(root_category: str, resume: bool = True):
     root_category = normalize_category_title(root_category)
 
     state = load_state()
+
     if not resume or state.get("root_category") != root_category:
         state = {
             "root_category": root_category,
@@ -446,16 +554,20 @@ def stage0_discover_categories(root_category: str, resume: bool = True):
 
     while pending:
         current = pending.pop(0)
+
         if current in visited:
             continue
 
         print(f"[CATEGORY] {current}")
 
         new_subcats = 0
+
         for member in get_category_members(current, "subcat"):
             subcat = normalize_category_title(member.get("title", ""))
+
             if not subcat:
                 continue
+
             if subcat not in discovered:
                 discovered.add(subcat)
                 pending.append(subcat)
@@ -464,9 +576,11 @@ def stage0_discover_categories(root_category: str, resume: bool = True):
         print(f"    new subcategories found: {new_subcats}")
 
         visited.add(current)
+
         state["pending_categories_to_visit"] = pending
         state["visited_categories"] = sorted(visited)
         state["discovered_categories"] = sorted(discovered)
+
         save_state(state)
 
         sleep_range(API_PAUSE_SECONDS)
@@ -476,12 +590,12 @@ def stage0_discover_categories(root_category: str, resume: bool = True):
     state["visited_categories"] = sorted(visited)
     state["discovered_categories"] = sorted(discovered)
     state["pending_metadata_categories"] = sorted(discovered)
-    save_state(state)
 
+    save_state(state)
     write_subcategories_txt(sorted(discovered))
 
     print("\nCategory discovery complete.")
-    print(f"Total categories found (including root): {len(discovered)}")
+    print(f"Total categories found, including root: {len(discovered)}")
     print(f"Subcategory list written to: {SUBCATEGORIES_TXT_PATH}")
 
 
@@ -493,6 +607,7 @@ def stage1_collect_metadata_from_categories(
     root_category = normalize_category_title(root_category)
 
     state = load_state()
+
     if not state.get("category_discovery_complete"):
         raise RuntimeError(
             "Category discovery not complete. Run stage0_discover_categories() first."
@@ -518,14 +633,17 @@ def stage1_collect_metadata_from_categories(
             break
 
         category_title = pending_categories.pop(0)
+
         if category_title in processed_categories:
             continue
 
         print(f"\n[METADATA CATEGORY] {category_title}")
 
         file_titles = []
+
         for member in get_category_members(category_title, "file"):
             title = member.get("title", "")
+
             if title.startswith("File:"):
                 file_titles.append(title)
 
@@ -536,6 +654,7 @@ def stage1_collect_metadata_from_categories(
 
         for page in pages:
             pageid = page.get("pageid")
+
             if not pageid or pageid in seen_pageids:
                 continue
 
@@ -546,10 +665,12 @@ def stage1_collect_metadata_from_categories(
 
         m_ids = [mid for _, mid, _ in page_records]
         mediainfo = get_mediainfo_entities(m_ids)
+
         sleep_range(API_PAUSE_SECONDS)
 
         all_qids = []
         p180_by_mid = {}
+
         for _, mid, _ in page_records:
             entity = mediainfo.get(mid, {})
             qids = extract_p180_qids(entity)
@@ -557,6 +678,7 @@ def stage1_collect_metadata_from_categories(
             all_qids.extend(qids)
 
         qid_to_label = get_wikidata_labels(all_qids, lang="en")
+
         sleep_range(API_PAUSE_SECONDS)
 
         for pageid, mid, page in page_records:
@@ -577,6 +699,8 @@ def stage1_collect_metadata_from_categories(
             costume_hint = build_costume_hint(depicts_labels, categories)
 
             filename = filename_from_url(image_url)
+
+            # Store every root category's images in its own image folder.
             local_path = IMAGES_DIR / filename
             already_downloaded = local_path.exists()
 
@@ -627,6 +751,7 @@ def stage1_collect_metadata_from_categories(
         state["pending_metadata_categories"] = pending_categories
         state["processed_metadata_categories"] = sorted(processed_categories)
         state["metadata_complete"] = len(pending_categories) == 0
+
         save_state(state)
 
         sleep_range(API_PAUSE_SECONDS)
@@ -657,14 +782,17 @@ def download_image(url: str, dest: Path):
 
     for attempt in range(MAX_RETRIES):
         sleep_range(DOWNLOAD_PAUSE_SECONDS)
+
         response = session.get(url, stream=True, timeout=REQUEST_TIMEOUT)
 
         if response.status_code == 429:
             retry_after = response.headers.get("Retry-After")
+
             if retry_after and retry_after.isdigit():
                 wait = int(retry_after)
             else:
                 wait = min(60 * (2**attempt), 1800)
+
             print(f"429 on file download. Sleeping {wait}s before retry...")
             response.close()
             time.sleep(wait)
@@ -672,11 +800,14 @@ def download_image(url: str, dest: Path):
 
         try:
             response.raise_for_status()
+
             with open(dest, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
+
             return "downloaded"
+
         finally:
             response.close()
 
@@ -685,18 +816,22 @@ def download_image(url: str, dest: Path):
 
 def stage2_download_images(limit: int | None = None, retry_failed: bool = True):
     records, _, _ = load_existing_records(JSONL_PATH)
+
     if not records:
         raise FileNotFoundError(f"No metadata records found in: {JSONL_PATH}")
 
     state = load_state()
+
     if not state.get("category_discovery_complete"):
         raise RuntimeError("Category discovery is not complete.")
+
     if not SUBCATEGORIES_TXT_PATH.exists():
         raise RuntimeError(f"Subcategory list file missing: {SUBCATEGORIES_TXT_PATH}")
 
     records = refresh_download_flags(records)
 
     pending_statuses = {"pending"}
+
     if retry_failed:
         pending_statuses.add("failed")
 
@@ -750,8 +885,10 @@ def stage2_download_images(limit: int | None = None, retry_failed: bool = True):
                     "local_image_path": str(local_path),
                     "error": str(e),
                 }
+
                 failed_out.write(json.dumps(error_record, ensure_ascii=False) + "\n")
                 failed_out.flush()
+
                 print(f"[{idx}] FAILED {title} -> {e}")
 
             save_all_records_jsonl(records, JSONL_PATH)
@@ -767,9 +904,41 @@ def stage2_download_images(limit: int | None = None, retry_failed: bool = True):
     print(f"Subcat txt:     {SUBCATEGORIES_TXT_PATH}")
 
 
-if __name__ == "__main__":
-    stage0_discover_categories(ROOT_CATEGORY, resume=True)
+def process_root_category(
+    root_category: str,
+    *,
+    resume: bool = True,
+    max_categories: int | None = None,
+    download_limit: int | None = None,
+    retry_failed: bool = True,
+):
+    root_category = configure_category_paths(root_category)
+
+    print("\n" + "=" * 80)
+    print(f"PROCESSING ROOT CATEGORY: {root_category}")
+    print(f"OUTPUT DIR: {CATEGORY_OUT_DIR}")
+    print("=" * 80 + "\n")
+
+    stage0_discover_categories(root_category, resume=resume)
+
     stage1_collect_metadata_from_categories(
-        ROOT_CATEGORY, max_categories=None, resume=True
+        root_category,
+        max_categories=max_categories,
+        resume=resume,
     )
-    stage2_download_images(limit=20000, retry_failed=True)
+
+    stage2_download_images(
+        limit=download_limit,
+        retry_failed=retry_failed,
+    )
+
+
+if __name__ == "__main__":
+    for category in ROOT_CATEGORIES:
+        process_root_category(
+            category,
+            resume=True,
+            max_categories=None,
+            download_limit=None,
+            retry_failed=True,
+        )
