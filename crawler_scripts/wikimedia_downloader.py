@@ -10,7 +10,6 @@ from urllib.parse import urlparse, unquote
 
 import requests
 
-
 API = "https://commons.wikimedia.org/w/api.php"
 WIKIDATA_API = "https://www.wikidata.org/w/api.php"
 

@@ -26,8 +26,10 @@ import requests
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
-QUALIFYING_CHARS_PATH = Path("data/characters/qualifying_characters.json")
-OUT_DIR = Path("data/characters")
+QUALIFYING_CHARS_PATH = Path(
+    "/home/ubuntu/data/data/characters/qualifying_characters.json"
+)  # TODO: change to node path ...
+OUT_DIR = Path("/home/ubuntu/data/data/characters")
 
 MAX_IMAGES = 100  # max unique images to download per character
 SORT = "relevance"
