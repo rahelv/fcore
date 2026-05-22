@@ -5,6 +5,8 @@
 *.pt
 model/wandb/
 
+openCLIP/database/.env
+
 ### Server Stuff 
 server/syncthing/
 
