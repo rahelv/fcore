@@ -1,0 +1,9 @@
+flask
+open-clip-torch
+torch
+numpy
+psycopg2-binary
+python-dotenv
+transformers
+sentencepiece
+protobuf
