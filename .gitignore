@@ -7,6 +7,9 @@ model/wandb/
 
 openCLIP/database/.env
 
+**/wandb/
+.idea/
+
 ### Server Stuff 
 server/syncthing/
 
