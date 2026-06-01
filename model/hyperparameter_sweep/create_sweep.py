@@ -5,8 +5,9 @@ Then pass that ID to run_agent.py.
 Usage:
     python3 create_sweep.py
 """
+
 import wandb
-from train_sweep import sweep_config, PROJECT, ENTITY
+from train_sweep_2 import sweep_config, PROJECT, ENTITY
 
 sweep_id = wandb.sweep(
     sweep=sweep_config,
