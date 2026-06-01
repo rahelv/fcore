@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Search</title>
+<title>CLIP Search</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,7 +29,7 @@
 
   header {
     max-width: 900px;
-    margin: 0 auto 48px;
+    margin: 0 auto 32px;
     display: flex;
     align-items: baseline;
     gap: 16px;
@@ -50,7 +50,41 @@
     font-family: 'DM Mono', monospace;
   }
 
-  /* Search bar */
+  /* ── TABS ── */
+  .tabs {
+    max-width: 900px;
+    margin: 0 auto 32px;
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 10px 24px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── TEXT SEARCH ── */
   .search-wrap {
     max-width: 900px;
     margin: 0 auto 48px;
@@ -62,9 +96,7 @@
     transition: border-color 0.2s;
   }
 
-  .search-wrap:focus-within {
-    border-color: var(--accent);
-  }
+  .search-wrap:focus-within { border-color: var(--accent); }
 
   #query {
     flex: 1;
@@ -120,8 +152,170 @@
   #search-btn:hover { opacity: 0.85; }
   #search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Status bar */
-  #status {
+  /* ── IMAGE SEARCH CONTROLS ── */
+  .img-controls {
+    max-width: 900px;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    border: none;
+    transition: opacity 0.15s;
+  }
+
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn:hover:not(:disabled) { opacity: 0.8; }
+
+  .btn-primary  { background: var(--accent); color: #0d0d0d; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .upload-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--text);
+    transition: opacity 0.15s;
+  }
+
+  .upload-label:hover { opacity: 0.8; }
+
+  .divider { font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  /* ── IMAGE SEARCH RESULT ── */
+  .img-search-result {
+    max-width: 900px;
+    margin: 0 auto;
+    display: none;
+  }
+
+  .img-search-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 2px;
+    background: var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .query-img-cell {
+    background: var(--surface);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .query-img-cell img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .gt-label-wrap {
+    text-align: center;
+    display: none;
+  }
+
+  .gt-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .gt-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: #facc15;
+  }
+
+  .labels-cell {
+    background: var(--surface);
+    padding: 20px;
+  }
+
+  .labels-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .label-row { margin-bottom: 16px; }
+
+  .label-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+
+  .label-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+
+  .label-name.correct { color: #34d399; }
+
+  .label-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .bar-track {
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    width: 0;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    opacity: 0.7;
+  }
+
+  .bar-fill.correct { background: #34d399; opacity: 1; }
+
+  /* ── STATUS ── */
+  .status {
     max-width: 900px;
     margin: 0 auto 24px;
     font-family: 'DM Mono', monospace;
@@ -130,10 +324,10 @@
     min-height: 18px;
   }
 
-  #status.error { color: #ff6b6b; }
+  .status.error { color: #ff6b6b; }
 
-  /* Grid */
-  #grid {
+  /* ── GRID (shared) ── */
+  .grid {
     max-width: 900px;
     margin: 0 auto;
     display: grid;
@@ -152,13 +346,10 @@
     animation: fadeUp 0.3s forwards;
   }
 
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
   .card img {
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     object-fit: cover;
     display: block;
     transition: transform 0.3s ease;
@@ -186,11 +377,7 @@
     margin-bottom: 2px;
   }
 
-  .card-score {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    color: #fff;
-  }
+  .card-score { font-family: 'DM Mono', monospace; font-size: 0.85rem; color: #fff; }
 
   .card-path {
     font-size: 0.65rem;
@@ -201,7 +388,7 @@
     text-overflow: ellipsis;
   }
 
-  /* Spinner */
+  /* ── SPINNER ── */
   .spinner {
     display: inline-block;
     width: 10px; height: 10px;
@@ -223,32 +410,84 @@
   <span>cosine similarity · pgvector</span>
 </header>
 
-<div class="search-wrap">
-  <input id="query" type="text" placeholder="Describe an image — e.g. a dog on a beach at sunset" autocomplete="off" />
-  <div class="top-k-wrap">
-    top <input id="top_k" type="number" value="20" min="1" max="100" /> results
-  </div>
-  <button id="search-btn">Search</button>
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="text">Text Search</button>
+  <button class="tab-btn"        data-tab="image">Image Search</button>
 </div>
 
-<div id="status"></div>
-<div id="grid"></div>
+<!-- ══════════════════════════════════════
+     TEXT SEARCH TAB
+══════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-text">
+  <div class="search-wrap">
+    <input id="query" type="text" placeholder="Describe an image — e.g. a dog on a beach at sunset" autocomplete="off" />
+    <div class="top-k-wrap">
+      top <input id="top_k" type="number" value="20" min="1" max="100" /> results
+    </div>
+    <button id="search-btn">Search</button>
+  </div>
+
+  <div class="status" id="status-text"></div>
+  <div class="grid"   id="grid-text"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     IMAGE SEARCH TAB
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-image">
+  <div class="img-controls">
+    <button class="btn btn-primary" id="btn-random">Random val image</button>
+    <span class="divider">or</span>
+    <label class="upload-label" for="file-upload">Upload image</label>
+    <input type="file" id="file-upload" accept="image/*" style="display:none" />
+  </div>
+
+  <div class="status" id="status-image"></div>
+
+  <div class="img-search-result" id="img-result">
+    <div class="img-search-layout">
+      <div class="query-img-cell">
+        <img id="query-preview" src="" alt="query image" />
+        <div class="gt-label-wrap" id="gt-wrap">
+          <span class="gt-tag">ground truth</span>
+          <span class="gt-value" id="gt-value"></span>
+        </div>
+      </div>
+      <div class="labels-cell">
+        <div class="labels-header">Top-5 matching labels · CLIP cosine similarity</div>
+        <div id="label-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-  const queryEl  = document.getElementById('query');
-  const btn      = document.getElementById('search-btn');
-  const topKEl   = document.getElementById('top_k');
-  const statusEl = document.getElementById('status');
-  const gridEl   = document.getElementById('grid');
+  // ── TAB SWITCHING ──────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
 
-  async function search() {
+  // ── TEXT SEARCH ───────────────────────────────────────────
+  const queryEl   = document.getElementById('query');
+  const searchBtn = document.getElementById('search-btn');
+  const topKEl    = document.getElementById('top_k');
+  const statusText = document.getElementById('status-text');
+  const gridText   = document.getElementById('grid-text');
+
+  async function textSearch() {
     const query = queryEl.value.trim();
     if (!query) return;
 
-    btn.disabled = true;
-    gridEl.innerHTML = '';
-    statusEl.className = '';
-    statusEl.innerHTML = '<span class="spinner"></span>Searching…';
+    searchBtn.disabled = true;
+    gridText.innerHTML = '';
+    statusText.className = 'status';
+    statusText.innerHTML = '<span class="spinner"></span>Searching…';
 
     try {
       const res = await fetch('/search', {
@@ -259,14 +498,10 @@
 
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const results = await res.json();
-
       if (results.error) throw new Error(results.error);
-      if (results.length === 0) {
-        statusEl.textContent = 'No results found.';
-        return;
-      }
+      if (results.length === 0) { statusText.textContent = 'No results found.'; return; }
 
-      statusEl.textContent = `${results.length} results for "${query}"`;
+      statusText.textContent = `${results.length} results for "${query}"`;
 
       results.forEach((r, i) => {
         const card = document.createElement('div');
@@ -278,21 +513,105 @@
             <div class="card-label">${r.label}</div>
             <div class="card-score">${(r.similarity * 100).toFixed(1)}% match</div>
             <div class="card-path">${r.filepath.split('/').slice(-2).join('/')}</div>
-          </div>
-        `;
-        gridEl.appendChild(card);
+          </div>`;
+        gridText.appendChild(card);
       });
 
     } catch (err) {
-      statusEl.className = 'error';
-      statusEl.textContent = `Error: ${err.message}`;
+      statusText.className = 'status error';
+      statusText.textContent = `Error: ${err.message}`;
     } finally {
-      btn.disabled = false;
+      searchBtn.disabled = false;
     }
   }
 
-  btn.addEventListener('click', search);
-  queryEl.addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
+  searchBtn.addEventListener('click', textSearch);
+  queryEl.addEventListener('keydown', e => { if (e.key === 'Enter') textSearch(); });
+
+  // ── IMAGE SEARCH ──────────────────────────────────────────
+  const btnRandom    = document.getElementById('btn-random');
+  const fileUpload   = document.getElementById('file-upload');
+  const statusImage  = document.getElementById('status-image');
+  const imgResult    = document.getElementById('img-result');
+  const queryPreview = document.getElementById('query-preview');
+  const gtWrap       = document.getElementById('gt-wrap');
+  const gtValue      = document.getElementById('gt-value');
+  const labelList    = document.getElementById('label-list');
+
+  function setImgLoading(yes) {
+    btnRandom.disabled = yes;
+    statusImage.className = 'status';
+    statusImage.innerHTML = yes ? '<span class="spinner"></span>Searching…' : '';
+  }
+
+  function renderImageSearch(data) {
+    queryPreview.src = 'data:image/jpeg;base64,' + data.image;
+
+    if (data.true_label) {
+      gtWrap.style.display = 'block';
+      gtValue.textContent  = data.true_label;
+    } else {
+      gtWrap.style.display = 'none';
+    }
+
+    labelList.innerHTML = '';
+    data.results.forEach((r, i) => {
+      const isCorrect = data.true_label && r.label === data.true_label;
+      const row = document.createElement('div');
+      row.className = 'label-row';
+      row.innerHTML = `
+        <div class="label-meta">
+          <span class="label-name${isCorrect ? ' correct' : ''}">#${i+1} &nbsp;${r.label}</span>
+          <span class="label-score">${r.score.toFixed(1)}%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill${isCorrect ? ' correct' : ''}" data-w="${r.score}" style="width:0%"></div>
+        </div>`;
+      labelList.appendChild(row);
+    });
+
+    requestAnimationFrame(() => {
+      labelList.querySelectorAll('.bar-fill').forEach(el => {
+        el.style.width = el.dataset.w + '%';
+      });
+    });
+
+    imgResult.style.display = 'block';
+    statusImage.textContent = '';
+  }
+
+  async function fetchRandom() {
+    setImgLoading(true);
+    try {
+      const res  = await fetch('/api/search/random');
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      renderImageSearch(await res.json());
+    } catch (err) {
+      statusImage.className = 'status error';
+      statusImage.textContent = `Error: ${err.message}`;
+    } finally {
+      setImgLoading(false);
+    }
+  }
+
+  async function uploadImage(file) {
+    setImgLoading(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res  = await fetch('/api/search/upload', { method: 'POST', body: fd });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      renderImageSearch(await res.json());
+    } catch (err) {
+      statusImage.className = 'status error';
+      statusImage.textContent = `Error: ${err.message}`;
+    } finally {
+      setImgLoading(false);
+    }
+  }
+
+  btnRandom.addEventListener('click', fetchRandom);
+  fileUpload.addEventListener('change', e => { if (e.target.files[0]) uploadImage(e.target.files[0]); });
 </script>
 </body>
 </html>

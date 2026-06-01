@@ -1,0 +1,38 @@
+services:
+  postgres:
+    container_name: pgvector-db
+    image: pgvector/pgvector:pg18-trixie
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - /home/ubuntu/data/pgdata:/var/lib/postgresql
+      # - ./initdb:/docker-entrypoint-initdb.d # auto-run migrations on startup by mounting migrations folder TODO:
+    networks:
+      clipnet:
+        ipv4_address: 172.22.0.2
+
+  search_gui:
+    build: ./search_gui
+    ports:
+      - "5000:5000"
+    volumes:
+      - /home/ubuntu/data/robust_dataset:/home/ubuntu/data/robust_dataset:ro
+      - /home/ubuntu/data/val_for_evaluation/val:/data/val:ro
+      - /home/ubuntu/.cache/huggingface:/root/.cache/huggingface  # cached hf models
+    env_file: .env
+    depends_on:
+      - postgres
+    networks:
+      - clipnet
+
+networks:
+  clipnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
