@@ -1,13 +1,16 @@
--- Enable pgvector extension
+-- Drop everything
+DROP TABLE IF EXISTS images CASCADE;
+DROP TABLE IF EXISTS labels CASCADE;
+DROP TABLE IF EXISTS embeddings CASCADE;
+
+-- Recreate with 768-dim vectors
 CREATE EXTENSION IF NOT EXISTS vector;
 
--- Embeddings table (512-dim CLIP vectors)
 CREATE TABLE embeddings (
     id      SERIAL PRIMARY KEY,
-    vector  vector(512) NOT NULL
+    vector  vector(768) NOT NULL
 );
 
--- Labels table
 CREATE TABLE labels (
     id           SERIAL PRIMARY KEY,
     description  TEXT,
@@ -15,7 +18,6 @@ CREATE TABLE labels (
     embedding_id INTEGER REFERENCES embeddings(id) ON DELETE SET NULL
 );
 
--- Images table
 CREATE TABLE images (
     id           SERIAL PRIMARY KEY,
     filepath     TEXT NOT NULL,
@@ -23,6 +25,5 @@ CREATE TABLE images (
     embedding_id INTEGER REFERENCES embeddings(id) ON DELETE SET NULL
 );
 
--- Index for fast approximate nearest-neighbor search on image embeddings
 CREATE INDEX ON embeddings USING ivfflat (vector vector_cosine_ops)
     WITH (lists = 100);
