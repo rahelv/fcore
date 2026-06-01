@@ -10,7 +10,7 @@ import wandb
 import os
 from pathlib import Path
 
-RUN = "32_tryout"
+RUN = "32_tryout_2"
 
 DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split_2")
 TRAIN_DIR = DATA_DIR / "train"
@@ -24,10 +24,10 @@ MIN_EPOCHS = 80
 PATIENCE_AFTER_MIN_EPOCHS = 10
 LR = 0.00045327
 DROPOUT_P = 0.2
-WEIGHT_DECAY = 0.00001
+WEIGHT_DECAY = 0.01
 NUM_WORKERS = min(4, os.cpu_count() or 1)
 
-SAVE_PATH = "/home/ubuntu/data/models/32_tryout.pt"
+SAVE_PATH = "/home/ubuntu/data/models/32_tryout_2.pt"
 LABELS_PATH = DATA_DIR / "labels.json"
 
 SEED = 42
@@ -45,12 +45,12 @@ config = {
     "scheduler": "plateau",
     "dropout_p": 0.2,
     "label_smoothing": 0.1,
-    "aug_blur": False,
+    "aug_blur": True,
     "aug_erasing": False,
     "aug_grayscale": True,
     "aug_hflip": True,
     "aug_perspective": False,
-    "aug_rotation": False,
+    "aug_rotation": True,
     "color_jitter_strength": "strong",
     "model": "resnet18",
 }
@@ -61,10 +61,16 @@ train_transforms = transforms.Compose(
     [
         transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.5, 1.0)),
         transforms.RandomHorizontalFlip(),
-        transforms.RandomGrayscale(p=0.08),
+        transforms.RandomRotation(degrees=10),
+        transforms.RandomGrayscale(p=0.1),
         transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.05),
+        # transforms.RandomPerspective(distortion_scale=0.3, p=0.3),
+        transforms.RandomApply(
+            [transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0))], p=0.2
+        ),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.RandomErasing(p=0.25, scale=(0.02, 0.2)),
     ]
 )
 

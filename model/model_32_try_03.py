@@ -5,12 +5,14 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from torchvision.models import resnet18
+import numpy as np
 import wandb
 
 import os
 from pathlib import Path
 
-RUN = "32_tryout"
+RUN = "32_tryout_2_mixup"
+MIXUP_ALPHA = 0.4
 
 DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split_2")
 TRAIN_DIR = DATA_DIR / "train"
@@ -24,10 +26,10 @@ MIN_EPOCHS = 80
 PATIENCE_AFTER_MIN_EPOCHS = 10
 LR = 0.00045327
 DROPOUT_P = 0.2
-WEIGHT_DECAY = 0.00001
+WEIGHT_DECAY = 0.01
 NUM_WORKERS = min(4, os.cpu_count() or 1)
 
-SAVE_PATH = "/home/ubuntu/data/models/32_tryout.pt"
+SAVE_PATH = f"/home/ubuntu/data/models/{RUN}.pt"
 LABELS_PATH = DATA_DIR / "labels.json"
 
 SEED = 42
@@ -43,16 +45,18 @@ config = {
     "weight_decay": WEIGHT_DECAY,
     "optimizer": "adamw",
     "scheduler": "plateau",
-    "dropout_p": 0.2,
+    "dropout_p": DROPOUT_P,
     "label_smoothing": 0.1,
-    "aug_blur": False,
-    "aug_erasing": False,
+    "aug_blur": True,
+    "aug_erasing": True,
     "aug_grayscale": True,
     "aug_hflip": True,
-    "aug_perspective": False,
-    "aug_rotation": False,
+    "aug_perspective": True,
+    "aug_rotation": True,
     "color_jitter_strength": "strong",
     "model": "resnet18",
+    "mixup": True,
+    "mixup_alpha": MIXUP_ALPHA,
 }
 
 # ── TRANSFORMS ────────────────────────────────────────────
@@ -61,10 +65,16 @@ train_transforms = transforms.Compose(
     [
         transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.5, 1.0)),
         transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(degrees=15),
         transforms.RandomGrayscale(p=0.08),
         transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.05),
+        transforms.RandomPerspective(distortion_scale=0.3, p=0.3),
+        transforms.RandomApply(
+            [transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0))], p=0.2
+        ),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.RandomErasing(p=0.25, scale=(0.02, 0.2)),
     ]
 )
 
@@ -81,7 +91,7 @@ torch.manual_seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
 # ── DATASETS ──────────────────────────────────────────────
@@ -132,7 +142,6 @@ test_loader = DataLoader(
 # ── MODEL ─────────────────────────────────────────────────
 
 model = resnet18(weights=None)
-# dropout_p=0 for this run, so just a plain linear head
 model.fc = nn.Sequential(
     nn.Dropout(p=DROPOUT_P), nn.Linear(model.fc.in_features, num_classes)
 )
@@ -153,6 +162,32 @@ dataset_info = {
     "test_size": len(test_dataset),
 }
 
+# ── MIXUP ─────────────────────────────────────────────────
+
+
+def mixup_batch(images, labels, num_classes, alpha):
+    """
+    Blends pairs of images and returns soft labels.
+    lam is sampled from Beta(alpha, alpha) — higher alpha = more aggressive blending.
+    Returns mixed images and soft label tensors of shape [B, num_classes].
+    """
+    lam = np.random.beta(alpha, alpha)
+    batch_size = images.size(0)
+    idx = torch.randperm(batch_size, device=images.device)
+
+    mixed_images = lam * images + (1 - lam) * images[idx]
+
+    labels_a = torch.zeros(batch_size, num_classes, device=images.device).scatter_(
+        1, labels.unsqueeze(1), 1
+    )
+    labels_b = torch.zeros(batch_size, num_classes, device=images.device).scatter_(
+        1, labels[idx].unsqueeze(1), 1
+    )
+    soft_labels = lam * labels_a + (1 - lam) * labels_b
+
+    return mixed_images, soft_labels
+
+
 # ── HELPER FUNCTIONS ──────────────────────────────────────
 
 
@@ -167,19 +202,27 @@ def run_epoch(model, loader, criterion, optimizer=None):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
 
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            if is_train:
+                images, soft_labels = mixup_batch(
+                    images, labels, num_classes, MIXUP_ALPHA
+                )
+                outputs = model(images)
+                loss = criterion(outputs, soft_labels)
+                preds = outputs.argmax(dim=1)
+                running_correct += (preds == soft_labels.argmax(dim=1)).sum().item()
+            else:
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+                preds = outputs.argmax(dim=1)
+                running_correct += (preds == labels).sum().item()
 
             if is_train:
                 optimizer.zero_grad(set_to_none=True)
                 loss.backward()
                 optimizer.step()
 
-            preds = outputs.argmax(dim=1)
-            batch_size = labels.size(0)
-            running_loss += loss.item() * batch_size
-            running_correct += (preds == labels).sum().item()
-            total += batch_size
+            running_loss += loss.item() * labels.size(0)
+            total += labels.size(0)
 
     epoch_loss = running_loss / total if total > 0 else 0.0
     epoch_acc = running_correct / total if total > 0 else 0.0
@@ -230,7 +273,7 @@ for epoch in range(1, EPOCHS + 1):
     train_loss, train_acc = run_epoch(model, train_loader, criterion, optimizer)
     val_loss, val_acc = run_epoch(model, val_loader, criterion)
 
-    scheduler.step(val_loss)  # ReduceLROnPlateau needs the metric
+    scheduler.step(val_loss)
 
     if val_acc > best_val_acc:
         best_val_acc = val_acc
@@ -263,6 +306,10 @@ for epoch in range(1, EPOCHS + 1):
         f"train_loss={train_loss:.4f} train_acc={train_acc:.4f} | "
         f"val_loss={val_loss:.4f} val_acc={val_acc:.4f}"
     )
+
+    if epoch >= MIN_EPOCHS and epochs_without_improvement >= PATIENCE_AFTER_MIN_EPOCHS:
+        print(f"Early stopping at epoch {epoch}")
+        break
 
 # ── TEST EVALUATION ───────────────────────────────────────
 
