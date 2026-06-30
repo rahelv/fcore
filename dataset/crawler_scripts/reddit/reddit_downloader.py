@@ -11,7 +11,7 @@ import requests
 
 USER_AGENT = "CostumeRecognitionBot/0.1 by u/your_reddit_username"
 
-OUTDIR = Path("reddit")
+OUTDIR = Path("")
 MAX_POSTS = 150
 SORT = "relevance"
 TIME_FILTER = "all"
