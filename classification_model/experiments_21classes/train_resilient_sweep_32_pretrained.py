@@ -10,9 +10,9 @@ import wandb
 import os
 from pathlib import Path
 
-RUN = "32_tryout_2"
+RUN = "0512_32_with_pretrained"
 
-DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split_2")
+DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split")
 TRAIN_DIR = DATA_DIR / "train"
 VAL_DIR = DATA_DIR / "val"
 TEST_DIR = DATA_DIR / "test"
@@ -23,11 +23,10 @@ EPOCHS = 200
 MIN_EPOCHS = 80
 PATIENCE_AFTER_MIN_EPOCHS = 10
 LR = 0.00045327
-DROPOUT_P = 0.2
-WEIGHT_DECAY = 0.01
+WEIGHT_DECAY = 0.00001
 NUM_WORKERS = min(4, os.cpu_count() or 1)
 
-SAVE_PATH = "/home/ubuntu/data/models/32_tryout_2.pt"
+SAVE_PATH = "/home/ubuntu/data/models/resilient_sweep_32_pretrained.pt"
 LABELS_PATH = DATA_DIR / "labels.json"
 
 SEED = 42
@@ -43,16 +42,16 @@ config = {
     "weight_decay": WEIGHT_DECAY,
     "optimizer": "adamw",
     "scheduler": "plateau",
-    "dropout_p": 0.2,
+    "dropout_p": 0.0,
     "label_smoothing": 0.1,
-    "aug_blur": True,
+    "aug_blur": False,
     "aug_erasing": False,
     "aug_grayscale": True,
     "aug_hflip": True,
     "aug_perspective": False,
-    "aug_rotation": True,
+    "aug_rotation": False,
     "color_jitter_strength": "strong",
-    "model": "resnet18",
+    "classification_model": "resnet18",
 }
 
 # ── TRANSFORMS ────────────────────────────────────────────
@@ -61,16 +60,10 @@ train_transforms = transforms.Compose(
     [
         transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.5, 1.0)),
         transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(degrees=10),
-        transforms.RandomGrayscale(p=0.1),
+        transforms.RandomGrayscale(p=0.08),
         transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.05),
-        # transforms.RandomPerspective(distortion_scale=0.3, p=0.3),
-        transforms.RandomApply(
-            [transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0))], p=0.2
-        ),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        transforms.RandomErasing(p=0.25, scale=(0.02, 0.2)),
     ]
 )
 
@@ -137,11 +130,9 @@ test_loader = DataLoader(
 
 # ── MODEL ─────────────────────────────────────────────────
 
-model = resnet18(weights=None)
+model = resnet18(weights="IMAGENET1K_V1")
 # dropout_p=0 for this run, so just a plain linear head
-model.fc = nn.Sequential(
-    nn.Dropout(p=DROPOUT_P), nn.Linear(model.fc.in_features, num_classes)
-)
+model.fc = nn.Linear(model.fc.in_features, num_classes)
 model = model.to(device)
 
 # ── LOSS / OPTIMIZER / SCHEDULER ──────────────────────────
@@ -270,14 +261,17 @@ for epoch in range(1, EPOCHS + 1):
         f"val_loss={val_loss:.4f} val_acc={val_acc:.4f}"
     )
 
+    if epoch >= MIN_EPOCHS:
+        if train_acc >= 1.0:
+            break
+        if epochs_without_improvement >= PATIENCE_AFTER_MIN_EPOCHS:
+            break
+
 # ── TEST EVALUATION ───────────────────────────────────────
 
 checkpoint = torch.load(SAVE_PATH, map_location=device)
-best_model = resnet18(weights=None)
-best_model.fc = nn.Sequential(
-    nn.Dropout(p=DROPOUT_P),
-    nn.Linear(best_model.fc.in_features, checkpoint["num_classes"]),
-)
+best_model = resnet18(weights="IMAGENET1K_V1")
+best_model.fc = nn.Linear(best_model.fc.in_features, checkpoint["num_classes"])
 best_model.load_state_dict(checkpoint["model_state_dict"])
 best_model = best_model.to(device)
 

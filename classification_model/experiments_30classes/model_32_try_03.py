@@ -30,6 +30,7 @@ WEIGHT_DECAY = 0.01
 NUM_WORKERS = min(4, os.cpu_count() or 1)
 
 SAVE_PATH = f"/home/ubuntu/data/models/{RUN}.pt"
+RESUME_CHECKPOINT_PATH = f"/home/ubuntu/data/models/{RUN}_resume.pt"  # NEW: separate resume checkpoint
 LABELS_PATH = DATA_DIR / "labels.json"
 
 SEED = 42
@@ -54,7 +55,7 @@ config = {
     "aug_perspective": True,
     "aug_rotation": True,
     "color_jitter_strength": "strong",
-    "model": "resnet18",
+    "classification_model": "resnet18",
     "mixup": True,
     "mixup_alpha": MIXUP_ALPHA,
 }
@@ -166,11 +167,6 @@ dataset_info = {
 
 
 def mixup_batch(images, labels, num_classes, alpha):
-    """
-    Blends pairs of images and returns soft labels.
-    lam is sampled from Beta(alpha, alpha) — higher alpha = more aggressive blending.
-    Returns mixed images and soft label tensors of shape [B, num_classes].
-    """
     lam = np.random.beta(alpha, alpha)
     batch_size = images.size(0)
     idx = torch.randperm(batch_size, device=images.device)
@@ -257,19 +253,58 @@ def evaluate_per_class(model, loader, num_classes):
     }
 
 
-# ── TRAINING LOOP ─────────────────────────────────────────
+# ── NEW: SAVE RESUME CHECKPOINT ───────────────────────────
 
+def save_resume_checkpoint(epoch, model, optimizer, scheduler, best_val_acc, epochs_without_improvement):
+    torch.save(
+        {
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "scheduler_state_dict": scheduler.state_dict(),
+            "best_val_acc": best_val_acc,
+            "epochs_without_improvement": epochs_without_improvement,
+            "class_to_idx": class_to_idx,
+            "num_classes": num_classes,
+            "image_size": IMAGE_SIZE,
+        },
+        RESUME_CHECKPOINT_PATH,
+    )
+
+
+# ── NEW: LOAD RESUME CHECKPOINT ───────────────────────────
+
+start_epoch = 1
 best_val_acc = float("-inf")
 epochs_without_improvement = 0
+
+if Path(RESUME_CHECKPOINT_PATH).exists():
+    print(f"Resuming from checkpoint: {RESUME_CHECKPOINT_PATH}")
+    resume_ckpt = torch.load(RESUME_CHECKPOINT_PATH, map_location=device)
+    model.load_state_dict(resume_ckpt["model_state_dict"])
+    optimizer.load_state_dict(resume_ckpt["optimizer_state_dict"])
+    scheduler.load_state_dict(resume_ckpt["scheduler_state_dict"])
+    best_val_acc = resume_ckpt["best_val_acc"]
+    epochs_without_improvement = resume_ckpt["epochs_without_improvement"]
+    start_epoch = resume_ckpt["epoch"] + 1  # resume AFTER the last completed epoch
+    print(f"  → Resuming from epoch {start_epoch}, best_val_acc={best_val_acc:.4f}, "
+          f"epochs_without_improvement={epochs_without_improvement}")
+else:
+    print("No resume checkpoint found — starting from scratch.")
+
+
+# ── TRAINING LOOP ─────────────────────────────────────────
 
 run = wandb.init(
     project="costume_recognition_model",
     config={**config, **dataset_info},
     name=RUN,
+    resume="allow",  # NEW: allows wandb to resume the same run
+    id=RUN,          # NEW: use a stable id so wandb graphs stay continuous
 )
 run.watch(model)
 
-for epoch in range(1, EPOCHS + 1):
+for epoch in range(start_epoch, EPOCHS + 1):
     train_loss, train_acc = run_epoch(model, train_loader, criterion, optimizer)
     val_loss, val_acc = run_epoch(model, val_loader, criterion)
 
@@ -290,6 +325,9 @@ for epoch in range(1, EPOCHS + 1):
     else:
         epochs_without_improvement += 1
 
+    # NEW: save resume checkpoint every epoch
+    save_resume_checkpoint(epoch, model, optimizer, scheduler, best_val_acc, epochs_without_improvement)
+
     wandb.log(
         {
             "epoch": epoch,
@@ -306,10 +344,6 @@ for epoch in range(1, EPOCHS + 1):
         f"train_loss={train_loss:.4f} train_acc={train_acc:.4f} | "
         f"val_loss={val_loss:.4f} val_acc={val_acc:.4f}"
     )
-
-    if epoch >= MIN_EPOCHS and epochs_without_improvement >= PATIENCE_AFTER_MIN_EPOCHS:
-        print(f"Early stopping at epoch {epoch}")
-        break
 
 # ── TEST EVALUATION ───────────────────────────────────────
 

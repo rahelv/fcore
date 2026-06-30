@@ -10,12 +10,12 @@ import wandb
 import os
 from pathlib import Path
 
-RUN = "0512_model_resilient_sweep_32"
+RUN = "domain_transfer_ddg_test_pretrained"
 
-DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split")
+DATA_DIR = Path("/home/ubuntu/data/robust_dataset_domain_transfer")
 TRAIN_DIR = DATA_DIR / "train"
-VAL_DIR = DATA_DIR / "val"
-TEST_DIR = DATA_DIR / "test"
+VAL_DIR   = DATA_DIR / "val"
+TEST_DIR  = DATA_DIR / "test"
 
 IMAGE_SIZE = 224
 BATCH_SIZE = 64
@@ -26,7 +26,7 @@ LR = 0.00045327
 WEIGHT_DECAY = 0.00001
 NUM_WORKERS = min(4, os.cpu_count() or 1)
 
-SAVE_PATH = "/home/ubuntu/data/models/resilient_sweep_32.pt"
+SAVE_PATH  = "/home/ubuntu/data/models/domain_transfer_ddg_pretrained.pt"
 LABELS_PATH = DATA_DIR / "labels.json"
 
 SEED = 42
@@ -51,30 +51,27 @@ config = {
     "aug_perspective": False,
     "aug_rotation": False,
     "color_jitter_strength": "strong",
-    "model": "resnet18",
+    "classification_model": "resnet18",
+    "experiment": "domain_transfer_ddg_images",
 }
 
 # ── TRANSFORMS ────────────────────────────────────────────
 
-train_transforms = transforms.Compose(
-    [
-        transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.5, 1.0)),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomGrayscale(p=0.08),
-        transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.05),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ]
-)
+train_transforms = transforms.Compose([
+    transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.5, 1.0)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomGrayscale(p=0.08),
+    transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.05),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
 
-eval_transforms = transforms.Compose(
-    [
-        transforms.Resize(IMAGE_SIZE),
-        transforms.CenterCrop(IMAGE_SIZE),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ]
-)
+eval_transforms = transforms.Compose([
+    transforms.Resize(IMAGE_SIZE),
+    transforms.CenterCrop(IMAGE_SIZE),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
 
 torch.manual_seed(SEED)
 if torch.cuda.is_available():
@@ -91,15 +88,16 @@ test_dataset  = datasets.ImageFolder(TEST_DIR,  transform=eval_transforms)
 
 assert (
     train_dataset.class_to_idx == val_dataset.class_to_idx == test_dataset.class_to_idx
-), "Class mappings differ between train/val/test folders."
+), "Class mappings differ between train/val/test — folder names must match exactly."
 
 class_to_idx = train_dataset.class_to_idx
 idx_to_class = {v: k for k, v in class_to_idx.items()}
 num_classes  = len(class_to_idx)
 
-print(f"Number of classes: {num_classes}")
-for cls_name, idx in class_to_idx.items():
-    print(f"  {idx}: {cls_name}")
+print(f"Number of classes : {num_classes}")
+print(f"Train images      : {len(train_dataset)}")
+print(f"Val images        : {len(val_dataset)}")
+print(f"Test images       : {len(test_dataset)}")
 
 with open(LABELS_PATH, "w", encoding="utf-8") as f:
     json.dump(class_to_idx, f, indent=2, ensure_ascii=False)
@@ -121,8 +119,7 @@ test_loader = DataLoader(
 
 # ── MODEL ─────────────────────────────────────────────────
 
-model = resnet18(weights=None)
-# dropout_p=0 for this run, so just a plain linear head
+model = resnet18(weights=None) # TODO: here weights are adjusted for pretrained
 model.fc = nn.Linear(model.fc.in_features, num_classes)
 model = model.to(device)
 
@@ -130,15 +127,13 @@ model = model.to(device)
 
 criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
 optimizer = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
-scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-    optimizer, patience=5, factor=0.5
-)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, factor=0.5)
 
 dataset_info = {
     "num_classes": num_classes,
-    "train_size": len(train_dataset),
-    "val_size": len(val_dataset),
-    "test_size": len(test_dataset),
+    "train_size":  len(train_dataset),
+    "val_size":    len(val_dataset),
+    "test_size":   len(test_dataset),
 }
 
 # ── HELPER FUNCTIONS ──────────────────────────────────────
@@ -162,15 +157,13 @@ def run_epoch(model, loader, criterion, optimizer=None):
                 loss.backward()
                 optimizer.step()
 
-            preds            = outputs.argmax(dim=1)
-            batch_size       = labels.size(0)
+            preds = outputs.argmax(dim=1)
+            batch_size = labels.size(0)
             running_loss    += loss.item() * batch_size
             running_correct += (preds == labels).sum().item()
             total           += batch_size
 
-    epoch_loss = running_loss    / total if total > 0 else 0.0
-    epoch_acc  = running_correct / total if total > 0 else 0.0
-    return epoch_loss, epoch_acc
+    return running_loss / total, running_correct / total
 
 
 def evaluate_per_class(model, loader, num_classes):
@@ -183,7 +176,6 @@ def evaluate_per_class(model, loader, num_classes):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
             preds  = model(images).argmax(dim=1)
-
             for label, pred in zip(labels, preds):
                 i = label.item()
                 total_per_class[i]   += 1
@@ -193,19 +185,18 @@ def evaluate_per_class(model, loader, num_classes):
         idx_to_class[i]: {
             "correct":  correct_per_class[i],
             "total":    total_per_class[i],
-            "accuracy": correct_per_class[i] / total_per_class[i]
-                        if total_per_class[i] > 0 else 0.0,
+            "accuracy": correct_per_class[i] / total_per_class[i] if total_per_class[i] > 0 else 0.0,
         }
         for i in range(num_classes)
     }
 
 # ── TRAINING LOOP ─────────────────────────────────────────
 
-best_val_acc          = float("-inf")
+best_val_acc = float("-inf")
 epochs_without_improvement = 0
 
 run = wandb.init(
-    project="costume_recognition_model",
+    project="cosplay_domain_transfer_test",
     config={**config, **dataset_info},
     name=RUN,
 )
@@ -213,22 +204,19 @@ run.watch(model)
 
 for epoch in range(1, EPOCHS + 1):
     train_loss, train_acc = run_epoch(model, train_loader, criterion, optimizer)
-    val_loss, val_acc     = run_epoch(model, val_loader,   criterion)
+    val_loss,   val_acc   = run_epoch(model, val_loader,   criterion)
 
-    scheduler.step(val_loss)  # ReduceLROnPlateau needs the metric
+    scheduler.step(val_loss)
 
     if val_acc > best_val_acc:
-        best_val_acc               = val_acc
+        best_val_acc = val_acc
         epochs_without_improvement = 0
-        torch.save(
-            {
-                "model_state_dict": model.state_dict(),
-                "class_to_idx":     class_to_idx,
-                "num_classes":      num_classes,
-                "image_size":       IMAGE_SIZE,
-            },
-            SAVE_PATH,
-        )
+        torch.save({
+            "model_state_dict": model.state_dict(),
+            "class_to_idx":     class_to_idx,
+            "num_classes":      num_classes,
+            "image_size":       IMAGE_SIZE,
+        }, SAVE_PATH)
     else:
         epochs_without_improvement += 1
 
@@ -242,7 +230,7 @@ for epoch in range(1, EPOCHS + 1):
     })
 
     print(
-        f"Epoch {epoch:02d}/{EPOCHS} | "
+        f"Epoch {epoch:03d}/{EPOCHS} | "
         f"train_loss={train_loss:.4f} train_acc={train_acc:.4f} | "
         f"val_loss={val_loss:.4f} val_acc={val_acc:.4f}"
     )
@@ -255,14 +243,14 @@ for epoch in range(1, EPOCHS + 1):
 
 # ── TEST EVALUATION ───────────────────────────────────────
 
-checkpoint  = torch.load(SAVE_PATH, map_location=device)
-best_model  = resnet18(weights=None)
+checkpoint = torch.load(SAVE_PATH, map_location=device)
+best_model = resnet18(weights=None) # TODO: "IMAGENET1K_V1" for pretrained weights
 best_model.fc = nn.Linear(best_model.fc.in_features, checkpoint["num_classes"])
 best_model.load_state_dict(checkpoint["model_state_dict"])
-best_model  = best_model.to(device)
+best_model = best_model.to(device)
 
-test_loss, test_acc   = run_epoch(best_model, test_loader, criterion)
-test_per_class_acc    = evaluate_per_class(best_model, test_loader, num_classes)
+test_loss, test_acc         = run_epoch(best_model, test_loader, criterion)
+test_per_class_acc          = evaluate_per_class(best_model, test_loader, num_classes)
 
 wandb.log({
     "test/loss":     test_loss,
@@ -273,11 +261,11 @@ wandb.log({
     },
 })
 
-print(f"Test loss: {test_loss:.4f}")
-print(f"Test accuracy: {test_acc:.4f}")
+print(f"\nTest loss     : {test_loss:.4f}")
+print(f"Test accuracy : {test_acc:.4f}")
 print("\nPer-class test accuracy:")
 for cls_name, stats in test_per_class_acc.items():
-    print(f"  {cls_name}: {stats['correct']}/{stats['total']}  accuracy={stats['accuracy']:.4f}")
+    print(f"  {cls_name}: {stats['correct']}/{stats['total']}  acc={stats['accuracy']:.4f}")
 
 wandb.save(SAVE_PATH)
 wandb.finish()

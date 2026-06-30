@@ -1,5 +1,3 @@
-# basically the same as train_resilient_sweep_32 but with a smaller dataset (same 5 characters) for direct comparison
-
 import json
 
 import torch
@@ -12,9 +10,9 @@ import wandb
 import os
 from pathlib import Path
 
-RUN = "domain_transfer_ddg_comparison_pretrained"
+RUN = "32_tryout_2_mixup_pretrained_no_mixup"
 
-DATA_DIR = Path("/home/ubuntu/data/robust_dataset_comparison")
+DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split_2")
 TRAIN_DIR = DATA_DIR / "train"
 VAL_DIR = DATA_DIR / "val"
 TEST_DIR = DATA_DIR / "test"
@@ -25,10 +23,12 @@ EPOCHS = 200
 MIN_EPOCHS = 80
 PATIENCE_AFTER_MIN_EPOCHS = 10
 LR = 0.00045327
-WEIGHT_DECAY = 0.00001
+DROPOUT_P = 0.2
+WEIGHT_DECAY = 0.01
 NUM_WORKERS = min(4, os.cpu_count() or 1)
 
-SAVE_PATH = "/home/ubuntu/data/models/domain_transfer_ddg_comparison_pretrained.pt"
+SAVE_PATH = f"/home/ubuntu/data/models/{RUN}_pretrained.pt"
+RESUME_CHECKPOINT_PATH = f"/home/ubuntu/data/models/{RUN}_pretrained_resume.pt"  # NEW: separate resume checkpoint
 LABELS_PATH = DATA_DIR / "labels.json"
 
 SEED = 42
@@ -44,17 +44,16 @@ config = {
     "weight_decay": WEIGHT_DECAY,
     "optimizer": "adamw",
     "scheduler": "plateau",
-    "dropout_p": 0.0,
+    "dropout_p": DROPOUT_P,
     "label_smoothing": 0.1,
-    "aug_blur": False,
-    "aug_erasing": False,
+    "aug_blur": True,
+    "aug_erasing": True,
     "aug_grayscale": True,
     "aug_hflip": True,
-    "aug_perspective": False,
-    "aug_rotation": False,
+    "aug_perspective": True,
+    "aug_rotation": True,
     "color_jitter_strength": "strong",
-    "model": "resnet18",
-    "experiment": "domain_transfer_ddg_images",
+    "classification_model": "resnet18",
 }
 
 # ── TRANSFORMS ────────────────────────────────────────────
@@ -63,10 +62,16 @@ train_transforms = transforms.Compose(
     [
         transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.5, 1.0)),
         transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(degrees=15),
         transforms.RandomGrayscale(p=0.08),
         transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.05),
+        transforms.RandomPerspective(distortion_scale=0.3, p=0.3),
+        transforms.RandomApply(
+            [transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0))], p=0.2
+        ),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.RandomErasing(p=0.25, scale=(0.02, 0.2)),
     ]
 )
 
@@ -83,7 +88,7 @@ torch.manual_seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
 # ── DATASETS ──────────────────────────────────────────────
@@ -94,16 +99,15 @@ test_dataset = datasets.ImageFolder(TEST_DIR, transform=eval_transforms)
 
 assert (
     train_dataset.class_to_idx == val_dataset.class_to_idx == test_dataset.class_to_idx
-), "Class mappings differ between train/val/test — folder names must match exactly."
+), "Class mappings differ between train/val/test folders."
 
 class_to_idx = train_dataset.class_to_idx
 idx_to_class = {v: k for k, v in class_to_idx.items()}
 num_classes = len(class_to_idx)
 
-print(f"Number of classes : {num_classes}")
-print(f"Train images      : {len(train_dataset)}")
-print(f"Val images        : {len(val_dataset)}")
-print(f"Test images       : {len(test_dataset)}")
+print(f"Number of classes: {num_classes}")
+for cls_name, idx in class_to_idx.items():
+    print(f"  {idx}: {cls_name}")
 
 with open(LABELS_PATH, "w", encoding="utf-8") as f:
     json.dump(class_to_idx, f, indent=2, ensure_ascii=False)
@@ -134,10 +138,10 @@ test_loader = DataLoader(
 
 # ── MODEL ─────────────────────────────────────────────────
 
-model = resnet18(
-    weights="IMAGENET1K_V1"
-)  # TODO: here weights are adjusted for pretrained
-model.fc = nn.Linear(model.fc.in_features, num_classes)
+model = resnet18(weights="IMAGENET1K_V1")
+model.fc = nn.Sequential(
+    nn.Dropout(p=DROPOUT_P), nn.Linear(model.fc.in_features, num_classes)
+)
 model = model.to(device)
 
 # ── LOSS / OPTIMIZER / SCHEDULER ──────────────────────────
@@ -169,21 +173,28 @@ def run_epoch(model, loader, criterion, optimizer=None):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
 
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            if is_train:
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+                preds = outputs.argmax(dim=1)
+                running_correct += (preds == labels).sum().item()
+            else:
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+                preds = outputs.argmax(dim=1)
+                running_correct += (preds == labels).sum().item()
 
             if is_train:
                 optimizer.zero_grad(set_to_none=True)
                 loss.backward()
                 optimizer.step()
 
-            preds = outputs.argmax(dim=1)
-            batch_size = labels.size(0)
-            running_loss += loss.item() * batch_size
-            running_correct += (preds == labels).sum().item()
-            total += batch_size
+            running_loss += loss.item() * labels.size(0)
+            total += labels.size(0)
 
-    return running_loss / total, running_correct / total
+    epoch_loss = running_loss / total if total > 0 else 0.0
+    epoch_acc = running_correct / total if total > 0 else 0.0
+    return epoch_loss, epoch_acc
 
 
 def evaluate_per_class(model, loader, num_classes):
@@ -196,6 +207,7 @@ def evaluate_per_class(model, loader, num_classes):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
             preds = model(images).argmax(dim=1)
+
             for label, pred in zip(labels, preds):
                 i = label.item()
                 total_per_class[i] += 1
@@ -213,19 +225,58 @@ def evaluate_per_class(model, loader, num_classes):
     }
 
 
-# ── TRAINING LOOP ─────────────────────────────────────────
+# ── NEW: SAVE RESUME CHECKPOINT ───────────────────────────
 
+def save_resume_checkpoint(epoch, model, optimizer, scheduler, best_val_acc, epochs_without_improvement):
+    torch.save(
+        {
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "scheduler_state_dict": scheduler.state_dict(),
+            "best_val_acc": best_val_acc,
+            "epochs_without_improvement": epochs_without_improvement,
+            "class_to_idx": class_to_idx,
+            "num_classes": num_classes,
+            "image_size": IMAGE_SIZE,
+        },
+        RESUME_CHECKPOINT_PATH,
+    )
+
+
+# ── NEW: LOAD RESUME CHECKPOINT ───────────────────────────
+
+start_epoch = 1
 best_val_acc = float("-inf")
 epochs_without_improvement = 0
 
+if Path(RESUME_CHECKPOINT_PATH).exists():
+    print(f"Resuming from checkpoint: {RESUME_CHECKPOINT_PATH}")
+    resume_ckpt = torch.load(RESUME_CHECKPOINT_PATH, map_location=device)
+    model.load_state_dict(resume_ckpt["model_state_dict"])
+    optimizer.load_state_dict(resume_ckpt["optimizer_state_dict"])
+    scheduler.load_state_dict(resume_ckpt["scheduler_state_dict"])
+    best_val_acc = resume_ckpt["best_val_acc"]
+    epochs_without_improvement = resume_ckpt["epochs_without_improvement"]
+    start_epoch = resume_ckpt["epoch"] + 1  # resume AFTER the last completed epoch
+    print(f"  → Resuming from epoch {start_epoch}, best_val_acc={best_val_acc:.4f}, "
+          f"epochs_without_improvement={epochs_without_improvement}")
+else:
+    print("No resume checkpoint found — starting from scratch.")
+
+
+# ── TRAINING LOOP ─────────────────────────────────────────
+
 run = wandb.init(
-    project="cosplay_domain_transfer_test",
+    project="costume_recognition_model",
     config={**config, **dataset_info},
     name=RUN,
+    resume="allow",  # NEW: allows wandb to resume the same run
+    id=RUN,          # NEW: use a stable id so wandb graphs stay continuous
 )
 run.watch(model)
 
-for epoch in range(1, EPOCHS + 1):
+for epoch in range(start_epoch, EPOCHS + 1):
     train_loss, train_acc = run_epoch(model, train_loader, criterion, optimizer)
     val_loss, val_acc = run_epoch(model, val_loader, criterion)
 
@@ -246,6 +297,9 @@ for epoch in range(1, EPOCHS + 1):
     else:
         epochs_without_improvement += 1
 
+    # NEW: save resume checkpoint every epoch
+    save_resume_checkpoint(epoch, model, optimizer, scheduler, best_val_acc, epochs_without_improvement)
+
     wandb.log(
         {
             "epoch": epoch,
@@ -258,24 +312,19 @@ for epoch in range(1, EPOCHS + 1):
     )
 
     print(
-        f"Epoch {epoch:03d}/{EPOCHS} | "
+        f"Epoch {epoch:02d}/{EPOCHS} | "
         f"train_loss={train_loss:.4f} train_acc={train_acc:.4f} | "
         f"val_loss={val_loss:.4f} val_acc={val_acc:.4f}"
     )
 
-    if epoch >= MIN_EPOCHS:
-        if train_acc >= 1.0:
-            break
-        if epochs_without_improvement >= PATIENCE_AFTER_MIN_EPOCHS:
-            break
-
 # ── TEST EVALUATION ───────────────────────────────────────
 
 checkpoint = torch.load(SAVE_PATH, map_location=device)
-best_model = resnet18(
-    weights="IMAGENET1K_V1"
-)  # TODO: "IMAGENET1K_V1" for pretrained weights
-best_model.fc = nn.Linear(best_model.fc.in_features, checkpoint["num_classes"])
+best_model = resnet18(weights="IMAGENET1K_V1")
+best_model.fc = nn.Sequential(
+    nn.Dropout(p=DROPOUT_P),
+    nn.Linear(best_model.fc.in_features, checkpoint["num_classes"]),
+)
 best_model.load_state_dict(checkpoint["model_state_dict"])
 best_model = best_model.to(device)
 
@@ -293,12 +342,12 @@ wandb.log(
     }
 )
 
-print(f"\nTest loss     : {test_loss:.4f}")
-print(f"Test accuracy : {test_acc:.4f}")
+print(f"Test loss: {test_loss:.4f}")
+print(f"Test accuracy: {test_acc:.4f}")
 print("\nPer-class test accuracy:")
 for cls_name, stats in test_per_class_acc.items():
     print(
-        f"  {cls_name}: {stats['correct']}/{stats['total']}  acc={stats['accuracy']:.4f}"
+        f"  {cls_name}: {stats['correct']}/{stats['total']}  accuracy={stats['accuracy']:.4f}"
     )
 
 wandb.save(SAVE_PATH)

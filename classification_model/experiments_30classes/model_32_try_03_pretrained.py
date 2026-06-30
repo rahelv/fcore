@@ -5,14 +5,16 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from torchvision.models import resnet18
+import numpy as np
 import wandb
 
 import os
 from pathlib import Path
 
-RUN = "0512_32_with_pretrained"
+RUN = "32_tryout_2_mixup_pretrained"
+MIXUP_ALPHA = 0.4
 
-DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split")
+DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split_2")
 TRAIN_DIR = DATA_DIR / "train"
 VAL_DIR = DATA_DIR / "val"
 TEST_DIR = DATA_DIR / "test"
@@ -23,10 +25,12 @@ EPOCHS = 200
 MIN_EPOCHS = 80
 PATIENCE_AFTER_MIN_EPOCHS = 10
 LR = 0.00045327
-WEIGHT_DECAY = 0.00001
+DROPOUT_P = 0.2
+WEIGHT_DECAY = 0.01
 NUM_WORKERS = min(4, os.cpu_count() or 1)
 
-SAVE_PATH = "/home/ubuntu/data/models/resilient_sweep_32_pretrained.pt"
+SAVE_PATH = f"/home/ubuntu/data/models/{RUN}_pretrained.pt"
+RESUME_CHECKPOINT_PATH = f"/home/ubuntu/data/models/{RUN}_pretrained_resume.pt"  # NEW: separate resume checkpoint
 LABELS_PATH = DATA_DIR / "labels.json"
 
 SEED = 42
@@ -42,16 +46,18 @@ config = {
     "weight_decay": WEIGHT_DECAY,
     "optimizer": "adamw",
     "scheduler": "plateau",
-    "dropout_p": 0.0,
+    "dropout_p": DROPOUT_P,
     "label_smoothing": 0.1,
-    "aug_blur": False,
-    "aug_erasing": False,
+    "aug_blur": True,
+    "aug_erasing": True,
     "aug_grayscale": True,
     "aug_hflip": True,
-    "aug_perspective": False,
-    "aug_rotation": False,
+    "aug_perspective": True,
+    "aug_rotation": True,
     "color_jitter_strength": "strong",
-    "model": "resnet18",
+    "classification_model": "resnet18",
+    "mixup": True,
+    "mixup_alpha": MIXUP_ALPHA,
 }
 
 # ── TRANSFORMS ────────────────────────────────────────────
@@ -60,10 +66,16 @@ train_transforms = transforms.Compose(
     [
         transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.5, 1.0)),
         transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(degrees=15),
         transforms.RandomGrayscale(p=0.08),
         transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.05),
+        transforms.RandomPerspective(distortion_scale=0.3, p=0.3),
+        transforms.RandomApply(
+            [transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0))], p=0.2
+        ),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.RandomErasing(p=0.25, scale=(0.02, 0.2)),
     ]
 )
 
@@ -80,7 +92,7 @@ torch.manual_seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
 # ── DATASETS ──────────────────────────────────────────────
@@ -131,8 +143,9 @@ test_loader = DataLoader(
 # ── MODEL ─────────────────────────────────────────────────
 
 model = resnet18(weights="IMAGENET1K_V1")
-# dropout_p=0 for this run, so just a plain linear head
-model.fc = nn.Linear(model.fc.in_features, num_classes)
+model.fc = nn.Sequential(
+    nn.Dropout(p=DROPOUT_P), nn.Linear(model.fc.in_features, num_classes)
+)
 model = model.to(device)
 
 # ── LOSS / OPTIMIZER / SCHEDULER ──────────────────────────
@@ -150,6 +163,27 @@ dataset_info = {
     "test_size": len(test_dataset),
 }
 
+# ── MIXUP ─────────────────────────────────────────────────
+
+
+def mixup_batch(images, labels, num_classes, alpha):
+    lam = np.random.beta(alpha, alpha)
+    batch_size = images.size(0)
+    idx = torch.randperm(batch_size, device=images.device)
+
+    mixed_images = lam * images + (1 - lam) * images[idx]
+
+    labels_a = torch.zeros(batch_size, num_classes, device=images.device).scatter_(
+        1, labels.unsqueeze(1), 1
+    )
+    labels_b = torch.zeros(batch_size, num_classes, device=images.device).scatter_(
+        1, labels[idx].unsqueeze(1), 1
+    )
+    soft_labels = lam * labels_a + (1 - lam) * labels_b
+
+    return mixed_images, soft_labels
+
+
 # ── HELPER FUNCTIONS ──────────────────────────────────────
 
 
@@ -164,19 +198,27 @@ def run_epoch(model, loader, criterion, optimizer=None):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
 
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            if is_train:
+                images, soft_labels = mixup_batch(
+                    images, labels, num_classes, MIXUP_ALPHA
+                )
+                outputs = model(images)
+                loss = criterion(outputs, soft_labels)
+                preds = outputs.argmax(dim=1)
+                running_correct += (preds == soft_labels.argmax(dim=1)).sum().item()
+            else:
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+                preds = outputs.argmax(dim=1)
+                running_correct += (preds == labels).sum().item()
 
             if is_train:
                 optimizer.zero_grad(set_to_none=True)
                 loss.backward()
                 optimizer.step()
 
-            preds = outputs.argmax(dim=1)
-            batch_size = labels.size(0)
-            running_loss += loss.item() * batch_size
-            running_correct += (preds == labels).sum().item()
-            total += batch_size
+            running_loss += loss.item() * labels.size(0)
+            total += labels.size(0)
 
     epoch_loss = running_loss / total if total > 0 else 0.0
     epoch_acc = running_correct / total if total > 0 else 0.0
@@ -211,23 +253,62 @@ def evaluate_per_class(model, loader, num_classes):
     }
 
 
-# ── TRAINING LOOP ─────────────────────────────────────────
+# ── NEW: SAVE RESUME CHECKPOINT ───────────────────────────
 
+def save_resume_checkpoint(epoch, model, optimizer, scheduler, best_val_acc, epochs_without_improvement):
+    torch.save(
+        {
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "scheduler_state_dict": scheduler.state_dict(),
+            "best_val_acc": best_val_acc,
+            "epochs_without_improvement": epochs_without_improvement,
+            "class_to_idx": class_to_idx,
+            "num_classes": num_classes,
+            "image_size": IMAGE_SIZE,
+        },
+        RESUME_CHECKPOINT_PATH,
+    )
+
+
+# ── NEW: LOAD RESUME CHECKPOINT ───────────────────────────
+
+start_epoch = 1
 best_val_acc = float("-inf")
 epochs_without_improvement = 0
+
+if Path(RESUME_CHECKPOINT_PATH).exists():
+    print(f"Resuming from checkpoint: {RESUME_CHECKPOINT_PATH}")
+    resume_ckpt = torch.load(RESUME_CHECKPOINT_PATH, map_location=device)
+    model.load_state_dict(resume_ckpt["model_state_dict"])
+    optimizer.load_state_dict(resume_ckpt["optimizer_state_dict"])
+    scheduler.load_state_dict(resume_ckpt["scheduler_state_dict"])
+    best_val_acc = resume_ckpt["best_val_acc"]
+    epochs_without_improvement = resume_ckpt["epochs_without_improvement"]
+    start_epoch = resume_ckpt["epoch"] + 1  # resume AFTER the last completed epoch
+    print(f"  → Resuming from epoch {start_epoch}, best_val_acc={best_val_acc:.4f}, "
+          f"epochs_without_improvement={epochs_without_improvement}")
+else:
+    print("No resume checkpoint found — starting from scratch.")
+
+
+# ── TRAINING LOOP ─────────────────────────────────────────
 
 run = wandb.init(
     project="costume_recognition_model",
     config={**config, **dataset_info},
     name=RUN,
+    resume="allow",  # NEW: allows wandb to resume the same run
+    id=RUN,          # NEW: use a stable id so wandb graphs stay continuous
 )
 run.watch(model)
 
-for epoch in range(1, EPOCHS + 1):
+for epoch in range(start_epoch, EPOCHS + 1):
     train_loss, train_acc = run_epoch(model, train_loader, criterion, optimizer)
     val_loss, val_acc = run_epoch(model, val_loader, criterion)
 
-    scheduler.step(val_loss)  # ReduceLROnPlateau needs the metric
+    scheduler.step(val_loss)
 
     if val_acc > best_val_acc:
         best_val_acc = val_acc
@@ -243,6 +324,9 @@ for epoch in range(1, EPOCHS + 1):
         )
     else:
         epochs_without_improvement += 1
+
+    # NEW: save resume checkpoint every epoch
+    save_resume_checkpoint(epoch, model, optimizer, scheduler, best_val_acc, epochs_without_improvement)
 
     wandb.log(
         {
@@ -261,17 +345,14 @@ for epoch in range(1, EPOCHS + 1):
         f"val_loss={val_loss:.4f} val_acc={val_acc:.4f}"
     )
 
-    if epoch >= MIN_EPOCHS:
-        if train_acc >= 1.0:
-            break
-        if epochs_without_improvement >= PATIENCE_AFTER_MIN_EPOCHS:
-            break
-
 # ── TEST EVALUATION ───────────────────────────────────────
 
 checkpoint = torch.load(SAVE_PATH, map_location=device)
 best_model = resnet18(weights="IMAGENET1K_V1")
-best_model.fc = nn.Linear(best_model.fc.in_features, checkpoint["num_classes"])
+best_model.fc = nn.Sequential(
+    nn.Dropout(p=DROPOUT_P),
+    nn.Linear(best_model.fc.in_features, checkpoint["num_classes"]),
+)
 best_model.load_state_dict(checkpoint["model_state_dict"])
 best_model = best_model.to(device)
 

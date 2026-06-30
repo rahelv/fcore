@@ -51,7 +51,7 @@ config = {
     "aug_perspective": True,
     "aug_rotation": True,
     "color_jitter_strength": "strong",
-    "model": "resnet18",
+    "classification_model": "resnet18",
 }
 
 # ── TRANSFORMS ────────────────────────────────────────────

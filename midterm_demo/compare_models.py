@@ -230,7 +230,7 @@ def parse_args():
     p.add_argument("--n",       type=int,  default=5,
                    help="Number of random images to sample (default: 5)")
     p.add_argument("--topk",    type=int,  default=3,
-                   help="Top-k predictions per model (default: 3)")
+                   help="Top-k predictions per classification_model (default: 3)")
     p.add_argument("--save",    type=Path, default=None,
                    help="Save the figure to this path instead of showing it")
     p.add_argument("--seed",    type=int,  default=None,
