@@ -54,7 +54,7 @@ DB_CONFIG = {
 # MODEL
 # ──────────────────────────────────────────────────────────────────────────────
 def load_clip(device: torch.device):
-    print("Loading CLIP model …")
+    print("Loading CLIP classification_model …")
     model, preprocess = create_model_from_pretrained(HF_MODEL_ID)
     model = model.to(device).eval()
     tokenizer = get_tokenizer(HF_MODEL_ID)
@@ -266,7 +266,7 @@ def evaluate(args):
 
     # ── SAVE JSON ────────────────────────────────────────────────────────────
     output = {
-        "model": HF_MODEL_ID,
+        "classification_model": HF_MODEL_ID,
         "top_k_values": ks,
         "total_images_in_db": len(filepaths),
         "total_labels": len(label_names),

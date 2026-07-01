@@ -1,0 +1,1530 @@
+{
+  "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
+  "top_k_values": [
+    5,
+    10,
+    20
+  ],
+  "total_images_in_db": 5357,
+  "total_labels": 32,
+  "mAP": 81.25,
+  "per_class": {
+    "Batman from DC Comics": {
+      "total_in_db": 236,
+      "ap": 0.9977,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 236,
+          "fraction": "5/236",
+          "percent": 2.1
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 236,
+          "fraction": "10/236",
+          "percent": 4.2
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 236,
+          "fraction": "20/236",
+          "percent": 8.5
+        }
+      },
+      "top_false_positives": []
+    },
+    "Aayla Secura from Star Wars": {
+      "total_in_db": 109,
+      "ap": 0.9966,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 109,
+          "fraction": "5/109",
+          "percent": 4.6
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 109,
+          "fraction": "10/109",
+          "percent": 9.2
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 109,
+          "fraction": "20/109",
+          "percent": 18.3
+        }
+      },
+      "top_false_positives": []
+    },
+    "Deadpool from Marvel": {
+      "total_in_db": 243,
+      "ap": 0.9945,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 243,
+          "fraction": "5/243",
+          "percent": 2.1
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 243,
+          "fraction": "10/243",
+          "percent": 4.1
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 243,
+          "fraction": "20/243",
+          "percent": 8.2
+        }
+      },
+      "top_false_positives": []
+    },
+    "Sailor Moon from Sailor Moon ": {
+      "total_in_db": 181,
+      "ap": 0.9942,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 181,
+          "fraction": "5/181",
+          "percent": 2.8
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 181,
+          "fraction": "10/181",
+          "percent": 5.5
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 181,
+          "fraction": "20/181",
+          "percent": 11.0
+        }
+      },
+      "top_false_positives": []
+    },
+    "Thor from Marvel ": {
+      "total_in_db": 131,
+      "ap": 0.9918,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 131,
+          "fraction": "5/131",
+          "percent": 3.8
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 131,
+          "fraction": "10/131",
+          "percent": 7.6
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 131,
+          "fraction": "20/131",
+          "percent": 15.3
+        }
+      },
+      "top_false_positives": []
+    },
+    "Spider Man from Marvel": {
+      "total_in_db": 131,
+      "ap": 0.9878,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 131,
+          "fraction": "5/131",
+          "percent": 3.8
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 131,
+          "fraction": "10/131",
+          "percent": 7.6
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 131,
+          "fraction": "20/131",
+          "percent": 15.3
+        }
+      },
+      "top_false_positives": []
+    },
+    "Captain America from Marvel": {
+      "total_in_db": 254,
+      "ap": 0.985,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 254,
+          "fraction": "5/254",
+          "percent": 2.0
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 254,
+          "fraction": "10/254",
+          "percent": 3.9
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 254,
+          "fraction": "20/254",
+          "percent": 7.9
+        }
+      },
+      "top_false_positives": []
+    },
+    "Superman from DC Comics": {
+      "total_in_db": 103,
+      "ap": 0.9832,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 103,
+          "fraction": "5/103",
+          "percent": 4.9
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 103,
+          "fraction": "10/103",
+          "percent": 9.7
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 103,
+          "fraction": "20/103",
+          "percent": 19.4
+        }
+      },
+      "top_false_positives": []
+    },
+    "Harley Quinn from DC Comics": {
+      "total_in_db": 192,
+      "ap": 0.9825,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 192,
+          "fraction": "5/192",
+          "percent": 2.6
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 192,
+          "fraction": "10/192",
+          "percent": 5.2
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 192,
+          "fraction": "20/192",
+          "percent": 10.4
+        }
+      },
+      "top_false_positives": []
+    },
+    "Raiden Shogun from Genshin Impact": {
+      "total_in_db": 193,
+      "ap": 0.9751,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 193,
+          "fraction": "5/193",
+          "percent": 2.6
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 193,
+          "fraction": "10/193",
+          "percent": 5.2
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 193,
+          "fraction": "20/193",
+          "percent": 10.4
+        }
+      },
+      "top_false_positives": []
+    },
+    "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion": {
+      "total_in_db": 196,
+      "ap": 0.9726,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 196,
+          "fraction": "5/196",
+          "percent": 2.6
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 196,
+          "fraction": "10/196",
+          "percent": 5.1
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 196,
+          "fraction": "20/196",
+          "percent": 10.2
+        }
+      },
+      "top_false_positives": []
+    },
+    "Daenerys Targaryen from Game of Thrones": {
+      "total_in_db": 182,
+      "ap": 0.9646,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 182,
+          "fraction": "5/182",
+          "percent": 2.7
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 182,
+          "fraction": "10/182",
+          "percent": 5.5
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 182,
+          "fraction": "20/182",
+          "percent": 11.0
+        }
+      },
+      "top_false_positives": []
+    },
+    "Artoria Pendragon from Fate_Stay Night": {
+      "total_in_db": 102,
+      "ap": 0.9636,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 102,
+          "fraction": "5/102",
+          "percent": 4.9
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 102,
+          "fraction": "10/102",
+          "percent": 9.8
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 102,
+          "fraction": "20/102",
+          "percent": 19.6
+        }
+      },
+      "top_false_positives": []
+    },
+    "Jinx from League of Legends": {
+      "total_in_db": 268,
+      "ap": 0.9615,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 268,
+          "fraction": "5/268",
+          "percent": 1.9
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 268,
+          "fraction": "10/268",
+          "percent": 3.7
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 268,
+          "fraction": "20/268",
+          "percent": 7.5
+        }
+      },
+      "top_false_positives": []
+    },
+    "Inosuke Hashibira from Demon Slayer": {
+      "total_in_db": 101,
+      "ap": 0.9602,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 101,
+          "fraction": "5/101",
+          "percent": 5.0
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 101,
+          "fraction": "10/101",
+          "percent": 9.9
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 101,
+          "fraction": "20/101",
+          "percent": 19.8
+        }
+      },
+      "top_false_positives": []
+    },
+    "Hatsune Miku from Vocaloid": {
+      "total_in_db": 100,
+      "ap": 0.9591,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 100,
+          "fraction": "5/100",
+          "percent": 5.0
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 100,
+          "fraction": "10/100",
+          "percent": 10.0
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 100,
+          "fraction": "20/100",
+          "percent": 20.0
+        }
+      },
+      "top_false_positives": []
+    },
+    "Hu Tao from Genshin Impact": {
+      "total_in_db": 167,
+      "ap": 0.9376,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 167,
+          "fraction": "5/167",
+          "percent": 3.0
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 167,
+          "fraction": "10/167",
+          "percent": 6.0
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 167,
+          "fraction": "20/167",
+          "percent": 12.0
+        }
+      },
+      "top_false_positives": []
+    },
+    "Wolverine from Marvel": {
+      "total_in_db": 271,
+      "ap": 0.9349,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 271,
+          "fraction": "5/271",
+          "percent": 1.8
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 271,
+          "fraction": "10/271",
+          "percent": 3.7
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 271,
+          "fraction": "20/271",
+          "percent": 7.4
+        }
+      },
+      "top_false_positives": []
+    },
+    "D.Va from Overwatch": {
+      "total_in_db": 267,
+      "ap": 0.9242,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 267,
+          "fraction": "5/267",
+          "percent": 1.9
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 267,
+          "fraction": "10/267",
+          "percent": 3.7
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 267,
+          "fraction": "20/267",
+          "percent": 7.5
+        }
+      },
+      "top_false_positives": []
+    },
+    "Android 18 from Dragon Ball": {
+      "total_in_db": 120,
+      "ap": 0.9081,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 120,
+          "fraction": "5/120",
+          "percent": 4.2
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 120,
+          "fraction": "10/120",
+          "percent": 8.3
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 120,
+          "fraction": "20/120",
+          "percent": 16.7
+        }
+      },
+      "top_false_positives": []
+    },
+    "Anya Forger from Spy x Family": {
+      "total_in_db": 102,
+      "ap": 0.8739,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 102,
+          "fraction": "5/102",
+          "percent": 4.9
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 102,
+          "fraction": "10/102",
+          "percent": 9.8
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 102,
+          "fraction": "20/102",
+          "percent": 19.6
+        }
+      },
+      "top_false_positives": []
+    },
+    "2B from Nier Automata": {
+      "total_in_db": 194,
+      "ap": 0.8616,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 194,
+          "fraction": "5/194",
+          "percent": 2.6
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 194,
+          "fraction": "10/194",
+          "percent": 5.2
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 194,
+          "fraction": "20/194",
+          "percent": 10.3
+        }
+      },
+      "top_false_positives": []
+    },
+    "Ariel as Human from The Little Mermaid": {
+      "total_in_db": 111,
+      "ap": 0.8305,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 20,
+          "k": 20,
+          "fraction": "20/20",
+          "percent": 100.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 111,
+          "fraction": "5/111",
+          "percent": 4.5
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 111,
+          "fraction": "10/111",
+          "percent": 9.0
+        },
+        "20": {
+          "correct": 20,
+          "total_in_db": 111,
+          "fraction": "20/111",
+          "percent": 18.0
+        }
+      },
+      "top_false_positives": []
+    },
+    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
+      "total_in_db": 116,
+      "ap": 0.7067,
+      "precision_at_k": {
+        "5": {
+          "correct": 4,
+          "k": 5,
+          "fraction": "4/5",
+          "percent": 80.0
+        },
+        "10": {
+          "correct": 9,
+          "k": 10,
+          "fraction": "9/10",
+          "percent": 90.0
+        },
+        "20": {
+          "correct": 19,
+          "k": 20,
+          "fraction": "19/20",
+          "percent": 95.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 4,
+          "total_in_db": 116,
+          "fraction": "4/116",
+          "percent": 3.4
+        },
+        "10": {
+          "correct": 9,
+          "total_in_db": 116,
+          "fraction": "9/116",
+          "percent": 7.8
+        },
+        "20": {
+          "correct": 19,
+          "total_in_db": 116,
+          "fraction": "19/116",
+          "percent": 16.4
+        }
+      },
+      "top_false_positives": [
+        {
+          "label": "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion",
+          "count": 1
+        }
+      ]
+    },
+    "9S from Nier Automata": {
+      "total_in_db": 114,
+      "ap": 0.6555,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 10,
+          "k": 10,
+          "fraction": "10/10",
+          "percent": 100.0
+        },
+        "20": {
+          "correct": 19,
+          "k": 20,
+          "fraction": "19/20",
+          "percent": 95.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 114,
+          "fraction": "5/114",
+          "percent": 4.4
+        },
+        "10": {
+          "correct": 10,
+          "total_in_db": 114,
+          "fraction": "10/114",
+          "percent": 8.8
+        },
+        "20": {
+          "correct": 19,
+          "total_in_db": 114,
+          "fraction": "19/114",
+          "percent": 16.7
+        }
+      },
+      "top_false_positives": [
+        {
+          "label": "2B from Nier Automata",
+          "count": 1
+        }
+      ]
+    },
+    "Furina from Genshin Impact": {
+      "total_in_db": 238,
+      "ap": 0.6518,
+      "precision_at_k": {
+        "5": {
+          "correct": 3,
+          "k": 5,
+          "fraction": "3/5",
+          "percent": 60.0
+        },
+        "10": {
+          "correct": 8,
+          "k": 10,
+          "fraction": "8/10",
+          "percent": 80.0
+        },
+        "20": {
+          "correct": 17,
+          "k": 20,
+          "fraction": "17/20",
+          "percent": 85.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 3,
+          "total_in_db": 238,
+          "fraction": "3/238",
+          "percent": 1.3
+        },
+        "10": {
+          "correct": 8,
+          "total_in_db": 238,
+          "fraction": "8/238",
+          "percent": 3.4
+        },
+        "20": {
+          "correct": 17,
+          "total_in_db": 238,
+          "fraction": "17/238",
+          "percent": 7.1
+        }
+      },
+      "top_false_positives": [
+        {
+          "label": "Raiden Shogun from Genshin Impact",
+          "count": 3
+        }
+      ]
+    },
+    "Ariel as Mermaid from The Little Mermaid": {
+      "total_in_db": 66,
+      "ap": 0.5849,
+      "precision_at_k": {
+        "5": {
+          "correct": 4,
+          "k": 5,
+          "fraction": "4/5",
+          "percent": 80.0
+        },
+        "10": {
+          "correct": 7,
+          "k": 10,
+          "fraction": "7/10",
+          "percent": 70.0
+        },
+        "20": {
+          "correct": 13,
+          "k": 20,
+          "fraction": "13/20",
+          "percent": 65.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 4,
+          "total_in_db": 66,
+          "fraction": "4/66",
+          "percent": 6.1
+        },
+        "10": {
+          "correct": 7,
+          "total_in_db": 66,
+          "fraction": "7/66",
+          "percent": 10.6
+        },
+        "20": {
+          "correct": 13,
+          "total_in_db": 66,
+          "fraction": "13/66",
+          "percent": 19.7
+        }
+      },
+      "top_false_positives": [
+        {
+          "label": "Ariel as Human from The Little Mermaid",
+          "count": 7
+        }
+      ]
+    },
+    "Lucy MacLean from Fallout": {
+      "total_in_db": 54,
+      "ap": 0.5838,
+      "precision_at_k": {
+        "5": {
+          "correct": 5,
+          "k": 5,
+          "fraction": "5/5",
+          "percent": 100.0
+        },
+        "10": {
+          "correct": 9,
+          "k": 10,
+          "fraction": "9/10",
+          "percent": 90.0
+        },
+        "20": {
+          "correct": 15,
+          "k": 20,
+          "fraction": "15/20",
+          "percent": 75.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 5,
+          "total_in_db": 54,
+          "fraction": "5/54",
+          "percent": 9.3
+        },
+        "10": {
+          "correct": 9,
+          "total_in_db": 54,
+          "fraction": "9/54",
+          "percent": 16.7
+        },
+        "20": {
+          "correct": 15,
+          "total_in_db": 54,
+          "fraction": "15/54",
+          "percent": 27.8
+        }
+      },
+      "top_false_positives": [
+        {
+          "label": "Android 18 from Dragon Ball",
+          "count": 5
+        }
+      ]
+    },
+    "Yor Forger from Spy x Family ": {
+      "total_in_db": 251,
+      "ap": 0.3092,
+      "precision_at_k": {
+        "5": {
+          "correct": 2,
+          "k": 5,
+          "fraction": "2/5",
+          "percent": 40.0
+        },
+        "10": {
+          "correct": 4,
+          "k": 10,
+          "fraction": "4/10",
+          "percent": 40.0
+        },
+        "20": {
+          "correct": 9,
+          "k": 20,
+          "fraction": "9/20",
+          "percent": 45.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 2,
+          "total_in_db": 251,
+          "fraction": "2/251",
+          "percent": 0.8
+        },
+        "10": {
+          "correct": 4,
+          "total_in_db": 251,
+          "fraction": "4/251",
+          "percent": 1.6
+        },
+        "20": {
+          "correct": 9,
+          "total_in_db": 251,
+          "fraction": "9/251",
+          "percent": 3.6
+        }
+      },
+      "top_false_positives": [
+        {
+          "label": "Anya Forger from Spy x Family",
+          "count": 8
+        },
+        {
+          "label": "Frieren from Frieren",
+          "count": 2
+        },
+        {
+          "label": "2B from Nier Automata",
+          "count": 1
+        }
+      ]
+    },
+    "Ai Hoshino from Oshi no Ko ": {
+      "total_in_db": 156,
+      "ap": 0.3011,
+      "precision_at_k": {
+        "5": {
+          "correct": 3,
+          "k": 5,
+          "fraction": "3/5",
+          "percent": 60.0
+        },
+        "10": {
+          "correct": 4,
+          "k": 10,
+          "fraction": "4/10",
+          "percent": 40.0
+        },
+        "20": {
+          "correct": 8,
+          "k": 20,
+          "fraction": "8/20",
+          "percent": 40.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 3,
+          "total_in_db": 156,
+          "fraction": "3/156",
+          "percent": 1.9
+        },
+        "10": {
+          "correct": 4,
+          "total_in_db": 156,
+          "fraction": "4/156",
+          "percent": 2.6
+        },
+        "20": {
+          "correct": 8,
+          "total_in_db": 156,
+          "fraction": "8/156",
+          "percent": 5.1
+        }
+      },
+      "top_false_positives": [
+        {
+          "label": "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion",
+          "count": 11
+        },
+        {
+          "label": "D.Va from Overwatch",
+          "count": 1
+        }
+      ]
+    },
+    "Kafka from Honkai Star Rail ": {
+      "total_in_db": 229,
+      "ap": 0.1718,
+      "precision_at_k": {
+        "5": {
+          "correct": 1,
+          "k": 5,
+          "fraction": "1/5",
+          "percent": 20.0
+        },
+        "10": {
+          "correct": 3,
+          "k": 10,
+          "fraction": "3/10",
+          "percent": 30.0
+        },
+        "20": {
+          "correct": 5,
+          "k": 20,
+          "fraction": "5/20",
+          "percent": 25.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 1,
+          "total_in_db": 229,
+          "fraction": "1/229",
+          "percent": 0.4
+        },
+        "10": {
+          "correct": 3,
+          "total_in_db": 229,
+          "fraction": "3/229",
+          "percent": 1.3
+        },
+        "20": {
+          "correct": 5,
+          "total_in_db": 229,
+          "fraction": "5/229",
+          "percent": 2.2
+        }
+      },
+      "top_false_positives": [
+        {
+          "label": "Furina from Genshin Impact",
+          "count": 14
+        },
+        {
+          "label": "Yor Forger from Spy x Family ",
+          "count": 1
+        }
+      ]
+    },
+    "Frieren from Frieren": {
+      "total_in_db": 179,
+      "ap": 0.0948,
+      "precision_at_k": {
+        "5": {
+          "correct": 2,
+          "k": 5,
+          "fraction": "2/5",
+          "percent": 40.0
+        },
+        "10": {
+          "correct": 2,
+          "k": 10,
+          "fraction": "2/10",
+          "percent": 20.0
+        },
+        "20": {
+          "correct": 2,
+          "k": 20,
+          "fraction": "2/20",
+          "percent": 10.0
+        }
+      },
+      "recall_at_k": {
+        "5": {
+          "correct": 2,
+          "total_in_db": 179,
+          "fraction": "2/179",
+          "percent": 1.1
+        },
+        "10": {
+          "correct": 2,
+          "total_in_db": 179,
+          "fraction": "2/179",
+          "percent": 1.1
+        },
+        "20": {
+          "correct": 2,
+          "total_in_db": 179,
+          "fraction": "2/179",
+          "percent": 1.1
+        }
+      },
+      "top_false_positives": [
+        {
+          "label": "Daenerys Targaryen from Game of Thrones",
+          "count": 9
+        },
+        {
+          "label": "Artoria Pendragon from Fate_Stay Night",
+          "count": 3
+        },
+        {
+          "label": "Aayla Secura from Star Wars",
+          "count": 2
+        },
+        {
+          "label": "Ariel as Human from The Little Mermaid",
+          "count": 1
+        },
+        {
+          "label": "Android 18 from Dragon Ball",
+          "count": 1
+        }
+      ]
+    }
+  }
+}

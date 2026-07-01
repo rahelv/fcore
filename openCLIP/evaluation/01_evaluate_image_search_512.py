@@ -55,7 +55,7 @@ DB_CONFIG = {
 # MODEL
 # ──────────────────────────────────────────────────────────────────────────────
 def load_clip(device: torch.device):
-    print("Loading CLIP model …")
+    print("Loading CLIP classification_model …")
     model, _, preprocess = open_clip.create_model_and_transforms(
         model_name=MODEL_NAME,
         pretrained=PRETRAINED,
@@ -226,7 +226,7 @@ def evaluate(args):
 
     # ── SAVE JSON ────────────────────────────────────────────────────────────
     output = {
-        "model": f"{MODEL_NAME} / {PRETRAINED}",
+        "classification_model": f"{MODEL_NAME} / {PRETRAINED}",
         "val_dir": str(VAL_DIR),
         "total_images": total,
         "overall": {
