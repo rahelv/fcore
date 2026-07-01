@@ -9,7 +9,7 @@ Usage:
 
 import sys
 import wandb
-from train_sweep_2 import train, PROJECT, ENTITY
+from train_sweep import train, PROJECT, ENTITY
 
 if len(sys.argv) != 2:
     print("Usage: python3 run_agent.py <sweep_id>")
