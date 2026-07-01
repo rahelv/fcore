@@ -189,7 +189,7 @@ def evaluate(args):
     )
 
     output = {
-        "classification_model": args.model,
+        "model": args.model,
         "checkpoint": args.checkpoint,
         "metadata": str(metadata_path),
         "total_images": total,
@@ -249,7 +249,7 @@ def parse_args():
 
     p.add_argument(
         "--metadata",
-        default="/home/ubuntu/data/robust_dataset_split_2/val_metadata.csv",
+        default="/home/ubuntu/data/robust_dataset_split_30c/val_metadata.csv",
     )
     p.add_argument(
         "--classification_model",
