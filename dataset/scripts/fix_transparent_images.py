@@ -1,7 +1,7 @@
 from PIL import Image
 from pathlib import Path
 
-data_dir = Path("/home/ubuntu/data/robust_dataset_split_2")
+data_dir = Path("/home/ubuntu/data/robust_dataset_split_30c")
 
 converted = 0
 for img_path in data_dir.rglob("*.png"):

@@ -26,7 +26,7 @@ MAX_EPOCHS  = 80  # hard ceiling per run
 MIN_EPOCHS  = 20  # don't early-stop before this
 PATIENCE    = 10  # epochs without val_acc improvement → stop
 
-PROJECT = "costume_recognition_model"
+PROJECT = "fcore_21c_hyperparameter_sweep"
 ENTITY  = "rahelvalerie-universit-t-basel"
 
 # ─────────────────────────────────────────────

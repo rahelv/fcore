@@ -12,7 +12,7 @@ from pathlib import Path
 
 RUN = "32_tryout_2"
 
-DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split_2")
+DATA_DIR = Path("/home/ubuntu/data/robust_dataset_split_30c")
 TRAIN_DIR = DATA_DIR / "train"
 VAL_DIR = DATA_DIR / "val"
 TEST_DIR = DATA_DIR / "test"

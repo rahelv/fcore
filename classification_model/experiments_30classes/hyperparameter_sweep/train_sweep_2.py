@@ -26,7 +26,7 @@ MAX_EPOCHS  = 80  # hard ceiling per run
 MIN_EPOCHS  = 20  # don't early-stop before this
 PATIENCE    = 10  # epochs without val_acc improvement → stop
 
-PROJECT = "fcore_hyperparam_sweep_2"
+PROJECT = "fcore_30c_hyperparameter_sweep"
 ENTITY  = "rahelvalerie-universit-t-basel"
 
 # ─────────────────────────────────────────────
