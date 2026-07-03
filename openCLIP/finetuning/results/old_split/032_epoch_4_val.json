@@ -1,7 +1,7 @@
 {
   "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
-  "checkpoint": "/home/ubuntu/open_clip/logs/costume_siglip2/02_siglip_train_only/checkpoints/epoch_3.pt",
-  "metadata": "/home/ubuntu/data/robust_dataset_split_2/val_metadata.csv",
+  "checkpoint": "/home/ubuntu/open_clip/logs/siglip2_finetuning/032_siglip2_train/checkpoints/epoch_4.pt",
+  "metadata": "/home/ubuntu/data/robust_dataset_split_30c/val_metadata.csv",
   "total_images": 773,
   "total_captions": 30,
   "overall": {

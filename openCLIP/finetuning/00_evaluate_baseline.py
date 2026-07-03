@@ -252,7 +252,7 @@ def parse_args():
         default="/home/ubuntu/data/robust_dataset_split_30c/val_metadata.csv",
     )
     p.add_argument(
-        "--classification_model",
+        "--model",
         default="hf-hub:timm/ViT-B-16-SigLIP2-256",
     )
     p.add_argument(

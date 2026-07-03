@@ -1,7 +1,7 @@
 {
   "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
   "checkpoint": null,
-  "metadata": "/home/ubuntu/data/robust_dataset_split_2/val_metadata.csv",
+  "metadata": "/home/ubuntu/data/robust_dataset_split_30c/val_metadata.csv",
   "total_images": 773,
   "total_captions": 30,
   "overall": {

@@ -1,0 +1,290 @@
+{
+  "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
+  "checkpoint": "/home/ubuntu/open_clip/logs/V2_siglip2_finetuning/V2_siglip2_train/checkpoints/epoch_1.pt",
+  "metadata": "/home/ubuntu/data/robust_dataset_split_30c_v2/val_metadata.csv",
+  "total_images": 779,
+  "total_captions": 30,
+  "overall": {
+    "top1_accuracy": 96.92,
+    "top1_correct": 755,
+    "top5_accuracy": 99.87,
+    "top5_correct": 778,
+    "total": 779
+  },
+  "per_caption": {
+    "A person dressed up as 2B from Nier Automata.": {
+      "total": 13,
+      "top1_correct": 13,
+      "top1_accuracy": 100.0,
+      "top5_correct": 13,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as 9S from Nier Automata.": {
+      "total": 19,
+      "top1_correct": 19,
+      "top1_accuracy": 100.0,
+      "top5_correct": 19,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Aayla Secura from Star Wars.": {
+      "total": 19,
+      "top1_correct": 19,
+      "top1_accuracy": 100.0,
+      "top5_correct": 19,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Android 18 from Dragon Ball.": {
+      "total": 16,
+      "top1_correct": 16,
+      "top1_accuracy": 100.0,
+      "top5_correct": 16,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Ariel as Human from The Little Mermaid.": {
+      "total": 18,
+      "top1_correct": 18,
+      "top1_accuracy": 100.0,
+      "top5_correct": 18,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Artoria Pendragon from Fate_Stay Night.": {
+      "total": 24,
+      "top1_correct": 24,
+      "top1_accuracy": 100.0,
+      "top5_correct": 24,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Batman from DC Comics.": {
+      "total": 33,
+      "top1_correct": 33,
+      "top1_accuracy": 100.0,
+      "top5_correct": 33,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Captain America from Marvel.": {
+      "total": 49,
+      "top1_correct": 49,
+      "top1_accuracy": 100.0,
+      "top5_correct": 49,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as D.Va from Overwatch.": {
+      "total": 29,
+      "top1_correct": 29,
+      "top1_accuracy": 100.0,
+      "top5_correct": 29,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Daenerys Targaryen from Game of Thrones.": {
+      "total": 22,
+      "top1_correct": 22,
+      "top1_accuracy": 100.0,
+      "top5_correct": 22,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Deadpool from Marvel.": {
+      "total": 26,
+      "top1_correct": 26,
+      "top1_accuracy": 100.0,
+      "top5_correct": 26,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Harley Quinn from DC Comics.": {
+      "total": 30,
+      "top1_correct": 30,
+      "top1_accuracy": 100.0,
+      "top5_correct": 30,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Hatsune Miku from Vocaloid.": {
+      "total": 10,
+      "top1_correct": 10,
+      "top1_accuracy": 100.0,
+      "top5_correct": 10,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Inosuke Hashibira from Demon Slayer.": {
+      "total": 15,
+      "top1_correct": 15,
+      "top1_accuracy": 100.0,
+      "top5_correct": 15,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Sailor Moon from Sailor Moon .": {
+      "total": 21,
+      "top1_correct": 21,
+      "top1_accuracy": 100.0,
+      "top5_correct": 21,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Superman from DC Comics.": {
+      "total": 21,
+      "top1_correct": 21,
+      "top1_accuracy": 100.0,
+      "top5_correct": 21,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "A person dressed up as Wolverine from Marvel.": {
+      "total": 37,
+      "top1_correct": 36,
+      "top1_accuracy": 97.3,
+      "top5_correct": 37,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Deadpool from Marvel.": 1
+      }
+    },
+    "A person dressed up as Ai Hoshino from Oshi no Ko .": {
+      "total": 33,
+      "top1_correct": 32,
+      "top1_accuracy": 96.97,
+      "top5_correct": 33,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Raiden Shogun from Genshin Impact.": 1
+      }
+    },
+    "A person dressed up as Furina from Genshin Impact.": {
+      "total": 32,
+      "top1_correct": 31,
+      "top1_accuracy": 96.88,
+      "top5_correct": 32,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Raiden Shogun from Genshin Impact.": 1
+      }
+    },
+    "A person dressed up as Hu Tao from Genshin Impact.": {
+      "total": 32,
+      "top1_correct": 31,
+      "top1_accuracy": 96.88,
+      "top5_correct": 32,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Frieren from Frieren.": 1
+      }
+    },
+    "A person dressed up as Raiden Shogun from Genshin Impact.": {
+      "total": 32,
+      "top1_correct": 31,
+      "top1_accuracy": 96.88,
+      "top5_correct": 32,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Hu Tao from Genshin Impact.": 1
+      }
+    },
+    "A person dressed up as Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion.": {
+      "total": 28,
+      "top1_correct": 27,
+      "top1_accuracy": 96.43,
+      "top5_correct": 28,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion.": 1
+      }
+    },
+    "A person dressed up as Jinx from League of Legends.": {
+      "total": 40,
+      "top1_correct": 38,
+      "top1_accuracy": 95.0,
+      "top5_correct": 39,
+      "top5_accuracy": 97.5,
+      "confused_as": {
+        "A person dressed up as 2B from Nier Automata.": 1,
+        "A person dressed up as Furina from Genshin Impact.": 1
+      }
+    },
+    "A person dressed up as Thor from Marvel .": {
+      "total": 20,
+      "top1_correct": 19,
+      "top1_accuracy": 95.0,
+      "top5_correct": 20,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as D.Va from Overwatch.": 1
+      }
+    },
+    "A person dressed up as Spider Man from Marvel.": {
+      "total": 19,
+      "top1_correct": 18,
+      "top1_accuracy": 94.74,
+      "top5_correct": 19,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Batman from DC Comics.": 1
+      }
+    },
+    "A person dressed up as Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion.": {
+      "total": 16,
+      "top1_correct": 15,
+      "top1_accuracy": 93.75,
+      "top5_correct": 16,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Ai Hoshino from Oshi no Ko .": 1
+      }
+    },
+    "A person dressed up as Frieren from Frieren.": {
+      "total": 41,
+      "top1_correct": 38,
+      "top1_accuracy": 92.68,
+      "top5_correct": 41,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Yor Forger from Spy x Family .": 2,
+        "A person dressed up as Artoria Pendragon from Fate_Stay Night.": 1
+      }
+    },
+    "A person dressed up as Anya Forger from Spy x Family.": {
+      "total": 10,
+      "top1_correct": 9,
+      "top1_accuracy": 90.0,
+      "top5_correct": 10,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Jinx from League of Legends.": 1
+      }
+    },
+    "A person dressed up as Yor Forger from Spy x Family .": {
+      "total": 43,
+      "top1_correct": 38,
+      "top1_accuracy": 88.37,
+      "top5_correct": 43,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Anya Forger from Spy x Family.": 2,
+        "A person dressed up as Ai Hoshino from Oshi no Ko .": 2,
+        "A person dressed up as Frieren from Frieren.": 1
+      }
+    },
+    "A person dressed up as Kafka from Honkai Star Rail .": {
+      "total": 31,
+      "top1_correct": 27,
+      "top1_accuracy": 87.1,
+      "top5_correct": 31,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as Anya Forger from Spy x Family.": 2,
+        "A person dressed up as D.Va from Overwatch.": 1,
+        "A person dressed up as Hu Tao from Genshin Impact.": 1
+      }
+    }
+  }
+}

@@ -1,12 +1,12 @@
 {
   "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
-  "checkpoint": "/home/ubuntu/open_clip/logs/costume_siglip2/02_siglip_train_only/checkpoints/epoch_5.pt",
-  "metadata": "/home/ubuntu/data/robust_dataset_split_2/val_metadata.csv",
+  "checkpoint": "/home/ubuntu/open_clip/logs/siglip2_finetuning/032_siglip2_train/checkpoints/epoch_2.pt",
+  "metadata": "/home/ubuntu/data/robust_dataset_split_30c/val_metadata.csv",
   "total_images": 773,
   "total_captions": 30,
   "overall": {
-    "top1_accuracy": 98.71,
-    "top1_correct": 763,
+    "top1_accuracy": 98.84,
+    "top1_correct": 764,
     "top5_accuracy": 99.87,
     "top5_correct": 772,
     "total": 773
@@ -210,6 +210,16 @@
         "A person dressed up as Frieren from Frieren.": 1
       }
     },
+    "A person dressed up as 2B from Nier Automata.": {
+      "total": 29,
+      "top1_correct": 28,
+      "top1_accuracy": 96.55,
+      "top5_correct": 29,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "A person dressed up as 9S from Nier Automata.": 1
+      }
+    },
     "A person dressed up as Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion.": {
       "total": 29,
       "top1_correct": 28,
@@ -258,16 +268,6 @@
       "top5_accuracy": 100.0,
       "confused_as": {
         "A person dressed up as Spider Man from Marvel.": 1
-      }
-    },
-    "A person dressed up as 2B from Nier Automata.": {
-      "total": 29,
-      "top1_correct": 27,
-      "top1_accuracy": 93.1,
-      "top5_correct": 29,
-      "top5_accuracy": 100.0,
-      "confused_as": {
-        "A person dressed up as 9S from Nier Automata.": 2
       }
     }
   }
