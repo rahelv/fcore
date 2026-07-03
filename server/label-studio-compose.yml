@@ -11,4 +11,4 @@ services:
       - LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT=/label-studio/data
 
 include:
-  - /home/ubuntu/label-studio-ml-backend/label_studio_ml/examples/llm_interactive/docker-compose.yml
+  - /home/ubuntu/label-studio-ml-backend/label_studio_ml/examples/llm_interactive/Dockerfile

@@ -6,8 +6,7 @@ services:
     hostname: syncthing #optional
     environment:
       - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
+
     volumes:
       - /home/ubuntu/fcore/server/syncthing/config:/config
       - /home/ubuntu/data:/data
