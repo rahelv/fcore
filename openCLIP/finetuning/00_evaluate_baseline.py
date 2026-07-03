@@ -249,7 +249,7 @@ def parse_args():
 
     p.add_argument(
         "--metadata",
-        default="/home/ubuntu/data/robust_dataset_split_30c/val_metadata.csv",
+        default="/home/ubuntu/data/robust_dataset_split_30c_v2/val_metadata.csv",
     )
     p.add_argument(
         "--model",
