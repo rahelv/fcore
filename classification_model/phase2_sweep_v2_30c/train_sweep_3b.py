@@ -26,18 +26,23 @@ What is swept (7 parameters)
                    extended slightly to 3e-3 — regularisation allows higher LR.
   weight_decay     1e-5 dropped (weak in Phase 1: 3/15); 1e-4 and 1e-3 tied (6/15 each).
   dropout_p        0.0 kept — lets search confirm whether dropout helps on top
-                   of other regularisation.  Previous sweeps had epoch-count bias
-                   against dropout; longer runs here give it a fair chance.
-  label_smoothing  0.1 dominated sweep 1 (14/15 top runs).  Range extended to
+                   of other regularisation.
+  label_smoothing  0.1 dominated sweep 1 (14/15 top runs). Range extended to
                    0.20 since longer runs may benefit from stronger smoothing.
-  jitter_strength  "mild" = Phase 1 fixed values (b/c 0.2, sat 0.1, hue 0.05).
-                   "strong" = b/c 0.4, sat 0.3, hue 0.05 — hue kept small because
-                   colour is discriminative for costume recognition.
-  rotation_degrees 0° included to let search confirm rotation helps.
-                   20° included despite costume orientation concern — Bayesian
-                   search will reject it if it hurts.
+  jitter_strength  "mild" = b/c 0.2, sat 0.1, hue 0.05
+                   "strong" = b/c 0.4, sat 0.3, hue 0.05
+                   Hue kept small in both — colour is discriminative for costumes.
+  rotation_degrees 0 included to confirm rotation is beneficial.
   aug_erasing      Disabled in sweep 2 (never fairly tested on 30 classes).
-                   Slight positive signal in sweep 1.
+
+Checkpointing
+─────────────
+  Each run saves its best checkpoint to:
+    /home/ubuntu/data/models/fcore_hyperparam_sweep_3b/<run_id>_best.pt
+  The checkpoint includes model, optimizer, and scheduler state so training
+  can be resumed exactly where it left off. The initial lr (cfg.lr) is saved
+  for documentation; the actual reduced lr at checkpoint time is captured in
+  optimizer_state_dict.
 
 Discrete search space:
   2 (wd) × 3 (dropout) × 4 (ls) × 2 (jitter) × 3 (rotation) × 2 (erasing) = 288 combos
@@ -45,9 +50,9 @@ Discrete search space:
 
 Usage
 ─────
-    python3 create_sweep.py          # run once — prints sweep ID
-    CUDA_VISIBLE_DEVICES=0 python3 run_agent.py <sweep_id> 25
-    CUDA_VISIBLE_DEVICES=1 python3 run_agent.py <sweep_id> 25
+    python3 create_sweep_3b.py          # run once — prints sweep ID
+    CUDA_VISIBLE_DEVICES=0 python3 run_agent_3b.py <sweep_id> 25
+    CUDA_VISIBLE_DEVICES=1 python3 run_agent_3b.py <sweep_id> 25
 """
 
 import json
@@ -64,7 +69,7 @@ import wandb
 # ─────────────────────────────────────────────
 # FIXED CONSTANTS
 # ─────────────────────────────────────────────
-DATA_DIR    = Path("/home/ubuntu/data/robust_dataset_split_2")
+DATA_DIR    = Path("/home/ubuntu/data/robust_dataset_split_30c_v2/")
 TRAIN_DIR   = DATA_DIR / "train"
 VAL_DIR     = DATA_DIR / "val"
 TEST_DIR    = DATA_DIR / "test"
@@ -97,28 +102,17 @@ sweep_config = {
             "distribution": "log_uniform_values",
             "min": 3e-4,
             "max": 3e-3,
-            # Phase 1 top-15 clustered [3e-4, 1.7e-3], mean ~7e-4.
-            # Upper bound extended slightly vs Phase 1 because regularisation
-            # allows a higher effective LR.
         },
         "weight_decay": {
             "values": [1e-4, 1e-3],
-            # 1e-5 dropped — only 3/15 top runs in Phase 1.
-            # 1e-4 and 1e-3 tied at 6/15 each; both kept.
         },
 
         # ── regularisation ─────────────────────────────────────────────────
         "dropout_p": {
             "values": [0.0, 0.2, 0.4],
-            # 0.0 included: confirms whether dropout adds value on top of
-            # label smoothing + WD + augmentation.
-            # Previous sweeps were biased against dropout due to short runs;
-            # 120 epochs gives it a fair evaluation.
         },
         "label_smoothing": {
             "values": [0.05, 0.10, 0.15, 0.20],
-            # 0.1 dominated sweep 1 (14/15 top runs).
-            # 0.20 added: longer runs may benefit from stronger smoothing.
         },
 
         # ── augmentation ───────────────────────────────────────────────────
@@ -126,18 +120,12 @@ sweep_config = {
             "values": ["mild", "strong"],
             # mild:   brightness/contrast 0.2, saturation 0.1, hue 0.05
             # strong: brightness/contrast 0.4, saturation 0.3, hue 0.05
-            # Hue kept small in both — colour is discriminative for costumes.
         },
         "rotation_degrees": {
             "values": [0, 10, 20],
-            # 0 included to confirm rotation is beneficial.
-            # 20° may be too aggressive for upright costumes; Bayesian search
-            # will reject it if it hurts.
         },
         "aug_erasing": {
             "values": [True, False],
-            # Never fairly tested on 30 classes (disabled in sweep 2).
-            # Slight positive signal in sweep 1.
         },
     },
 }
@@ -154,7 +142,7 @@ def build_transforms(cfg):
 
     pre_tensor = [
         transforms.Lambda(lambda img: img.convert("RGB")),
-        transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.65, 1.0)),  # fixed from Phase 1
+        transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.65, 1.0)),
         transforms.RandomHorizontalFlip(),
         transforms.ColorJitter(**jitter_params),
     ]
@@ -204,7 +192,7 @@ def build_loaders(train_tf, eval_tf):
 
     pin = torch.cuda.is_available()
     train_loader = DataLoader(
-        train_ds, batch_size=32, shuffle=True,         # batch size fixed from Phase 1
+        train_ds, batch_size=32, shuffle=True,
         num_workers=NUM_WORKERS, pin_memory=pin,
     )
     val_loader = DataLoader(
@@ -340,7 +328,6 @@ def train():
 
         run.watch(model, log_freq=50)
 
-        # Log fixed choices so they appear in the W&B run table
         wandb.config.update({
             "optimizer":       "adamw",
             "scheduler":       "plateau",
@@ -356,8 +343,11 @@ def train():
         best_val_acc          = float("-inf")
         best_epoch            = 0
         epochs_no_improvement = 0
-        SAVE_DIR.mkdir(parents=True, exist_ok=True)
-        save_path = SAVE_DIR / f"{run.id}_best.pt"
+
+        # Save to project subfolder: /data/models/<project>/<run_id>_best.pt
+        project_dir = SAVE_DIR / PROJECT
+        project_dir.mkdir(parents=True, exist_ok=True)
+        save_path = project_dir / f"{run.id}_best.pt"
 
         for epoch in range(1, MAX_EPOCHS + 1):
             train_loss, train_acc = run_epoch(
@@ -392,18 +382,19 @@ def train():
                 epochs_no_improvement = 0
                 torch.save(
                     {
+                        # ── resume training ───────────────────────────────
                         "model_state_dict":     model.state_dict(),
                         "optimizer_state_dict": optimizer.state_dict(),
                         "scheduler_state_dict": scheduler.state_dict(),
                         "epoch":                epoch,
                         "best_val_acc":         best_val_acc,
+                        # ── reproduce / document ──────────────────────────
                         "class_to_idx":         class_to_idx,
                         "num_classes":          num_classes,
                         "image_size":           IMAGE_SIZE,
                         "sweep":                "3b",
                         "phase":                "2_regularisation",
-                        # all HPs — so you know exactly what to reproduce
-                        "lr":                   cfg.lr,
+                        "lr_initial":           cfg.lr,       # initial LR
                         "weight_decay":         cfg.weight_decay,
                         "dropout_p":            cfg.dropout_p,
                         "label_smoothing":      cfg.label_smoothing,
@@ -457,3 +448,4 @@ def train():
                 f"  {cls}: {stats['correct']}/{stats['total']}"
                 f"  acc={stats['accuracy']:.3f}"
             )
+
