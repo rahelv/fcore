@@ -22,6 +22,7 @@ Usage
 
 import json
 import os
+import random
 from pathlib import Path
 
 import numpy as np
@@ -30,6 +31,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from torchvision.models import resnet18
+from torchvision.transforms import v2
 import wandb
 
 # ─────────────────────────────────────────────
@@ -101,40 +103,6 @@ sweep_config = {
         },
     },
 }
-
-
-# ─────────────────────────────────────────────
-# CUTMIX
-# ─────────────────────────────────────────────
-def cutmix_batch(images, labels, alpha):
-    """Apply CutMix to a batch. Returns mixed images, label_a, label_b, lam."""
-    lam = np.random.beta(alpha, alpha)
-    batch_size = images.size(0)
-    rand_index = torch.randperm(batch_size, device=images.device)
-
-    labels_a = labels
-    labels_b = labels[rand_index]
-
-    H, W = images.size(2), images.size(3)
-    cut_rat = np.sqrt(1.0 - lam)
-    cut_w   = int(W * cut_rat)
-    cut_h   = int(H * cut_rat)
-
-    cx = np.random.randint(W)
-    cy = np.random.randint(H)
-
-    bbx1 = np.clip(cx - cut_w // 2, 0, W)
-    bby1 = np.clip(cy - cut_h // 2, 0, H)
-    bbx2 = np.clip(cx + cut_w // 2, 0, W)
-    bby2 = np.clip(cy + cut_h // 2, 0, H)
-
-    images = images.clone()
-    images[:, :, bby1:bby2, bbx1:bbx2] = images[rand_index, :, bby1:bby2, bbx1:bbx2]
-
-    # Recompute lam from actual box area (integer rounding changes it slightly)
-    lam = 1.0 - ((bbx2 - bbx1) * (bby2 - bby1) / (W * H))
-
-    return images, labels_a, labels_b, lam
 
 
 # ─────────────────────────────────────────────
@@ -234,7 +202,7 @@ def build_model(cfg, num_classes, device):
 # ─────────────────────────────────────────────
 # ONE EPOCH
 # ─────────────────────────────────────────────
-def run_epoch(model, loader, criterion, optimizer, device, cutmix_alpha=0.0):
+def run_epoch(model, loader, criterion, optimizer, device, cutmix=None):
     is_train = optimizer is not None
     model.train() if is_train else model.eval()
 
@@ -247,13 +215,12 @@ def run_epoch(model, loader, criterion, optimizer, device, cutmix_alpha=0.0):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
 
-            if is_train and cutmix_alpha > 0:
-                images, labels_a, labels_b, lam = cutmix_batch(images, labels, cutmix_alpha)
+            if is_train and cutmix is not None:
+                images, labels = cutmix(images, labels)  # labels → soft one-hot [B, C]
                 outputs = model(images)
-                loss    = lam * criterion(outputs, labels_a) + (1 - lam) * criterion(outputs, labels_b)
-                # Accuracy against primary label (majority class)
+                loss    = criterion(outputs, labels)      # CE handles soft targets natively
                 preds   = outputs.argmax(dim=1)
-                correct = (lam * (preds == labels_a).float() + (1 - lam) * (preds == labels_b).float()).sum().item()
+                correct = (preds == labels.argmax(dim=1)).sum().item()
             else:
                 outputs = model(images)
                 loss    = criterion(outputs, labels)
@@ -266,7 +233,7 @@ def run_epoch(model, loader, criterion, optimizer, device, cutmix_alpha=0.0):
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
                 optimizer.step()
 
-            batch_size       = labels.size(0)
+            batch_size       = labels.shape[0]
             running_loss    += loss.item() * batch_size
             running_correct += correct
             total           += batch_size
@@ -310,9 +277,12 @@ def evaluate_per_class(model, loader, idx_to_class, num_classes, device):
 # TRAIN — called once per sweep run
 # ─────────────────────────────────────────────
 def train():
+    random.seed(SEED)
+    np.random.seed(SEED)
     torch.manual_seed(SEED)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(SEED)
+    torch.cuda.manual_seed_all(SEED)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark     = False
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -328,6 +298,8 @@ def train():
 
         with open(LABELS_PATH, "w", encoding="utf-8") as f:
             json.dump(class_to_idx, f, indent=2, ensure_ascii=False)
+
+        cutmix = v2.CutMix(num_classes=num_classes, alpha=cfg.cutmix_alpha)
 
         model     = build_model(cfg, num_classes, device)
         criterion = nn.CrossEntropyLoss(label_smoothing=cfg.label_smoothing)
@@ -366,11 +338,11 @@ def train():
         for epoch in range(1, MAX_EPOCHS + 1):
             train_loss, train_acc = run_epoch(
                 model, train_loader, criterion, optimizer, device,
-                cutmix_alpha=cfg.cutmix_alpha,
+                cutmix=cutmix,
             )
             val_loss, val_acc = run_epoch(
                 model, val_loader, criterion, None, device,
-                cutmix_alpha=0.0,   # never apply CutMix during eval
+                cutmix=None,
             )
 
             scheduler.step(val_loss)
@@ -440,7 +412,7 @@ def train():
         best_model.load_state_dict(ckpt["model_state_dict"])
 
         test_loss, test_acc = run_epoch(
-            best_model, test_loader, criterion, None, device, cutmix_alpha=0.0
+            best_model, test_loader, criterion, None, device, cutmix=None
         )
         per_class = evaluate_per_class(
             best_model, test_loader, idx_to_class, num_classes, device
