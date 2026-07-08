@@ -8,9 +8,10 @@ export CUDA_VISIBLE_DEVICES=0,1
 export WANDB_PROJECT=fcore_openclip_finetuning
 
 torchrun --nproc_per_node 2 -m open_clip_train.main -- \
-  --name V1_10c_cosplay_train \
+  --name 10c_character_train \
+  --seed 42 \
   --dataset-type csv \
-  --train-data /home/ubuntu/data/domain_transfer_10c_split/cosplay_metadata.csv \
+  --train-data /home/ubuntu/data/domain_transfer_10c_split/character_metadata.csv \
   --csv-img-key filepath \
   --csv-caption-key caption \
   --csv-separator "," \
@@ -21,8 +22,8 @@ torchrun --nproc_per_node 2 -m open_clip_train.main -- \
   --warmup 50 \
   --lr 1e-6 \
   --wd 0.1 \
-  --epochs 5 \
+  --epochs 20 \
   --save-frequency 1 \
   --report-to wandb \
-  --logs /home/ubuntu/open_clip/logs/10c_cosplay_finetuning
+  --logs /home/ubuntu/open_clip/logs/10c_character_finetuning
 

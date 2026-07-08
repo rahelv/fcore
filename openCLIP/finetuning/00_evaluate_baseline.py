@@ -261,7 +261,7 @@ def parse_args():
     )
     p.add_argument(
         "--output",
-        default="results_val_pretrained_siglip2.json",
+        default="V3_descriptive_initial_state_val.json",
     )
     p.add_argument(
         "--batch-size",

@@ -7,6 +7,7 @@ export WANDB_PROJECT=fcore_openclip_finetuning
 
 torchrun --nproc_per_node 2 -m open_clip_train.main -- \
   --name V3_plain_siglip2_train \
+  --seed 42 \
   --dataset-type csv \
   --train-data /home/ubuntu/data/robust_dataset_split_30c_v2/train_metadata_plain.csv \
   --csv-img-key filepath \
