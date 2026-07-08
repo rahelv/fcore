@@ -1,0 +1,46 @@
+# Find the optimal learning rate, weight decay, batch size, and crop scale BEFORE introducing any regularisation or augmentation tuning.
+
+# fixed parameters: minimal augmentation: adamW optimizer, ReduceLROnPlateau scheduler w/ patience 5, factor 0.5, ColorJitter (mild)   brightness/contrast 0.2, saturation 0.1, hue 0.05
+
+program: train_sweep_3a.py
+project: fcore_hyperparam_sweep_3a
+entity: rahelvalerie-universit-t-basel
+
+method: bayes
+
+metric:
+  name: val/accuracy
+  goal: maximize
+
+run_cap: 40
+
+parameters:
+  save_dir:
+    value: /home/ubuntu/data/models/fcore_hyperparam_sweep_3a
+  data_dir:
+    value: /home/ubuntu/data/robust_dataset_split_30c_v2
+
+  # ── run control ────────────────────────
+  max_epochs:
+    value: 80
+  min_epochs:
+    value: 20
+  patience:
+    value: 10
+
+  # ── optimiser ──────────────────────────
+  lr:
+    # Tightened from 30c_sweep [0.0005, 0.008], top runs clustered < 0.003;
+    distribution: log_uniform_values
+    min: 0.0003
+    max: 0.003
+  weight_decay:
+    # 1e-3 restored (most common in 21c_sweep top-15; 30c_sweep only tested 1e-4/1e-5)
+    values: [0.00001, 0.0001, 0.001]
+  batch_size:
+    values: [32, 64]
+
+  # ── preprocessing ──────────────────────
+  crop_scale_min:
+    # 0.50 dropped (dominated by 0.80 in 30c_sweep); 0.65 kept as control
+    values: [0.65, 0.8]

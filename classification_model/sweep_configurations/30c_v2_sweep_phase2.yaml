@@ -1,0 +1,60 @@
+# Phase 2: Regularisation & Augmentation — optimiser settings locked from Phase 1.
+
+program: train_sweep_3b.py
+project: fcore_hyperparam_sweep_3b
+entity: rahelvalerie-universit-t-basel
+
+method: bayes
+
+metric:
+  name: val/accuracy
+  goal: maximize
+
+# 2 (wd) × 3 (dropout) × 4 (ls) × 2 (jitter) × 3 (rotation) × 2 (erasing)
+# = 288 combos + continuous lr → 50 runs total (25 per agent).
+run_cap: 50
+
+parameters:
+  save_dir:
+    value: /home/ubuntu/data/models/fcore_hyperparam_sweep_3b
+  data_dir:
+    value: /home/ubuntu/data/robust_dataset_split_30c_v2
+
+  # ── run control ────────────────────────
+  # longer than phase 1 — regularisation needs time to show benefit
+  max_epochs:
+    value: 120
+  min_epochs:
+    value: 40
+  patience:
+    value: 15
+
+  # ── optimiser ──────────────────────────
+  lr:
+    # Phase 1 top-15 clustered [3e-4, 1.7e-3]; upper bound extended to 3e-3
+    # since regularisation allows higher LR
+    distribution: log_uniform_values
+    min: 0.0003
+    max: 0.003
+  weight_decay:
+    # 1e-5 dropped (weak in Phase 1: 3/15); 1e-4 and 1e-3 tied (6/15 each)
+    values: [0.0001, 0.001]
+
+  # ── regularisation ─────────────────────
+  dropout_p:
+    values: [0.0, 0.2, 0.4]
+  label_smoothing:
+    # 0.1 dominated sweep 1; extended to 0.20 for longer runs
+    values: [0.05, 0.1, 0.15, 0.2]
+
+  # ── augmentation ───────────────────────
+  jitter_strength:
+    # mild:   brightness/contrast 0.2, saturation 0.1, hue 0.05
+    # strong: brightness/contrast 0.4, saturation 0.3, hue 0.05
+    values: [mild, strong]
+  rotation_degrees:
+    # 0 included to confirm rotation is beneficial
+    values: [0, 10, 20]
+  aug_erasing:
+    # True → RandomErasing(p=0.3, scale=(0.02, 0.2))
+    values: [true, false]

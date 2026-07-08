@@ -1,0 +1,63 @@
+# this sweep was done with the old data split (robust_dataset_split_30c)
+
+program: train.py
+project: fcore_30c_hyperparameter_sweep
+entity: rahelvalerie-universit-t-basel
+
+method: bayes
+
+metric:
+  name: val/accuracy
+  goal: maximize
+
+parameters:
+  save_dir:
+    value: /home/ubuntu/data/models/fcore_30c_hyperparameter_sweep
+  data_dir:
+    value: /home/ubuntu/data/robust_dataset_split_2
+
+  # ── run control ────────────────────────
+  max_epochs:
+    value: 80
+  min_epochs:
+    value: 20
+  patience:
+    value: 10
+
+  # ── optimiser ──────────────────────────
+  lr:
+    distribution: log_uniform_values
+    min: 0.0005
+    max: 0.008
+  weight_decay:
+    values: [0.0001, 0.00001]
+  batch_size:
+    values: [32, 64]
+
+  # ── loss ───────────────────────────────
+  label_smoothing:
+    values: [0.05, 0.1, 0.15]
+
+  # ── regularisation ─────────────────────
+  dropout_p:
+    values: [0.0, 0.2, 0.4]
+
+  # ── augmentation: geometric ────────────
+  rotation_degrees:          # 0 = effectively off
+    values: [0, 5, 10, 20]
+  crop_scale_min:            # RandomResizedCrop lower bound
+    values: [0.5, 0.65, 0.8]
+
+  # ── augmentation: color ────────────────
+  jitter_brightness:         # also used for contrast
+    distribution: uniform
+    min: 0.0
+    max: 0.4
+  jitter_saturation:         # hue = value * 0.2
+    distribution: uniform
+    min: 0.0
+    max: 0.3
+
+  # ── augmentation: grayscale ────────────
+  grayscale_p:
+    values: [0.0, 0.05, 0.1, 0.2]

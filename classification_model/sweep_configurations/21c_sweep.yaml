@@ -1,0 +1,82 @@
+program: train.py
+project: fcore_21c_hyperparameter_sweep
+entity: rahelvalerie-universit-t-basel
+
+method: bayes
+
+metric:
+  name: val/accuracy
+  goal: maximize
+
+parameters:
+  save_dir:
+    value: /home/ubuntu/data/models/fcore_21c_hyperparameter_sweep
+  data_dir:
+    value: /home/ubuntu/data/robust_dataset_split
+
+  # ── run control ────────────────────────
+  max_epochs:
+    value: 80
+  min_epochs:
+    value: 20
+  patience:
+    value: 10
+
+  # ── optimiser ──────────────────────────
+  lr:
+    distribution: log_uniform_values
+    min: 0.0001
+    max: 0.01
+  weight_decay:
+    values: [0.001, 0.0001, 0.00001]
+  batch_size:
+    values: [32, 64]
+  optimizer:
+    values: [adamw, sgd]
+
+  # ── loss ───────────────────────────────
+  label_smoothing:
+    values: [0.0, 0.05, 0.1]
+
+  # ── regularisation ─────────────────────
+  dropout_p:
+    values: [0.0, 0.2, 0.4]
+
+  # ── scheduler ──────────────────────────
+  scheduler:
+    values: [step, cosine, plateau]
+
+
+  # ── augmentation: geometric ────────────
+  # was aug_hflip True/False → RandomHorizontalFlip default p=0.5
+  hflip_p:
+    values: [0.0, 0.5]
+  # was aug_rotation True/False → RandomRotation(degrees=10)
+  rotation_deg:
+    values: [0, 10]
+  # was aug_perspective True/False → RandomPerspective(distortion_scale=0.2, p=0.5)
+  perspective_p:
+    values: [0.0, 0.5]
+
+  # ── augmentation: color ────────────────
+  # was color_jitter_strength none/mild/strong
+  # none → all 0 | mild → b=0.1 c=0.1 s=0.1 h=0.02 | strong → b=0.3 c=0.3 s=0.2 h=0.05
+  jitter_brightness:
+    values: [0.0, 0.1, 0.3]
+  jitter_contrast:
+    values: [0.0, 0.1, 0.3]
+  jitter_saturation:
+    values: [0.0, 0.1, 0.2]
+  jitter_hue:
+    values: [0.0, 0.02, 0.05]
+  # was aug_grayscale True/False → RandomGrayscale(p=0.08)
+  grayscale_p:
+    values: [0.0, 0.08]
+  # was aug_blur True/False → GaussianBlur always applied when on
+  blur_p:
+    values: [0.0, 1.0]
+
+  # ── augmentation: occlusion ────────────
+  # was aug_erasing True/False → RandomErasing(p=0.3)
+  erasing_p:
+    values: [0.0, 0.3]
