@@ -1,6 +1,6 @@
 # Phase 2: Regularisation & Augmentation — optimiser settings locked from Phase 1.
 
-program: train_sweep_3b.py
+program: train.py
 project: fcore_hyperparam_sweep_3b
 entity: rahelvalerie-universit-t-basel
 

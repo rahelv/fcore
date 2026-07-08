@@ -2,7 +2,7 @@
 
 # fixed parameters: minimal augmentation: adamW optimizer, ReduceLROnPlateau scheduler w/ patience 5, factor 0.5, ColorJitter (mild)   brightness/contrast 0.2, saturation 0.1, hue 0.05
 
-program: train_sweep_3a.py
+program: train.py
 project: fcore_hyperparam_sweep_3a
 entity: rahelvalerie-universit-t-basel
 
@@ -44,3 +44,15 @@ parameters:
   crop_scale_min:
     # 0.50 dropped (dominated by 0.80 in 30c_sweep); 0.65 kept as control
     values: [0.65, 0.8]
+
+  # ── fixed (original 3a design: minimal aug, no regularisation) ──
+  jitter_strength:
+    value: mild
+  rotation_degrees:
+    value: 0
+  aug_erasing:
+    value: false
+  dropout_p:
+    value: 0.0
+  label_smoothing:
+    value: 0.0

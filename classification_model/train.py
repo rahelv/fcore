@@ -1,6 +1,17 @@
 """
-TODO: update usage script (using wandb CLI)
+Generic W&B sweep training script — all sweep-specific values (paths, epochs,
+hyperparameters) live in sweep_configurations/*.yaml. Optional knobs fall back
+to safe off-defaults, so a YAML only needs to define what it uses.
 
+Usage
+─────
+    wandb sweep sweep_configurations/<sweep>.yaml      # prints the sweep ID
+
+    # one agent per GPU (run from classification_model/):
+    CUDA_VISIBLE_DEVICES=0 wandb agent <entity>/<project>/<sweep_id>
+    CUDA_VISIBLE_DEVICES=1 wandb agent <entity>/<project>/<sweep_id>
+
+    # run_cap in the YAML stops the whole sweep globally.
 """
 
 import json
@@ -8,7 +19,7 @@ import os
 import random
 from pathlib import Path
 
-import numpy as np 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -25,34 +36,38 @@ SEED        = 57 # grothendiecks prime
 
 # BUILD TRANSFORMS
 def build_transforms(config):
-    jitter_params = {
+    jitter_lookup = {
+        "none":   None,
         "mild":   dict(brightness=0.2, contrast=0.2, saturation=0.1, hue=0.05),
         "strong": dict(brightness=0.4, contrast=0.4, saturation=0.3, hue=0.05),
-    }[config.jitter_strength]
+    }
+    jitter_params = jitter_lookup[config.get("jitter_strength", "none")]
 
-    pre_tensor = [ 
-        transforms.Lambda(lambda img: img.convert("RGB")), 
-        transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.65, 1.0)), 
+    pre_tensor = [
+        transforms.Lambda(lambda img: img.convert("RGB")),
+        transforms.RandomResizedCrop(IMAGE_SIZE, scale=(config.get("crop_scale_min", 0.65), 1.0)),
         transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(**jitter_params), # TODO: add no jitter to sweep 
     ]
 
-    if config.rotation_degrees > 0:
-        pre_tensor.append(transforms.RandomRotation(degrees=config.rotation_degrees)) 
+    if jitter_params is not None:
+        pre_tensor.append(transforms.ColorJitter(**jitter_params))
 
-    to_tensor = [ 
+    if config.get("rotation_degrees", 0) > 0:
+        pre_tensor.append(transforms.RandomRotation(degrees=config.rotation_degrees))
+
+    to_tensor = [
         transforms.ToTensor(),
-        transforms.Normalize( 
+        transforms.Normalize(
             mean=[0.485, 0.456, 0.406],
             std=[0.229, 0.224, 0.225],
-        ), # ImageNet standard 
+        ), # ImageNet standard
     ]
 
     post_tensor = []
-    if config.aug_erasing:
+    if config.get("aug_erasing", False):
         post_tensor.append(transforms.RandomErasing(p=0.3, scale=(0.02, 0.2)))
 
-    train_transforms = transforms.Compose(pre_tensor + to_tensor + post_tensor) 
+    train_transforms = transforms.Compose(pre_tensor + to_tensor + post_tensor)
 
     eval_transforms = transforms.Compose([
         transforms.Lambda(lambda img: img.convert("RGB")),
@@ -74,21 +89,22 @@ def build_loaders(config, train_transforms, eval_transforms):
     val_dataset   = datasets.ImageFolder(data_dir / "val",   transform=eval_transforms)
     test_dataset  = datasets.ImageFolder(data_dir / "test",  transform=eval_transforms)
 
-    assert ( # all splits must have identical class-index mappings 
+    assert ( # all splits must have identical class-index mappings
         train_dataset.class_to_idx == val_dataset.class_to_idx == test_dataset.class_to_idx
-    ), "Class mappings differ between splits!" 
+    ), "Class mappings differ between splits!"
 
+    batch_size = config.get("batch_size", 32)
     pin = torch.cuda.is_available()
     train_loader = DataLoader(
-        train_dataset, batch_size=32, shuffle=True,
+        train_dataset, batch_size=batch_size, shuffle=True,
         num_workers=NUM_WORKERS, pin_memory=pin,
     )
     val_loader = DataLoader(
-        val_dataset, batch_size=32, shuffle=False,
+        val_dataset, batch_size=batch_size, shuffle=False,
         num_workers=NUM_WORKERS, pin_memory=pin,
     )
     test_loader = DataLoader(
-        test_dataset, batch_size=32, shuffle=False,
+        test_dataset, batch_size=batch_size, shuffle=False,
         num_workers=NUM_WORKERS, pin_memory=pin,
     )
 
@@ -99,9 +115,10 @@ def build_model(config, num_classes, device):
     model = resnet18(weights=None) # TODO: experiment with pretrained weights
     in_features = model.fc.in_features
 
-    if config.dropout_p > 0.0:
+    dropout_p = config.get("dropout_p", 0.0)
+    if dropout_p > 0.0:
         model.fc = nn.Sequential(
-            nn.Dropout(p=config.dropout_p),
+            nn.Dropout(p=dropout_p),
             nn.Linear(in_features, num_classes),
         )
     else:
@@ -235,7 +252,7 @@ def train():
         cutmix = v2.CutMix(num_classes=num_classes, alpha=alpha) if alpha > 0 else None
 
         model = build_model(config, num_classes, device)
-        criterion = nn.CrossEntropyLoss(label_smoothing=config.label_smoothing)
+        criterion = nn.CrossEntropyLoss(label_smoothing=config.get("label_smoothing", 0.0))
 
         optimizer = torch.optim.AdamW(
             model.parameters(),
@@ -253,7 +270,7 @@ def train():
         epochs_no_improvement = 0
 
         for epoch in range(1, max_epochs + 1):
-            train_loss, train_acc = train_epoch(model, train_loader, criterion, optimizer, device,cutmix=cutmix)
+            train_loss, train_acc = train_epoch(model, train_loader, criterion, optimizer, device, cutmix=cutmix)
             val_loss, val_acc = eval_epoch(model, val_loader, criterion, device)
 
             scheduler.step(val_loss)

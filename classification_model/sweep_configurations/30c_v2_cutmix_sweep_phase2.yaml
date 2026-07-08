@@ -4,7 +4,7 @@
 # fixed parameters: adamW optimizer, ReduceLROnPlateau scheduler w/ patience 5, factor 0.5,
 # batch_size 32, crop_scale_min 0.65, hflip on, grayscale/blur/perspective off
 
-program: train_sweep_3b_cutmix.py
+program: train.py
 project: fcore_hyperparam_sweep_3b_cutmix
 entity: rahelvalerie-universit-t-basel
 
