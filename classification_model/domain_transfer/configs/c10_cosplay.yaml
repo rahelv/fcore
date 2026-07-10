@@ -1,0 +1,31 @@
+# C10-Cosplay: from scratch on curated cosplay photographs only (1,351 images).
+# Hyperparameters: best from-scratch config s8i1hx30 (3b_cutmix, val 0.819).
+#   python3 train_domain_transfer.py --config configs/c10_cosplay.yaml
+
+project: fcore_domain_transfer
+entity: rahelvalerie-universit-t-basel
+run_name: C10-Cosplay
+
+save_dir: /home/ubuntu/data/models/fcore_domain_transfer
+# adjust subfolder names if they differ on the GPU box
+train_dir: /home/ubuntu/data/domain_transfer_10c_split/train_cosplay
+val_dir:   /home/ubuntu/data/domain_transfer_10c_split/val
+test_dir:  /home/ubuntu/data/domain_transfer_10c_split/test
+
+max_epochs: 150
+min_epochs: 40
+patience: 20
+
+pretrained: false   # from scratch — no ImageNet weights
+source_run: s8i1hx30
+
+lr: 0.0010703426629131445
+weight_decay: 0.001
+batch_size: 32
+crop_scale_min: 0.65
+dropout_p: 0.2
+label_smoothing: 0.2
+jitter_strength: strong
+rotation_degrees: 10
+aug_erasing: false
+cutmix_alpha: 0.6
