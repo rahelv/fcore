@@ -24,7 +24,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from torchvision.models import resnet18
+from torchvision.models import resnet18, ResNet18_Weights
 from torchvision.transforms import v2
 import wandb
 
@@ -112,7 +112,9 @@ def build_loaders(config, train_transforms, eval_transforms):
 
 # MODEL
 def build_model(config, num_classes, device):
-    model = resnet18(weights=None) # TODO: experiment with pretrained weights
+    # pretrained: true in the YAML → start from ImageNet weights instead of random init
+    weights = ResNet18_Weights.IMAGENET1K_V1 if config.get("pretrained", False) else None
+    model = resnet18(weights=weights)
     in_features = model.fc.in_features
 
     dropout_p = config.get("dropout_p", 0.0)
@@ -214,8 +216,8 @@ def evaluate_per_class(model, loader, idx_to_class, num_classes, device):
         for i in range(num_classes)
     }
 
-# TRAIN — called once per sweep run
-def train():
+# TRAIN — called once per sweep run, or standalone with an explicit config
+def train(project=None, entity=None, config=None):
     # set all seeds for reproducibility
     random.seed(SEED)
     np.random.seed(SEED)
@@ -226,7 +228,9 @@ def train():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    with wandb.init() as run:
+    # under a sweep agent all three args are None and wandb.init() gets
+    # everything from the sweep; standalone they come from --config
+    with wandb.init(project=project, entity=entity, config=config) as run:
         run.define_metric("val/accuracy", summary="max")
         config = run.config
 
@@ -350,4 +354,22 @@ def train():
             )
 
 if __name__ == "__main__":
-    train()
+    import argparse
+    import yaml
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--config",
+        help="plain key:value YAML for a single standalone run "
+             "(omit when launched by a wandb sweep agent)",
+    )
+    args = parser.parse_args()
+
+    if args.config:
+        with open(args.config, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        project = cfg.pop("project", None)
+        entity  = cfg.pop("entity", None)
+        train(project=project, entity=entity, config=cfg)
+    else:
+        train()
