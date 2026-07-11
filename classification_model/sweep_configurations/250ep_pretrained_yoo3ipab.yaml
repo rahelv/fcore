@@ -1,0 +1,26 @@
+# yoo3ipab config with ImageNet weights, full 250 epochs, no early stopping.
+#   python3 train.py --config sweep_configurations/250ep_pretrained_yoo3ipab.yaml
+
+project: fcore_final_250
+entity: rahelvalerie-universit-t-basel
+
+save_dir: /home/ubuntu/data/models/fcore_final_250
+data_dir: /home/ubuntu/data/robust_dataset_split_30c_v2
+
+max_epochs: 250
+min_epochs: 250   # = max_epochs -> early stopping disabled
+patience: 250
+
+pretrained: true
+source_run: yoo3ipab
+
+lr: 0.0004665437719824893
+weight_decay: 0.001
+batch_size: 32
+crop_scale_min: 0.65
+dropout_p: 0.0
+label_smoothing: 0.2
+jitter_strength: strong
+rotation_degrees: 0
+aug_erasing: true
+cutmix_alpha: 0.6

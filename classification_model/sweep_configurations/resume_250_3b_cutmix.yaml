@@ -1,0 +1,20 @@
+# Supplemental config for RESUMING 3b_cutmix runs to 250 epochs.
+# project MUST be the run's original project or wandb can't find the run.
+# Everything else (lr, cutmix, aug, ...) is restored from the original
+# run's config automatically; this file only adds the keys those old
+# runs didn't have yet.
+#
+#   python3 train.py --config sweep_configurations/resume_250_3b_cutmix.yaml \
+#       --resume /path/to/s8i1hx30_best.pt
+#   python3 train.py --config sweep_configurations/resume_250_3b_cutmix.yaml \
+#       --resume /path/to/yoo3ipab_best.pt
+
+project: fcore_hyperparam_sweep_3b_cutmix
+entity: rahelvalerie-universit-t-basel
+
+save_dir: /home/ubuntu/data/models/fcore_final_250
+data_dir: /home/ubuntu/data/robust_dataset_split_30c_v2
+
+max_epochs: 250
+min_epochs: 250   # = max_epochs -> early stopping disabled
+patience: 250
