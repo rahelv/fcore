@@ -1,0 +1,34 @@
+# C10-Cosplay→Character: initialise from C10-Cosplay checkpoint,
+# then fine-tune on character artwork at lr/10.
+# Requires C10-Cosplay to have finished first (init_checkpoint below).
+#   python3 train_domain_transfer.py --config configs/c10_cosplay_to_character.yaml
+
+project: fcore_domain_transfer
+entity: rahelvalerie-universit-t-basel
+run_name: C10-Cosplay-to-Character
+
+save_dir: /home/ubuntu/data/models/fcore_domain_transfer
+init_checkpoint: /home/ubuntu/data/models/fcore_domain_transfer/C10-Cosplay_best.pt
+
+# adjust subfolder names if they differ on the GPU box
+train_dir: /home/ubuntu/data/domain_transfer_10c_split/train_character
+val_dir:   /home/ubuntu/data/domain_transfer_10c_split/val
+test_dir:  /home/ubuntu/data/domain_transfer_10c_split/test
+
+max_epochs: 150
+min_epochs: 40
+patience: 20
+
+pretrained: false   # weights come from init_checkpoint, not ImageNet
+source_run: s8i1hx30
+
+lr: 0.00010703426629131445   # s8i1hx30 lr / 10 for fine-tuning
+weight_decay: 0.001
+batch_size: 32
+crop_scale_min: 0.65
+dropout_p: 0.2
+label_smoothing: 0.2
+jitter_strength: strong
+rotation_degrees: 10
+aug_erasing: false
+cutmix_alpha: 0.6

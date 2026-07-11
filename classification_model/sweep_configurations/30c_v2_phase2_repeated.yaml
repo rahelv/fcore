@@ -1,0 +1,63 @@
+# Phase 2 (CutMix variant): regularisation & augmentation with CutMix,
+# optimiser settings locked from phase 1 (30c_v2_sweep_phase1).
+
+# fixed parameters: adamW optimizer, ReduceLROnPlateau scheduler w/ patience 5, factor 0.5,
+# batch_size 32, crop_scale_min 0.65, hflip on, grayscale/blur/perspective off
+
+program: train.py
+project: fcore_phase2
+entity: rahelvalerie-universit-t-basel
+
+method: bayes
+
+metric:
+  name: val/accuracy
+  goal: maximize
+
+run_cap: 80
+
+parameters:
+  save_dir:
+    value: /home/ubuntu/data/models/fcore_phase2
+  data_dir:
+    value: /home/ubuntu/data/robust_dataset_split_30c_v2
+
+  # ── run control ────────────────────────
+  # longer than phase 1 — regularisation needs time to show benefit
+  max_epochs:
+    value: 120
+  min_epochs:
+    value: 40
+  patience:
+    value: 15
+
+  # ── optimiser ──────────────────────────
+  lr:
+    distribution: log_uniform_values
+    min: 0.0003
+    max: 0.003
+  weight_decay:
+    values: [0.0001, 0.001]
+
+  # ── regularisation ─────────────────────
+  dropout_p:
+    values: [0.0, 0.2, 0.4]
+  label_smoothing:
+    values: [0.05, 0.1, 0.15, 0.2]
+
+  # ── cutmix ─────────────────────────────
+  cutmix_alpha:
+    # Beta(alpha, alpha) for lambda sampling:
+    # 0.2 → mild mixing (small patches), higher → larger patches
+    values: [0, 0.2, 0.4, 0.6]
+
+  # ── augmentation ───────────────────────
+  jitter_strength:
+    # mild:   brightness/contrast 0.2, saturation 0.1, hue 0.05
+    # strong: brightness/contrast 0.4, saturation 0.3, hue 0.05
+    values: [mild, strong]
+  rotation_degrees:
+    values: [0, 10, 20]
+  aug_erasing:
+    # true → RandomErasing(p=0.3, scale=(0.02, 0.2))
+    values: [true, false]

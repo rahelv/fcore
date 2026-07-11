@@ -1,17 +1,19 @@
 """
-Generic W&B sweep training script — all sweep-specific values (paths, epochs,
-hyperparameters) live in sweep_configurations/*.yaml. Optional knobs fall back
-to safe off-defaults, so a YAML only needs to define what it uses.
+Domain-transfer training script (10-class subset, ResNet18 from scratch).
 
-Usage
-─────
-    wandb sweep sweep_configurations/<sweep>.yaml      # prints the sweep ID
+Same training loop as ../train.py, with three additions needed for the
+domain-transfer experiments:
 
-    # one agent per GPU (run from classification_model/):
-    CUDA_VISIBLE_DEVICES=0 wandb agent <entity>/<project>/<sweep_id>
-    CUDA_VISIBLE_DEVICES=1 wandb agent <entity>/<project>/<sweep_id>
+  1. Separate train_dir / val_dir / test_dir instead of a single data_dir,
+     because the training source (cosplay vs. character) differs while
+     val/test are shared across all four experiments.
+  2. run_name — deterministic checkpoint filenames (<run_name>_best.pt),
+     so stage-2 configs can reference stage-1 checkpoints by name.
+  3. init_checkpoint — initialise the model from a stage-1 checkpoint
+     (C10-Character→Cosplay, C10-Cosplay→Character).
 
-    # run_cap in the YAML stops the whole sweep globally.
+Usage (from classification_model/domain_transfer/):
+    python3 train_domain_transfer.py --config configs/c10_cosplay.yaml
 """
 
 import json
@@ -82,12 +84,11 @@ def build_transforms(config):
 
     return train_transforms, eval_transforms
 
-# DATA LOADERS
+# DATA LOADERS — explicit per-split dirs (train source differs per experiment)
 def build_loaders(config, train_transforms, eval_transforms):
-    data_dir = Path(config.data_dir) # load data dir from config
-    train_dataset = datasets.ImageFolder(data_dir / "train", transform=train_transforms) # ImageFolder returns (filepath, class_idx) tuples
-    val_dataset   = datasets.ImageFolder(data_dir / "val",   transform=eval_transforms)
-    test_dataset  = datasets.ImageFolder(data_dir / "test",  transform=eval_transforms)
+    train_dataset = datasets.ImageFolder(config.train_dir, transform=train_transforms)
+    val_dataset   = datasets.ImageFolder(config.val_dir,   transform=eval_transforms)
+    test_dataset  = datasets.ImageFolder(config.test_dir,  transform=eval_transforms)
 
     assert ( # all splits must have identical class-index mappings
         train_dataset.class_to_idx == val_dataset.class_to_idx == test_dataset.class_to_idx
@@ -112,7 +113,8 @@ def build_loaders(config, train_transforms, eval_transforms):
 
 # MODEL
 def build_model(config, num_classes, device):
-    # pretrained: true in the YAML → start from ImageNet weights instead of random init
+    # pretrained: true in the YAML → ImageNet weights (all domain-transfer
+    # experiments use pretrained: false → random init)
     weights = ResNet18_Weights.IMAGENET1K_V1 if config.get("pretrained", False) else None
     model = resnet18(weights=weights)
     in_features = model.fc.in_features
@@ -128,6 +130,21 @@ def build_model(config, num_classes, device):
 
     return model.to(device)
 
+def load_init_checkpoint(model, config, class_to_idx, device):
+    """Stage-2 experiments: initialise from a stage-1 checkpoint."""
+    ckpt_path = config.get("init_checkpoint", None)
+    if not ckpt_path:
+        return
+
+    ckpt = torch.load(ckpt_path, map_location=device)
+    assert ckpt.get("class_to_idx") == class_to_idx, (
+        "init_checkpoint class_to_idx differs from current datasets — "
+        "stage-1 and stage-2 must use the same 10 classes."
+    )
+    model.load_state_dict(ckpt["model_state_dict"])
+    print(f"Initialised from {ckpt_path} "
+          f"(stage-1 best val acc: {ckpt.get('best_val_acc', '?')})")
+
 def train_epoch(model, loader, criterion, optimizer, device, cutmix=None):
     model.train()
 
@@ -140,9 +157,9 @@ def train_epoch(model, loader, criterion, optimizer, device, cutmix=None):
         labels = labels.to(device, non_blocking=True)
 
         if cutmix is not None:
-            images, labels = cutmix(images, labels)  # labels → soft one-hot [B, C] batch size, classes matrix [32, 30]
+            images, labels = cutmix(images, labels)  # labels → soft one-hot [B, C]
 
-        outputs = model(images) # logits [batch size, 30]
+        outputs = model(images)
         loss    = criterion(outputs, labels) # CE handles soft targets natively
 
         optimizer.zero_grad(set_to_none=True)
@@ -150,9 +167,9 @@ def train_epoch(model, loader, criterion, optimizer, device, cutmix=None):
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
         optimizer.step()
 
-        preds = outputs.argmax(dim=1) # find index of largest score (=predicted class)
-        hard_labels = labels.argmax(dim=1) if labels.ndim == 2 else labels   # cutmix labels have probability mix of labels, argmax recovers biggest one
-        correct = (preds == hard_labels).sum().item()  # counts true predictions (compare to true labels)
+        preds = outputs.argmax(dim=1)
+        hard_labels = labels.argmax(dim=1) if labels.ndim == 2 else labels
+        correct = (preds == hard_labels).sum().item()
 
         batch_size       = labels.shape[0]
         running_loss    += loss.item() * batch_size
@@ -216,8 +233,8 @@ def evaluate_per_class(model, loader, idx_to_class, num_classes, device):
         for i in range(num_classes)
     }
 
-# TRAIN — called once per sweep run, or standalone with an explicit config
-def train(project=None, entity=None, config=None, resume_ckpt=None, resume_run_id=None):
+# TRAIN — standalone with an explicit config
+def train(project=None, entity=None, config=None):
     # set all seeds for reproducibility
     random.seed(SEED)
     np.random.seed(SEED)
@@ -228,22 +245,9 @@ def train(project=None, entity=None, config=None, resume_ckpt=None, resume_run_i
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # under a sweep agent all args are None and wandb.init() gets everything
-    # from the sweep; standalone they come from --config. With --resume we
-    # reopen the ORIGINAL wandb run and append to its graphs.
-    init_kwargs = dict(project=project, entity=entity)
-    if resume_run_id is not None:
-        init_kwargs["id"]     = resume_run_id
-        init_kwargs["resume"] = "must"
-    else:
-        init_kwargs["config"] = config
-
-    with wandb.init(**init_kwargs) as run:
+    run_name = (config or {}).get("run_name", None)
+    with wandb.init(project=project, entity=entity, config=config, name=run_name) as run:
         run.define_metric("val/accuracy", summary="max")
-        if resume_run_id is not None and config:
-            # on resume the original config is restored; the --config file may
-            # override keys that already exist (e.g. max_epochs 150 -> 250)
-            run.config.update(config, allow_val_change=True)
         config = run.config
 
         max_epochs = config.max_epochs
@@ -252,7 +256,8 @@ def train(project=None, entity=None, config=None, resume_ckpt=None, resume_run_i
 
         save_dir = Path(config.save_dir)
         save_dir.mkdir(parents=True, exist_ok=True)
-        save_path = save_dir / f"{run.id}_best.pt"
+        # deterministic filename so stage-2 configs can point at stage-1 checkpoints
+        save_path = save_dir / f"{config.get('run_name', run.id)}_best.pt"
 
         train_transforms, eval_transforms = build_transforms(config)
         train_loader, val_loader, test_loader, class_to_idx = build_loaders(
@@ -268,6 +273,7 @@ def train(project=None, entity=None, config=None, resume_ckpt=None, resume_run_i
         cutmix = v2.CutMix(num_classes=num_classes, alpha=alpha) if alpha > 0 else None
 
         model = build_model(config, num_classes, device)
+        load_init_checkpoint(model, config, class_to_idx, device)
         criterion = nn.CrossEntropyLoss(label_smoothing=config.get("label_smoothing", 0.0))
 
         optimizer = torch.optim.AdamW(
@@ -279,27 +285,11 @@ def train(project=None, entity=None, config=None, resume_ckpt=None, resume_run_i
             optimizer, patience=5, factor=0.5
         )
 
-        # run.watch(model, log_freq=50)
-
         best_val_acc          = float("-inf")
         best_epoch            = 0
         epochs_no_improvement = 0
-        start_epoch           = 1
 
-        if resume_ckpt is not None:
-            ckpt = torch.load(resume_ckpt, map_location=device)
-            model.load_state_dict(ckpt["model_state_dict"])
-            optimizer.load_state_dict(ckpt["optimizer_state_dict"])
-            scheduler.load_state_dict(ckpt["scheduler_state_dict"])
-            best_val_acc = ckpt["best_val_acc"]
-            best_epoch   = ckpt["epoch"]
-            start_epoch  = ckpt["epoch"] + 1
-            print(
-                f"Resumed from {resume_ckpt}: continuing at epoch {start_epoch} "
-                f"(best_val_acc so far: {best_val_acc:.4f})"
-            )
-
-        for epoch in range(start_epoch, max_epochs + 1):
+        for epoch in range(1, max_epochs + 1):
             train_loss, train_acc = train_epoch(model, train_loader, criterion, optimizer, device, cutmix=cutmix)
             val_loss, val_acc = eval_epoch(model, val_loader, criterion, device)
 
@@ -344,7 +334,7 @@ def train(project=None, entity=None, config=None, resume_ckpt=None, resume_run_i
                 epochs_no_improvement += 1
 
             if epoch >= min_epochs:
-                if train_acc >= 0.995: # TODO: attention to this, might be too aggressive ..
+                if train_acc >= 0.995:
                     print("Train accuracy almost 100 — stopping early (overfit).")
                     break
                 if epochs_no_improvement >= patience:
@@ -384,38 +374,12 @@ if __name__ == "__main__":
     import yaml
 
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--config",
-        help="plain key:value YAML for a single standalone run "
-             "(omit when launched by a wandb sweep agent)",
-    )
-    parser.add_argument(
-        "--resume",
-        help="checkpoint .pt to continue training from; reopens the original "
-             "wandb run (real continuation, same graphs)",
-    )
-    parser.add_argument(
-        "--run-id",
-        help="wandb run id to resume (default: parsed from the checkpoint "
-             "filename, e.g. s8i1hx30_best.pt -> s8i1hx30)",
-    )
-    # parse_known_args: wandb sweep agents pass all hyperparameters as extra
-    # CLI flags (--lr=... --dropout_p=...); those are ignored here because the
-    # agent delivers the same config through wandb.init().
-    args, _ = parser.parse_known_args()
+    parser.add_argument("--config", required=True,
+                        help="plain key:value YAML for a single standalone run")
+    args = parser.parse_args()
 
-    cfg = project = entity = None
-    if args.config:
-        with open(args.config, "r", encoding="utf-8") as f:
-            cfg = yaml.safe_load(f)
-        project = cfg.pop("project", None)
-        entity  = cfg.pop("entity", None)
-
-    if args.resume:
-        run_id = args.run_id or Path(args.resume).name.split("_")[0]
-        train(project=project, entity=entity, config=cfg,
-              resume_ckpt=args.resume, resume_run_id=run_id)
-    elif args.config:
-        train(project=project, entity=entity, config=cfg)
-    else:
-        train()
+    with open(args.config, "r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    project = cfg.pop("project", None)
+    entity  = cfg.pop("entity", None)
+    train(project=project, entity=entity, config=cfg)
