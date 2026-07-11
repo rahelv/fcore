@@ -1,0 +1,17 @@
+Device: cuda
+
+======================================================================
+MODEL: xlm-roberta-base-ViT-B-32
+======================================================================
+Val set: 779 images across 30 classes
+
+Top-1: 61.62%   Top-5: 80.87%   (n=779)
+Per-image latency (bs=1, n=779, 20 warmup iters excluded):
+  mean   =   73.45 ms
+  median =   57.27 ms
+  std    =   56.19 ms
+  p95    =  184.66 ms
+  min    =   17.49 ms
+  max    =  392.98 ms
+  throughput (1 / mean) = 13.62 img/s
+  peak GPU memory       = 1.48 GB
