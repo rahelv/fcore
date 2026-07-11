@@ -399,7 +399,10 @@ if __name__ == "__main__":
         help="wandb run id to resume (default: parsed from the checkpoint "
              "filename, e.g. s8i1hx30_best.pt -> s8i1hx30)",
     )
-    args = parser.parse_args()
+    # parse_known_args: wandb sweep agents pass all hyperparameters as extra
+    # CLI flags (--lr=... --dropout_p=...); those are ignored here because the
+    # agent delivers the same config through wandb.init().
+    args, _ = parser.parse_known_args()
 
     cfg = project = entity = None
     if args.config:
