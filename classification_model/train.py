@@ -217,7 +217,7 @@ def evaluate_per_class(model, loader, idx_to_class, num_classes, device):
     }
 
 # TRAIN — called once per sweep run, or standalone with an explicit config
-def train(project=None, entity=None, config=None):
+def train(project=None, entity=None, config=None, resume_ckpt=None, resume_run_id=None):
     # set all seeds for reproducibility
     random.seed(SEED)
     np.random.seed(SEED)
@@ -228,10 +228,22 @@ def train(project=None, entity=None, config=None):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # under a sweep agent all three args are None and wandb.init() gets
-    # everything from the sweep; standalone they come from --config
-    with wandb.init(project=project, entity=entity, config=config) as run:
+    # under a sweep agent all args are None and wandb.init() gets everything
+    # from the sweep; standalone they come from --config. With --resume we
+    # reopen the ORIGINAL wandb run and append to its graphs.
+    init_kwargs = dict(project=project, entity=entity)
+    if resume_run_id is not None:
+        init_kwargs["id"]     = resume_run_id
+        init_kwargs["resume"] = "must"
+    else:
+        init_kwargs["config"] = config
+
+    with wandb.init(**init_kwargs) as run:
         run.define_metric("val/accuracy", summary="max")
+        if resume_run_id is not None and config:
+            # on resume the original config is restored; the --config file may
+            # override keys that already exist (e.g. max_epochs 150 -> 250)
+            run.config.update(config, allow_val_change=True)
         config = run.config
 
         max_epochs = config.max_epochs
@@ -272,8 +284,22 @@ def train(project=None, entity=None, config=None):
         best_val_acc          = float("-inf")
         best_epoch            = 0
         epochs_no_improvement = 0
+        start_epoch           = 1
 
-        for epoch in range(1, max_epochs + 1):
+        if resume_ckpt is not None:
+            ckpt = torch.load(resume_ckpt, map_location=device)
+            model.load_state_dict(ckpt["model_state_dict"])
+            optimizer.load_state_dict(ckpt["optimizer_state_dict"])
+            scheduler.load_state_dict(ckpt["scheduler_state_dict"])
+            best_val_acc = ckpt["best_val_acc"]
+            best_epoch   = ckpt["epoch"]
+            start_epoch  = ckpt["epoch"] + 1
+            print(
+                f"Resumed from {resume_ckpt}: continuing at epoch {start_epoch} "
+                f"(best_val_acc so far: {best_val_acc:.4f})"
+            )
+
+        for epoch in range(start_epoch, max_epochs + 1):
             train_loss, train_acc = train_epoch(model, train_loader, criterion, optimizer, device, cutmix=cutmix)
             val_loss, val_acc = eval_epoch(model, val_loader, criterion, device)
 
@@ -363,13 +389,30 @@ if __name__ == "__main__":
         help="plain key:value YAML for a single standalone run "
              "(omit when launched by a wandb sweep agent)",
     )
+    parser.add_argument(
+        "--resume",
+        help="checkpoint .pt to continue training from; reopens the original "
+             "wandb run (real continuation, same graphs)",
+    )
+    parser.add_argument(
+        "--run-id",
+        help="wandb run id to resume (default: parsed from the checkpoint "
+             "filename, e.g. s8i1hx30_best.pt -> s8i1hx30)",
+    )
     args = parser.parse_args()
 
+    cfg = project = entity = None
     if args.config:
         with open(args.config, "r", encoding="utf-8") as f:
             cfg = yaml.safe_load(f)
         project = cfg.pop("project", None)
         entity  = cfg.pop("entity", None)
+
+    if args.resume:
+        run_id = args.run_id or Path(args.resume).name.split("_")[0]
+        train(project=project, entity=entity, config=cfg,
+              resume_ckpt=args.resume, resume_run_id=run_id)
+    elif args.config:
         train(project=project, entity=entity, config=cfg)
     else:
         train()
