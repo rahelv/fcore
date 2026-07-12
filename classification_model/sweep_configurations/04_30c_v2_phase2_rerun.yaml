@@ -31,6 +31,10 @@ parameters:
   patience:
     value: 15
 
+  # fixed seed so all runs are comparable (train.py also seeds cudnn deterministically)
+  seed:
+    value: 57
+
   # ── optimiser ──────────────────────────
   lr:
     distribution: log_uniform_values

@@ -32,7 +32,7 @@ import yaml
 
 ENTITY = "rahelvalerie-universit-t-basel"
 NEW_PROJECT = "fcore_phase2"
-SWEEP_YAML = Path(__file__).parent / "sweep_configurations" / "30c_v2_phase2_repeated.yaml"
+SWEEP_YAML = Path(__file__).parent / "sweep_configurations" / "04_30c_v2_phase2_rerun.yaml"
 
 # source project -> forced cutmix_alpha (None = take from run config)
 SOURCE_PROJECTS = {

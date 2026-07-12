@@ -1,0 +1,25 @@
+# 200-epoch from-scratch run, seed 57 (fixed in train.py).
+# Config: devoted-sweep-19 (old unseeded CutMix sweep, s8i1hx30, val 81.9 unseeded).
+# Head-to-head: old winners vs new (seeded) winners under identical conditions.
+project: fcore_scratch_200
+entity: rahelvalerie-universit-t-basel
+
+data_dir: /home/ubuntu/data/robust_dataset_split_30c_v2
+save_dir: /home/ubuntu/data/models/fcore_scratch_200
+
+pretrained: false
+max_epochs: 200
+min_epochs: 60
+patience: 30
+batch_size: 32
+crop_scale_min: 0.65
+seed: 57            # documentation only — train.py enforces SEED = 57
+
+lr: 0.0010703426629131445
+weight_decay: 0.001
+dropout_p: 0.2
+label_smoothing: 0.2
+cutmix_alpha: 0.6
+jitter_strength: strong
+rotation_degrees: 10
+aug_erasing: false

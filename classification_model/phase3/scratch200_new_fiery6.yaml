@@ -1,0 +1,24 @@
+# 200-epoch from-scratch run, seed 57 (fixed in train.py).
+# Config: fiery-sweep-6 (seeded Phase 2 sweep, luat93ib, val 81.9 — best seeded run).
+project: fcore_scratch_200
+entity: rahelvalerie-universit-t-basel
+
+data_dir: /home/ubuntu/data/robust_dataset_split_30c_v2
+save_dir: /home/ubuntu/data/models/fcore_scratch_200
+
+pretrained: false
+max_epochs: 200
+min_epochs: 60
+patience: 30
+batch_size: 32
+crop_scale_min: 0.65
+seed: 57            # documentation only — train.py enforces SEED = 57
+
+lr: 0.0004421768400778447
+weight_decay: 0.001
+dropout_p: 0.2
+label_smoothing: 0.2
+cutmix_alpha: 0.6
+jitter_strength: strong
+rotation_degrees: 0
+aug_erasing: false
