@@ -112,9 +112,19 @@ def build_loaders(config, train_transforms, eval_transforms):
 
 # MODEL
 def build_model(config, num_classes, device):
-    # pretrained: true in the YAML → start from ImageNet weights instead of random init
-    weights = ResNet18_Weights.IMAGENET1K_V1 if config.get("pretrained", False) else None
-    model = resnet18(weights=weights)
+    # timm_model: <name> in the YAML → load that timm architecture/weights instead of
+    # torchvision, e.g. resnet18.fb_swsl_ig1b_ft_in1k (IG-1B semi-weakly supervised,
+    # the largest-scale public pretraining for ResNet-18). timm ResNets expose the
+    # classifier as .fc like torchvision, so the head replacement below works for both.
+    # Without the key, behaviour is unchanged (torchvision ResNet-18).
+    timm_name = config.get("timm_model", None)
+    if timm_name:
+        import timm  # lazy import — only required when a timm model is requested
+        model = timm.create_model(timm_name, pretrained=config.get("pretrained", False))
+    else:
+        # pretrained: true in the YAML → start from ImageNet weights instead of random init
+        weights = ResNet18_Weights.IMAGENET1K_V1 if config.get("pretrained", False) else None
+        model = resnet18(weights=weights)
     in_features = model.fc.in_features
 
     dropout_p = config.get("dropout_p", 0.0)
