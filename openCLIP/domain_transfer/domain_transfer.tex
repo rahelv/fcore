@@ -1,0 +1,138 @@
+\section{Domain Transfer: Cosplay vs. Character Fine-tuning}
+
+Cosplay photographs are considerably more expensive to curate than character
+artwork: verifying that a photo actually depicts the correct character means
+checking costume accuracy, filtering out low-quality or ambiguous shots, and
+often distinguishing between costume variants of the same character. Character
+artwork, by contrast, can largely be collected with a single search query per
+character and a quick visual pass to discard obvious mismatches. This raises
+a practical question: how much recognition performance is sacrificed by
+fine-tuning on the cheap, mostly-unsorted character artwork instead of the
+carefully curated cosplay set?
+
+To answer this, the 10-class subset from Table~\ref{tab:siglip2_baseline_errors}
+was used to run two separate fine-tuning experiments: one trained exclusively
+on \textit{cosplay photographs} (1{,}351 images, curated) and one trained
+exclusively on \textit{character artwork} (1{,}626 images, mostly unsorted).
+Both were evaluated on the same shared validation/test split used in the
+30-class experiment, restricted to these 10 classes. That evaluation split
+is itself drawn from the same crawl as the cosplay training images (matching
+filename conventions and source IDs), while the character artwork comes from
+a visually distinct, separately sourced crawl --- worth keeping in mind when
+interpreting the results below.
+
+\subsection{Baseline}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccl}
+\toprule
+\textbf{Class} & \textbf{Top-1} & \textbf{Top-5} & \textbf{Most confused as} \\
+\midrule
+Frieren (\textit{Frieren})            & 0.0\%  & 14.6\% & Yor Forger, Kafka (19/41 each) \\
+Yor Forger (\textit{Spy x Family})    & 41.9\% & 100\%  & Kafka (17/43), Ai Hoshino (8/43) \\
+Ai Hoshino (\textit{Oshi no Ko})      & 78.8\% & 100\%  & Furina (4/33), Sailor Moon (3/33) \\
+Kafka (\textit{Honkai Star Rail})     & 87.1\% & 100\%  & Yor Forger (3/31) \\
+\bottomrule
+\end{tabular}
+\caption{Classes with the lowest zero-shot top-1 accuracy on the 10-class
+subset (SigLIP2, validation split). All remaining classes reached
+$\geq$92\%.}
+\label{tab:domain_baseline_errors}
+\end{table}
+
+The pretrained model fails on \textit{Frieren} even more severely here than
+in the 30-class evaluation (0\%, never in the top-5 for 85\% of images),
+confirming this is a genuine gap in the pretraining data rather than a
+class-count artifact.
+
+\subsection{Fine-tuning Setup}
+
+Both runs used the same hyperparameters as the 30-class experiment (learning
+rate $10^{-6}$, batch size 32, AMP precision, single-node 2$\times$RTX 4090)
+but were trained with plain contrastive loss rather than the SigLIP loss and
+without a validation split during training, since both proved unstable at
+this dataset size. The cosplay run converged within 10 epochs (plateauing
+from epoch 5), while the character run needed 20 epochs before a clear peak
+emerged, at epoch 8, followed by a confirmed decline through epoch 20.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Checkpoint} & \textbf{Val Top-1} & \textbf{Val Top-5} & \textbf{Test Top-1} & \textbf{Test Top-5} \\
+\midrule
+Pretrained baseline         & 71.72\% & 87.93\%  & 75.80\% & 95.02\% \\
+Cosplay-trained (epoch 5)   & \textbf{97.59\%} & \textbf{100\%} & \textbf{97.51\%} & \textbf{100\%} \\
+Character-trained (epoch 8) & 94.14\% & 98.97\%  & 93.95\% & 100\%  \\
+\bottomrule
+\end{tabular}
+\caption{Validation and test accuracy before and after fine-tuning on each
+domain (10-class split, 290 validation / 281 test images).}
+\label{tab:domain_finetune}
+\end{table}
+
+\subsection{Results}
+
+Both training domains produce large gains over the pretrained baseline.
+Fine-tuning on cosplay photos lifts test top-1 accuracy by
+\textbf{+21.7 points} (75.8\%$\to$97.5\%) and reaches 100\% top-5 on both
+splits. Fine-tuning on character artwork alone lifts test top-1 accuracy by
+\textbf{+18.2 points} (75.8\%$\to$94.0\%) --- despite the character training
+set being 20\% larger (1{,}626 vs.\ 1{,}351 images), it falls 3.5 points
+short of the cosplay-trained checkpoint on both val and test. The most
+likely explanation is the domain match noted above: the validation/test
+images come from the same crawl as the cosplay training set, so the
+cosplay-trained model has a built-in advantage that the character-trained
+model has to overcome by generalizing across a genuine visual domain gap
+(illustration vs.\ photograph).
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccl}
+\toprule
+\textbf{Class} & \textbf{Cosplay Top-1} & \textbf{Character Top-1} & \textbf{Character confused as} \\
+\midrule
+Frieren (\textit{Frieren})         & 87.8\%  & 73.2\%  & Yor Forger (11/41) \\
+Kafka (\textit{Honkai Star Rail})  & 100\%   & 87.1\%  & Yor Forger (4/31) \\
+Yor Forger (\textit{Spy x Family}) & 97.7\%  & 100\%   & --- \\
+Ai Hoshino (\textit{Oshi no Ko})   & 100\%   & 100\%   & --- \\
+\bottomrule
+\end{tabular}
+\caption{The four weakest zero-shot classes from
+Table~\ref{tab:domain_baseline_errors}, compared across the two fine-tuned
+checkpoints (validation split).}
+\label{tab:domain_finetune_errors}
+\end{table}
+
+The gap between the two checkpoints is concentrated in exactly the classes
+that were hardest zero-shot. \textit{Frieren} improves substantially under
+either domain but remains 14.6 points weaker under character training
+(73.2\% vs.\ 87.8\%). More strikingly, \textit{Kafka} is essentially unmoved
+by character fine-tuning (87.1\%$\to$87.1\%, still confused with Yor Forger
+on the same proportion of images) while cosplay fine-tuning resolves it
+completely (100\%). Conversely, character training has a slight edge on
+\textit{Yor Forger} (100\% vs.\ 97.7\%), so the gap is not uniform in one
+direction, but cosplay training dominates on net.
+
+\subsection{Is Curation Worth It?}
+
+Comparing the two checkpoints directly: cosplay-trained fine-tuning reaches
+97.5\% test top-1, character-trained fine-tuning reaches 94.0\% --- a gap of
+3.5 points, or \textbf{83.6\%} of the achievable improvement over the
+pretrained baseline (18.15 of 21.71 points) captured by character artwork
+alone. Given how much cheaper character artwork is to collect --- a single
+search query per character plus a quick visual pass, versus the manual
+costume and quality verification cosplay photos require --- this is a
+favorable trade-off for most use cases. The remaining gap is not spread
+evenly across classes either: it is concentrated in a couple of already-hard
+characters (\textit{Frieren}, \textit{Kafka}) rather than a uniform quality
+penalty, so a hybrid strategy is plausible too: fine-tune primarily on cheap
+character artwork, and only spend curation effort on cosplay photos for the
+specific classes that end up weak.
+
+In short, training on mostly-unsorted character images instead of curated
+cosplay photos is a feasible substitute for this task: it recovers the large
+majority of the fine-tuning gain, at a fraction of the collection cost, and
+its shortfall is concentrated enough to be patched selectively rather than
+requiring wholesale cosplay curation.
