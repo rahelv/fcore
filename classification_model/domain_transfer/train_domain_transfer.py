@@ -333,13 +333,12 @@ def train(project=None, entity=None, config=None):
             else:
                 epochs_no_improvement += 1
 
-            if epoch >= min_epochs:
-                if train_acc >= 0.995:
-                    print("Train accuracy almost 100 — stopping early (overfit).")
-                    break
-                if epochs_no_improvement >= patience:
-                    print(f"No val improvement for {patience} epochs — stopping.")
-                    break
+            # NOTE: no train-acc overfit guard here (unlike ../train.py) —
+            # it is the only stopping rule not driven by val performance and
+            # would truncate stage-2 runs asymmetrically. Patience handles it.
+            if epoch >= min_epochs and epochs_no_improvement >= patience:
+                print(f"No val improvement for {patience} epochs — stopping.")
+                break
 
         print(f"\nBest val: {best_val_acc:.4f} at epoch {best_epoch}")
 

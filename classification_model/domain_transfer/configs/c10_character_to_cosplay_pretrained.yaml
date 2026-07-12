@@ -19,15 +19,15 @@ min_epochs: 40
 patience: 20
 
 pretrained: false   # weights come from init_checkpoint (ImageNet→character), not directly from ImageNet
-source_run: s8i1hx30
+source_run: fiery-sweep-6
 
-lr: 0.00010703426629131445   # s8i1hx30 lr / 10 for fine-tuning
+lr: 0.00004421768400778447   # fiery-sweep-6 lr / 10 for fine-tuning
 weight_decay: 0.001
 batch_size: 32
 crop_scale_min: 0.65
 dropout_p: 0.2
 label_smoothing: 0.2
 jitter_strength: strong
-rotation_degrees: 10
+rotation_degrees: 0
 aug_erasing: false
 cutmix_alpha: 0.6

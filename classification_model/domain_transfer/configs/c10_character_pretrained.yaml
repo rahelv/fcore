@@ -1,5 +1,5 @@
 # C10-Character-Pretrained: ImageNet init, fine-tuned on character artwork only.
-# Same s8i1hx30 hyperparameters as the from-scratch run — only init differs.
+# Same fiery-sweep-6 hyperparameters as the from-scratch run — only init differs.
 #   python3 train_domain_transfer.py --config configs/c10_character_pretrained.yaml
 
 project: fcore_domain_transfer
@@ -16,15 +16,15 @@ min_epochs: 40
 patience: 20
 
 pretrained: true    # ImageNet weights
-source_run: s8i1hx30
+source_run: fiery-sweep-6
 
-lr: 0.0010703426629131445
+lr: 0.0004421768400778447
 weight_decay: 0.001
 batch_size: 32
 crop_scale_min: 0.65
 dropout_p: 0.2
 label_smoothing: 0.2
 jitter_strength: strong
-rotation_degrees: 10
+rotation_degrees: 0
 aug_erasing: false
 cutmix_alpha: 0.6
