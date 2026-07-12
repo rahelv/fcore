@@ -1,0 +1,30 @@
+# SWSL-pretrained run: timm resnet18.fb_swsl_ig1b_ft_in1k
+# (pretrained semi-weakly supervised on ~940M Instagram images (IG-1B hashtags),
+#  then fine-tuned on ImageNet-1k — largest-scale public pretraining for ResNet-18.
+#  Third initialisation variant: from scratch vs IN1k vs SWSL.)
+# Config: fiery-sweep-6 (seeded Phase 2 sweep, val 81.9 — best seeded run). Seed 57 fixed in train.py.
+# Requires: pip install timm  (weights download from HuggingFace on first run)
+project: fcore_pretrained_swsl
+entity: rahelvalerie-universit-t-basel
+
+data_dir: /home/ubuntu/data/robust_dataset_split_30c_v2
+save_dir: /home/ubuntu/data/models/fcore_pretrained_swsl
+
+timm_model: resnet18.fb_swsl_ig1b_ft_in1k
+pretrained: true
+max_epochs: 150
+min_epochs: 40
+patience: 20
+batch_size: 32
+crop_scale_min: 0.65
+seed: 57            # documentation only — train.py enforces SEED = 57
+
+lr: 0.0004421768400778447
+weight_decay: 0.001
+dropout_p: 0.2
+label_smoothing: 0.2
+cutmix_alpha: 0.6
+jitter_strength: strong
+rotation_degrees: 0
+aug_erasing: false
+
