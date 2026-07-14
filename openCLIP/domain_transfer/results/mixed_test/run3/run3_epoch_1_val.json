@@ -1,0 +1,116 @@
+{
+  "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
+  "checkpoint": "/home/ubuntu/open_clip/logs/mixed_test_run3_finetuning/mixed_test_run3_train/checkpoints/epoch_1.pt",
+  "metadata": "/home/ubuntu/data/domain_transfer_10c_split/val_metadata.csv",
+  "total_images": 290,
+  "total_captions": 10,
+  "overall": {
+    "top1_accuracy": 72.07,
+    "top1_correct": 209,
+    "top5_accuracy": 87.93,
+    "top5_correct": 255,
+    "total": 290
+  },
+  "per_caption": {
+    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
+      "total": 16,
+      "top1_correct": 16,
+      "top1_accuracy": 100.0,
+      "top5_correct": 16,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Deadpool from Marvel": {
+      "total": 26,
+      "top1_correct": 26,
+      "top1_accuracy": 100.0,
+      "top5_correct": 26,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Sailor Moon from Sailor Moon": {
+      "total": 21,
+      "top1_correct": 21,
+      "top1_accuracy": 100.0,
+      "top5_correct": 21,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Furina from Genshin Impact": {
+      "total": 32,
+      "top1_correct": 31,
+      "top1_accuracy": 96.88,
+      "top5_correct": 32,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Kafka from Honkai Star Rail": 1
+      }
+    },
+    "Spider Man from Marvel": {
+      "total": 19,
+      "top1_correct": 18,
+      "top1_accuracy": 94.74,
+      "top5_correct": 19,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Deadpool from Marvel": 1
+      }
+    },
+    "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion": {
+      "total": 28,
+      "top1_correct": 26,
+      "top1_accuracy": 92.86,
+      "top5_correct": 28,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": 2
+      }
+    },
+    "Kafka from Honkai Star Rail": {
+      "total": 31,
+      "top1_correct": 27,
+      "top1_accuracy": 87.1,
+      "top5_correct": 31,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Yor Forger from Spy x Family": 3,
+        "Ai Hoshino from Oshi no Ko": 1
+      }
+    },
+    "Ai Hoshino from Oshi no Ko": {
+      "total": 33,
+      "top1_correct": 27,
+      "top1_accuracy": 81.82,
+      "top5_correct": 33,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Furina from Genshin Impact": 4,
+        "Sailor Moon from Sailor Moon": 2
+      }
+    },
+    "Yor Forger from Spy x Family": {
+      "total": 43,
+      "top1_correct": 17,
+      "top1_accuracy": 39.53,
+      "top5_correct": 43,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Kafka from Honkai Star Rail": 19,
+        "Ai Hoshino from Oshi no Ko": 7
+      }
+    },
+    "Frieren from Frieren": {
+      "total": 41,
+      "top1_correct": 0,
+      "top1_accuracy": 0.0,
+      "top5_correct": 6,
+      "top5_accuracy": 14.63,
+      "confused_as": {
+        "Yor Forger from Spy x Family": 18,
+        "Kafka from Honkai Star Rail": 18,
+        "Furina from Genshin Impact": 3,
+        "Ai Hoshino from Oshi no Ko": 2
+      }
+    }
+  }
+}

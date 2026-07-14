@@ -1,0 +1,111 @@
+{
+  "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
+  "checkpoint": "/home/ubuntu/open_clip/logs/mixed_test_run2_finetuning/mixed_test_run2_train/checkpoints/epoch_9.pt",
+  "metadata": "/home/ubuntu/data/domain_transfer_10c_split/val_metadata.csv",
+  "total_images": 290,
+  "total_captions": 10,
+  "overall": {
+    "top1_accuracy": 81.03,
+    "top1_correct": 235,
+    "top5_accuracy": 86.21,
+    "top5_correct": 250,
+    "total": 290
+  },
+  "per_caption": {
+    "Deadpool from Marvel": {
+      "total": 26,
+      "top1_correct": 26,
+      "top1_accuracy": 100.0,
+      "top5_correct": 26,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Furina from Genshin Impact": {
+      "total": 32,
+      "top1_correct": 32,
+      "top1_accuracy": 100.0,
+      "top5_correct": 32,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Kafka from Honkai Star Rail": {
+      "total": 31,
+      "top1_correct": 31,
+      "top1_accuracy": 100.0,
+      "top5_correct": 31,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Sailor Moon from Sailor Moon": {
+      "total": 21,
+      "top1_correct": 21,
+      "top1_accuracy": 100.0,
+      "top5_correct": 21,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Yor Forger from Spy x Family": {
+      "total": 43,
+      "top1_correct": 43,
+      "top1_accuracy": 100.0,
+      "top5_correct": 43,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Spider Man from Marvel": {
+      "total": 19,
+      "top1_correct": 18,
+      "top1_accuracy": 94.74,
+      "top5_correct": 19,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Deadpool from Marvel": 1
+      }
+    },
+    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
+      "total": 16,
+      "top1_correct": 15,
+      "top1_accuracy": 93.75,
+      "top5_correct": 16,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Sailor Moon from Sailor Moon": 1
+      }
+    },
+    "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion": {
+      "total": 28,
+      "top1_correct": 26,
+      "top1_accuracy": 92.86,
+      "top5_correct": 28,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": 2
+      }
+    },
+    "Ai Hoshino from Oshi no Ko": {
+      "total": 33,
+      "top1_correct": 23,
+      "top1_accuracy": 69.7,
+      "top5_correct": 33,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Sailor Moon from Sailor Moon": 7,
+        "Kafka from Honkai Star Rail": 2,
+        "Furina from Genshin Impact": 1
+      }
+    },
+    "Frieren from Frieren": {
+      "total": 41,
+      "top1_correct": 0,
+      "top1_accuracy": 0.0,
+      "top5_correct": 1,
+      "top5_accuracy": 2.44,
+      "confused_as": {
+        "Furina from Genshin Impact": 27,
+        "Yor Forger from Spy x Family": 12,
+        "Kafka from Honkai Star Rail": 1,
+        "Ai Hoshino from Oshi no Ko": 1
+      }
+    }
+  }
+}
