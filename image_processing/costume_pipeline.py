@@ -1,5 +1,5 @@
 """
-Costume recognition pipeline — STEP 1 ONLY: detect + crop people.
+Costume recognition pipeline — STEP 1: detect + crop people.
 
 image  ->  YOLO person detection  ->  crop each person
 
