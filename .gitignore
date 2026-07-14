@@ -218,3 +218,4 @@ pyrightconfig.json
 
 # data folder 
 data/
+/image_processing/crops/
