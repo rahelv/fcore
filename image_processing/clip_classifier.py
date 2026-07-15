@@ -81,6 +81,14 @@ class ClipCostumeClassifier:
 
         self.model = self.model.to(self.device).eval()
 
+        # Learned temperature. CLIP/SigLIP cosine sims are tightly clustered;
+        # multiplying by logit_scale (~100) before softmax is what makes the
+        # confidences meaningful instead of a near-uniform ~1/num_classes.
+        if hasattr(self.model, "logit_scale"):
+            self.logit_scale = float(self.model.logit_scale.exp().item())
+        else:
+            self.logit_scale = 100.0
+
         # precompute text features once (they never change)
         self.text_features = self._encode_texts(self.labels)
 
@@ -117,9 +125,9 @@ class ClipCostumeClassifier:
         k = min(k, len(self.labels))
         results: List[List[dict]] = []
         for row in sims:
-            # softmax over sims -> relative score (SigLIP sims aren't calibrated
-            # probabilities; this is for display/ranking only)
-            probs = torch.softmax(row.float(), dim=-1)
+            # scale by the learned temperature BEFORE softmax, otherwise the
+            # tightly-clustered cosine sims give a near-uniform distribution.
+            probs = torch.softmax(row.float() * self.logit_scale, dim=-1)
             top_p, top_i = torch.topk(probs, k)
             results.append([
                 {"label": self.labels[i], "score": round(float(p) * 100, 1)}
