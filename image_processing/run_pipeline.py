@@ -10,7 +10,7 @@ Combines:
 Model / checkpoint / labels are hardcoded in clip_classifier.py.
 
 usage:
-    python run_pipeline.py --save-crops ./crops_run
+    python3 run_pipeline.py --save-crops ./crops_run
 """
 
 from __future__ import annotations
