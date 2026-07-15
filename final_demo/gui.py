@@ -301,11 +301,12 @@ class MainWindow(QWidget):
 
 
 def main():
-    # Heavy one-time setup BEFORE the window opens:
-    print("Loading OpenCLIP model (this takes a few seconds)…")
-    clf = ClipCostumeClassifier(checkpoint=CHECKPOINT)
     print("Opening ZED camera…")
     session = CameraSession(conf=40, pad=0.08)
+    # Heavy one-time setup BEFORE the window opens:
+    
+    print("Loading OpenCLIP model (this takes a few seconds)…")
+    clf = ClipCostumeClassifier(checkpoint=CHECKPOINT)
 
     app = QApplication(sys.argv)
     win = MainWindow(session, clf)

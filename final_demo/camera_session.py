@@ -60,10 +60,13 @@ class CameraSession:
         self.zed = sl.Camera()
         init = sl.InitParameters()
         init.camera_resolution = resolution or sl.RESOLUTION.HD1080
-        init.depth_mode = depth_mode or sl.DEPTH_MODE.NEURAL
+        init.camera_fps = 30
+        init.depth_mode = depth_mode or sl.DEPTH_MODE.PERFORMANCE 
+        init.depth_stabilization = 0
+        
         init.coordinate_units = sl.UNIT.METER
-
         status = self.zed.open(init)
+        
         if status != sl.ERROR_CODE.SUCCESS:
             raise RuntimeError(f"ZED open failed: {status}")
 
@@ -72,7 +75,7 @@ class CameraSession:
         od_params.enable_tracking = False
         # SDK 4.x: MULTI_CLASS_BOX_FAST / _MEDIUM / _ACCURATE (older: MULTI_CLASS_BOX)
         od_params.detection_model = (
-            detection_model or sl.OBJECT_DETECTION_MODEL.MULTI_CLASS_BOX_MEDIUM
+            detection_model or sl.OBJECT_DETECTION_MODEL.MULTI_CLASS_BOX_FAST
         )
         od_status = self.zed.enable_object_detection(od_params)
         if od_status != sl.ERROR_CODE.SUCCESS:
