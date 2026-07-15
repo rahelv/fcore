@@ -61,7 +61,11 @@ class CameraSession:
         init = sl.InitParameters()
         init.camera_resolution = resolution or sl.RESOLUTION.HD1080
         init.camera_fps = 30
-        init.depth_mode = depth_mode or sl.DEPTH_MODE.PERFORMANCE 
+        init.depth_mode = (
+            depth_mode
+            if depth_mode is not None
+            else sl.DEPTH_MODE.NEURAL_LIGHT
+        ) 
         init.depth_stabilization = 0
         
         init.coordinate_units = sl.UNIT.METER

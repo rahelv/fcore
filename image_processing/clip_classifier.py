@@ -70,7 +70,7 @@ class ClipCostumeClassifier:
         self.tokenizer = get_tokenizer(model_id)
 
         if checkpoint:
-            ckpt = torch.load(checkpoint, map_location="cpu")
+            ckpt = torch.load(checkpoint, map_location="cpu", weights_only=True)
             state_dict = ckpt.get("state_dict", ckpt)
             cleaned = {
                 (k[len("module."):] if k.startswith("module.") else k): v
