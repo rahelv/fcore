@@ -59,15 +59,9 @@ from PyQt6.QtWidgets import (
 
 from camera_session import CameraSession, Detection
 
-# --- import the OpenCLIP classifier from the sibling image_processing/ folder --
-# clip_classifier.py, labels.json and the checkpoint all live there; we add that
-# directory to the import path and point at the checkpoint by absolute path so
-# this GUI works no matter which directory it's launched from.
-IP_DIR = pathlib.Path(__file__).resolve().parent.parent / "image_processing"
-sys.path.insert(0, str(IP_DIR))
 from clip_classifier import ClipCostumeClassifier  # noqa: E402
 
-CHECKPOINT = str(IP_DIR / "40c_epoch8.pt")
+CHECKPOINT = str("40c_epoch8.pt") # TODO: make sure this file is in the same folder
 
 BOX_COLOR = QColor(0, 200, 120)   # green boxes
 

@@ -35,7 +35,6 @@ from PIL import Image
 
 import pyzed.sl as sl
 
-
 @dataclass
 class Detection:
     """One detected person in the current frame."""
