@@ -1,13 +1,11 @@
-# C10-Character: from scratch on mostly-unsorted character artwork only (1,626 images).
-# Hyperparameters: best from-scratch config fiery-sweep-6 (seeded sweep, val 0.819).
-#   python3 train_domain_transfer.py --config configs/c10_character.yaml
+# C10-Character: from scratch on mostly-unsorted character artwork only
+# Hyperparams from fiery-sweep-6
 
 project: fcore_domain_transfer
 entity: rahelvalerie-universit-t-basel
 run_name: C10-Character
 
 save_dir: /home/ubuntu/data/models/fcore_domain_transfer
-# adjust subfolder names if they differ on the GPU box
 train_dir: /home/ubuntu/data/domain_transfer_10c_split/train_character
 val_dir:   /home/ubuntu/data/domain_transfer_10c_split/val
 test_dir:  /home/ubuntu/data/domain_transfer_10c_split/test
@@ -16,7 +14,7 @@ max_epochs: 150
 min_epochs: 40
 patience: 20
 
-pretrained: false   # from scratch — no ImageNet weights
+pretrained: false
 source_run: fiery-sweep-6
 
 lr: 0.0004421768400778447

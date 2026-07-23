@@ -1,6 +1,6 @@
-# C10-Character-Pretrained: ImageNet init, fine-tuned on character artwork only.
-# Same fiery-sweep-6 hyperparameters as the from-scratch run — only init differs.
-#   python3 train_domain_transfer.py --config configs/c10_character_pretrained.yaml
+# C10-Character-Pretrained: ImageNet init, fine-tuned on character artwork.
+# Hyperparams from fiery-sweep-6
+
 
 project: fcore_domain_transfer
 entity: rahelvalerie-universit-t-basel

@@ -1,7 +1,5 @@
-# C10-Character→Cosplay-Pretrained: initialise from C10-Character-Pretrained
-# checkpoint (itself ImageNet-initialised), then fine-tune on cosplay at lr/10.
-# Requires C10-Character-Pretrained to have finished first.
-#   python3 train_domain_transfer.py --config configs/c10_character_to_cosplay_pretrained.yaml
+# C10-Character→Cosplay-Pretrained: initialise from C10-Character-Pretrained, fine-tune on cosplay
+# Hyperparams from fiery-sweep-6
 
 project: fcore_domain_transfer
 entity: rahelvalerie-universit-t-basel
@@ -18,10 +16,10 @@ max_epochs: 150
 min_epochs: 40
 patience: 20
 
-pretrained: false   # weights come from init_checkpoint (ImageNet→character), not directly from ImageNet
+pretrained: false
 source_run: fiery-sweep-6
 
-lr: 0.00004421768400778447   # fiery-sweep-6 lr / 10 for fine-tuning
+lr: 0.00004421768400778447   # lr / 10 for fine-tuning
 weight_decay: 0.001
 batch_size: 32
 crop_scale_min: 0.65

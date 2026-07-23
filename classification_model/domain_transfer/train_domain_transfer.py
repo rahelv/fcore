@@ -35,7 +35,6 @@ IMAGE_SIZE  = 224 # ImageNet standard
 NUM_WORKERS = min(4, os.cpu_count() or 1)
 SEED        = 57 # grothendiecks prime
 
-
 # BUILD TRANSFORMS
 def build_transforms(config):
     jitter_lookup = {

@@ -1,6 +1,5 @@
 # C10-Cosplay-Pretrained: ImageNet init, fine-tuned on cosplay photographs only.
-# Same fiery-sweep-6 hyperparameters as the from-scratch run — only init differs.
-#   python3 train_domain_transfer.py --config configs/c10_cosplay_pretrained.yaml
+# Hyperparams from fiery-sweep-6
 
 project: fcore_domain_transfer
 entity: rahelvalerie-universit-t-basel
@@ -15,7 +14,7 @@ max_epochs: 150
 min_epochs: 40
 patience: 20
 
-pretrained: true    # ImageNet weights
+pretrained: true
 source_run: fiery-sweep-6
 
 lr: 0.0004421768400778447
