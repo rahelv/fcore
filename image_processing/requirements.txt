@@ -1,0 +1,43 @@
+# ── Costume-recognition pipeline requirements ────────────────────────────────
+# Target: ZED Box Orin NX 16GB | JetPack 6.1 | L4T 36.4 | CUDA 12.6 | Python 3.10
+#
+#     pip install -r requirements.txt
+#
+# The --extra-index-url below makes pip pull the Jetson-native torch wheels
+# (GPU-enabled, cp310/aarch64) instead of the CPU-only PyPI ones. pyzed is
+# still separate (see bottom) -- it's not on any pip index.
+
+# --- torch / torchvision: Jetson AI Lab wheels (jp6 / cu126, Python 3.10) ---
+--extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126
+torch==2.11.0
+torchvision==0.26.0
+
+# --- OpenCLIP classifier ---
+open_clip_torch>=2.24     # provides `open_clip` (SigLIP2 model + tokenizer)
+timm>=1.0                 # required for the hf-hub:timm/ViT-B-16-SigLIP2-256 model
+transformers>=4.40        # SigLIP tokenizer (HF backend) -- required
+huggingface_hub>=0.23     # pulls the model weights from the hub
+sentencepiece>=0.1.99     # SigLIP text tokenizer backend
+ftfy                      # open_clip text cleaning
+regex                     # open_clip tokenizer
+
+# --- imaging / arrays ---
+Pillow>=10.0              # the "PIL" import (crops, image I/O)
+numpy>=1.24
+
+# --- GUI (final_demo app) ---
+PyQt6>=6.6                # native desktop GUI (live preview + capture)
+#   If the PyQt6 wheel won't install on aarch64, use the system package instead:
+#       sudo apt-get install -y python3-pyqt6
+#   (and create the venv with --system-site-packages so it's visible)
+
+# ── after install, verify the GPU is visible ─────────────────────────────────
+#     python -c "import torch; print(torch.__version__, torch.cuda.is_available())"   # -> True
+# If import fails on cuSPARSELt:
+#     sudo apt-get install -y libcusparselt0 libcusparselt-dev
+
+# ── pyzed (ZED SDK Python API) -- NOT pip-installable ─────────────────────────
+# Install the ZED SDK, then:
+#     python /usr/local/zed/get_python_api.py
+# Verify:
+#     python -c "import pyzed.sl as sl; print(sl.Camera.get_sdk_version())"
