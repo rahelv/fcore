@@ -1,7 +1,4 @@
-# TODO: instead of split, keep organization in json file maybe ?
-
 # splits folder structure into test/train/val
-# TODO: ignore folder "originals"
 
 from pathlib import Path
 import random

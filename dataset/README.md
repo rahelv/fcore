@@ -22,3 +22,9 @@ A Streamlit app (`streamlit_app/app.py`) for manually reviewing and labeling cra
 5. Records can also be deleted outright (removes the image file and the JSONL entry).
 
 `move_special_labels.py` is a CLI utility to batch-move already-labeled MULTIPLE/NONE records into their subfolders and update the paths in the JSONL.
+
+
+## Cleanup Scripts 
+
+Various Scripts that help cleanup the images, find duplicates and split the dataset into train/val/test sets. 
+
