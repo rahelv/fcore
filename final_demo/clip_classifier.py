@@ -130,7 +130,11 @@ class ClipCostumeClassifier:
             probs = torch.softmax(row.float() * self.logit_scale, dim=-1)
             top_p, top_i = torch.topk(probs, k)
             results.append([
-                {"label": self.labels[i], "score": round(float(p) * 100, 1)}
+                {
+                    "label": self.labels[i],
+                    "score": round(float(p) * 100, 1),      # softmax %, 0-100
+                    "sim": round(float(row[i]), 3),          # raw cosine similarity
+                }
                 for p, i in zip(top_p, top_i)
             ])
         return results

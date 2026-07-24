@@ -4,20 +4,8 @@ camera_session.py
 
 A *persistent* ZED camera session for the live GUI.
 
-Why a new class instead of reusing zed_native_detect.py?
---------------------------------------------------------
-`ZedPersonDetector.detect_frame()` in image_processing/ is built for one-shot
-scripts: it opens the camera, warms up, grabs ONE frame, and the caller closes
-the camera afterwards. A GUI needs the opposite lifecycle:
-
-  * open the camera ONCE at startup,
-  * grab MANY frames in a loop (for the live preview),
-  * only close on shutdown.
-
-So `CameraSession` keeps the camera + object-detection module alive and exposes
-a single cheap `grab()` that returns the current frame plus the people in it.
-Everything else (the box-padding, BGRA->RGB conversion, PERSON filtering) is the
-same logic as zed_native_detect.py.
+`CameraSession` keeps the camera + object-detection module alive and exposes
+a single `grab()` that returns the current frame plus the people in it.
 
 Each grab() returns:
     (rgb_frame, detections)
@@ -41,7 +29,6 @@ class Detection:
     box: Tuple[int, int, int, int]  # (x1, y1, x2, y2) in the left image
     score: float                     # ZED person confidence, 0-100
     crop: Image.Image                # RGB crop, fed to the CLIP classifier
-
 
 class CameraSession:
     def __init__(
@@ -121,11 +108,6 @@ class CameraSession:
 
     # ------------------------------------------------------------------ grab
     def grab(self) -> Tuple[np.ndarray, List[Detection]]:
-        """Grab the current frame and detect people in it.
-
-        Cheap enough to call in a display loop: one grab, one image retrieve,
-        one object retrieve. No warmup here (done once in __init__).
-        """
         if self.zed.grab(self._runtime) != sl.ERROR_CODE.SUCCESS:
             raise RuntimeError("ZED grab() failed")
 
