@@ -168,6 +168,12 @@ class ResultCard(QFrame):
             header.setStyleSheet("color:#b44;")
         col.addWidget(header)
 
+        # In cosine mode the bar length is scaled relative to the top-1 match of
+        # this person, since absolute cosine values live in a narrow band and a
+        # 0-1 bar is uninformative. The bar then shows how far each candidate
+        # trails the best match; the raw value is printed on the bar.
+        top_sim = max((p.get("sim", 0.0) for p in preds), default=1.0) or 1.0
+
         for p in preds:
             line = QHBoxLayout()
             name = QLabel(p["label"])
@@ -176,8 +182,7 @@ class ResultCard(QFrame):
             bar.setRange(0, 100)
             if show_raw:
                 sim = p.get("sim", 0.0)
-                # cosine sims live in a small band; stretch for visibility
-                bar.setValue(max(0, min(100, int(round(sim * 100)))))
+                bar.setValue(max(0, min(100, int(round(sim / top_sim * 100)))))
                 bar.setFormat(f"{sim:.3f}")
             else:
                 bar.setValue(int(round(p["score"])))
@@ -219,26 +224,28 @@ class MainWindow(QWidget):
         self.capture_btn.clicked.connect(self.on_capture)
         left.addWidget(self.capture_btn)
 
-        # ---- display options: percentage/similarity toggle + threshold ----
+        root.addLayout(left, stretch=3)
+
+        # ---- right: display options on top, results panel below ----
+        right = QVBoxLayout()
+
+        # display options: percentage/similarity toggle + costume threshold
         opts = QHBoxLayout()
         opts.addWidget(self._build_mode_toggle())
-
         opts.addStretch(1)
         opts.addWidget(QLabel("Costume threshold:"))
         self.threshold_slider = QSlider(Qt.Orientation.Horizontal)
         self.threshold_slider.setRange(0, 100)
         self.threshold_slider.setValue(50)
-        self.threshold_slider.setMinimumWidth(160)
+        self.threshold_slider.setMinimumWidth(120)
         self.threshold_slider.valueChanged.connect(self._on_threshold_changed)
         opts.addWidget(self.threshold_slider)
         self.threshold_label = QLabel("50%")
         self.threshold_label.setMinimumWidth(40)
         opts.addWidget(self.threshold_label)
-        left.addLayout(opts)
+        right.addLayout(opts)
 
-        root.addLayout(left, stretch=3)
-
-        # ---- right: results panel (scrollable) ----
+        # results panel (scrollable)
         self.results_box = QVBoxLayout()
         self.results_box.addStretch(1)
         results_container = QWidget()
@@ -247,7 +254,9 @@ class MainWindow(QWidget):
         scroll.setWidgetResizable(True)
         scroll.setWidget(results_container)
         scroll.setMinimumWidth(430)
-        root.addWidget(scroll, stretch=2)
+        right.addWidget(scroll, stretch=1)
+
+        root.addLayout(right, stretch=2)
 
         # ---- start the camera thread ----
         # (defined after __init__: _build_mode_toggle, _show_raw)
