@@ -47,12 +47,14 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QImage, QPainter, QPen, QPixmap
 from PyQt6.QtWidgets import (
     QApplication,
+    QButtonGroup,
     QFrame,
     QHBoxLayout,
     QLabel,
     QProgressBar,
     QPushButton,
     QScrollArea,
+    QSlider,
     QVBoxLayout,
     QWidget,
 )
@@ -129,7 +131,12 @@ def pil_to_qpixmap(im) -> QPixmap:
 # One result card (crop + top-3 labels with confidence bars)
 # ─────────────────────────────────────────────────────────────────────────────
 class ResultCard(QFrame):
-    def __init__(self, index: int, det: Detection, preds: List[dict]):
+    """show_raw=False: softmax percentages. show_raw=True: raw cosine sims.
+    threshold applies to the top-1 softmax percentage; below it the header
+    shows 'Not recognized' instead of a character name."""
+
+    def __init__(self, index: int, det: Detection, preds: List[dict],
+                 show_raw: bool = False, threshold: int = 50):
         super().__init__()
         self.setFrameShape(QFrame.Shape.StyledPanel)
         row = QHBoxLayout(self)
@@ -147,12 +154,18 @@ class ResultCard(QFrame):
 
         # labels + confidence bars
         col = QVBoxLayout()
-        top = preds[0] if preds else {"label": "—", "score": 0.0}
-        header = QLabel(f"Person {index}:  {top['label']}")
+        top = preds[0] if preds else {"label": "—", "score": 0.0, "sim": 0.0}
+        rejected = top["score"] < threshold
+        header = QLabel(
+            f"Person {index}:  Not recognized as a costume" if rejected
+            else f"Person {index}:  {top['label']}"
+        )
         f = QFont()
         f.setPointSize(13)
         f.setBold(True)
         header.setFont(f)
+        if rejected:
+            header.setStyleSheet("color:#b44;")
         col.addWidget(header)
 
         for p in preds:
@@ -161,8 +174,14 @@ class ResultCard(QFrame):
             name.setMinimumWidth(220)
             bar = QProgressBar()
             bar.setRange(0, 100)
-            bar.setValue(int(round(p["score"])))
-            bar.setFormat(f"{p['score']}%")
+            if show_raw:
+                sim = p.get("sim", 0.0)
+                # cosine sims live in a small band; stretch for visibility
+                bar.setValue(max(0, min(100, int(round(sim * 100)))))
+                bar.setFormat(f"{sim:.3f}")
+            else:
+                bar.setValue(int(round(p["score"])))
+                bar.setFormat(f"{p['score']}%")
             line.addWidget(name)
             line.addWidget(bar)
             col.addLayout(line)
@@ -180,6 +199,7 @@ class MainWindow(QWidget):
         self.clf = clf
         self.latest: Optional[Tuple[np.ndarray, List[Detection]]] = None
         self.classify_thread: Optional[ClassifyThread] = None
+        self.last_paired: List[Tuple[Detection, List[dict]]] = []
 
         self.setWindowTitle("Costume Recognition — ZED X Live Demo")
         self.resize(1400, 800)
@@ -189,7 +209,7 @@ class MainWindow(QWidget):
         # ---- left: live feed + capture button ----
         left = QVBoxLayout()
         self.video = QLabel("Starting camera…")
-        self.video.setMinimumSize(900, 700)
+        self.video.setMinimumSize(640, 400)
         self.video.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.video.setStyleSheet("background:#111; color:#aaa;")
         left.addWidget(self.video, stretch=1)
@@ -198,6 +218,24 @@ class MainWindow(QWidget):
         self.capture_btn.setMinimumHeight(48)
         self.capture_btn.clicked.connect(self.on_capture)
         left.addWidget(self.capture_btn)
+
+        # ---- display options: percentage/similarity toggle + threshold ----
+        opts = QHBoxLayout()
+        opts.addWidget(self._build_mode_toggle())
+
+        opts.addStretch(1)
+        opts.addWidget(QLabel("Costume threshold:"))
+        self.threshold_slider = QSlider(Qt.Orientation.Horizontal)
+        self.threshold_slider.setRange(0, 100)
+        self.threshold_slider.setValue(50)
+        self.threshold_slider.setMinimumWidth(160)
+        self.threshold_slider.valueChanged.connect(self._on_threshold_changed)
+        opts.addWidget(self.threshold_slider)
+        self.threshold_label = QLabel("50%")
+        self.threshold_label.setMinimumWidth(40)
+        opts.addWidget(self.threshold_label)
+        left.addLayout(opts)
+
         root.addLayout(left, stretch=3)
 
         # ---- right: results panel (scrollable) ----
@@ -212,10 +250,47 @@ class MainWindow(QWidget):
         root.addWidget(scroll, stretch=2)
 
         # ---- start the camera thread ----
+        # (defined after __init__: _build_mode_toggle, _show_raw)
         self.cam_thread = CameraThread(session)
         self.cam_thread.frameReady.connect(self.on_frame)
         self.cam_thread.error.connect(self.on_cam_error)
         self.cam_thread.start()
+
+    # ---- display-mode toggle (segmented two-button control) ----
+    def _build_mode_toggle(self) -> QWidget:
+        """A two-sided pill: 'Percentage' | 'Cosine similarity'."""
+        box = QWidget()
+        lay = QHBoxLayout(box)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(0)
+
+        self.btn_pct = QPushButton("Percentage")
+        self.btn_sim = QPushButton("Cosine similarity")
+        self.mode_group = QButtonGroup(self)
+        for b in (self.btn_pct, self.btn_sim):
+            b.setCheckable(True)
+            b.setMinimumHeight(30)
+            self.mode_group.addButton(b)
+            lay.addWidget(b)
+        self.btn_pct.setChecked(True)   # default: percentages
+        self.mode_group.setExclusive(True)
+        self.mode_group.buttonToggled.connect(self._rerender_results)
+
+        box.setStyleSheet("""
+            QPushButton { border:1px solid #888; padding:4px 14px; background:#eee; }
+            QPushButton:first-child  { border-top-left-radius:6px;  border-bottom-left-radius:6px;  }
+            QPushButton:last-child   { border-top-right-radius:6px; border-bottom-right-radius:6px;
+                                       border-left:none; }
+            QPushButton:checked { background:#2d7; color:#000; font-weight:bold; }
+        """)
+        return box
+
+    def _show_raw(self) -> bool:
+        return self.btn_sim.isChecked()
+
+    def _on_threshold_changed(self, value: int):
+        self.threshold_label.setText(f"{value}%")
+        self._rerender_results()
 
     # ---- live preview ----
     def on_frame(self, rgb: np.ndarray, dets: List[Detection]):
@@ -264,12 +339,21 @@ class MainWindow(QWidget):
         self.classify_thread.start()
 
     def on_results(self, paired: List[Tuple[Detection, List[dict]]]):
-        self._clear_results()
-        for i, (det, preds) in enumerate(paired):
-            self.results_box.insertWidget(self.results_box.count() - 1,
-                                          ResultCard(i, det, preds))
+        self.last_paired = paired
+        self._rerender_results()
         self.capture_btn.setEnabled(True)
         self.capture_btn.setText("Capture")
+
+    def _rerender_results(self):
+        """Rebuild the result cards from the last classification, applying the
+        current display mode and threshold (no re-classification needed)."""
+        self._clear_results()
+        for i, (det, preds) in enumerate(self.last_paired):
+            self.results_box.insertWidget(
+                self.results_box.count() - 1,
+                ResultCard(i, det, preds,
+                           show_raw=self._show_raw(),
+                           threshold=self.threshold_slider.value()))
 
     # ---- results panel helpers ----
     def _clear_results(self):
@@ -304,7 +388,7 @@ def main():
 
     app = QApplication(sys.argv)
     win = MainWindow(session, clf)
-    win.show()
+    win.showMaximized()   # fit the Jetson display so the bottom controls stay visible
     sys.exit(app.exec())
 
 
