@@ -1,25 +1,17 @@
 {
   "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
-  "checkpoint": "/home/ubuntu/open_clip/logs/V3_plain_siglip2_finetuning/V3_plain_siglip2_train/checkpoints/epoch_2.pt",
+  "checkpoint": "/home/ubuntu/open_clip/logs/V4_plain_siglip2_finetuning_seed42/V4_plain_siglip2_train_seed42/checkpoints/epoch_4.pt",
   "metadata": "/home/ubuntu/data/robust_dataset_split_30c_v2/val_metadata_plain.csv",
   "total_images": 779,
   "total_captions": 30,
   "overall": {
-    "top1_accuracy": 97.3,
-    "top1_correct": 758,
-    "top5_accuracy": 100.0,
-    "top5_correct": 779,
+    "top1_accuracy": 96.92,
+    "top1_correct": 755,
+    "top5_accuracy": 99.87,
+    "top5_correct": 778,
     "total": 779
   },
   "per_caption": {
-    "2B from Nier Automata": {
-      "total": 13,
-      "top1_correct": 13,
-      "top1_accuracy": 100.0,
-      "top5_correct": 13,
-      "top5_accuracy": 100.0,
-      "confused_as": {}
-    },
     "9S from Nier Automata": {
       "total": 19,
       "top1_correct": 19,
@@ -100,14 +92,6 @@
       "top5_accuracy": 100.0,
       "confused_as": {}
     },
-    "Furina from Genshin Impact": {
-      "total": 32,
-      "top1_correct": 32,
-      "top1_accuracy": 100.0,
-      "top5_correct": 32,
-      "top5_accuracy": 100.0,
-      "confused_as": {}
-    },
     "Harley Quinn from DC Comics": {
       "total": 30,
       "top1_correct": 30,
@@ -121,14 +105,6 @@
       "top1_correct": 10,
       "top1_accuracy": 100.0,
       "top5_correct": 10,
-      "top5_accuracy": 100.0,
-      "confused_as": {}
-    },
-    "Hu Tao from Genshin Impact": {
-      "total": 32,
-      "top1_correct": 32,
-      "top1_accuracy": 100.0,
-      "top5_correct": 32,
       "top5_accuracy": 100.0,
       "confused_as": {}
     },
@@ -168,8 +144,8 @@
       "total": 40,
       "top1_correct": 39,
       "top1_accuracy": 97.5,
-      "top5_correct": 40,
-      "top5_accuracy": 100.0,
+      "top5_correct": 39,
+      "top5_accuracy": 97.5,
       "confused_as": {
         "Furina from Genshin Impact": 1
       }
@@ -179,6 +155,26 @@
       "top1_correct": 32,
       "top1_accuracy": 96.97,
       "top5_correct": 33,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Raiden Shogun from Genshin Impact": 1
+      }
+    },
+    "Furina from Genshin Impact": {
+      "total": 32,
+      "top1_correct": 31,
+      "top1_accuracy": 96.88,
+      "top5_correct": 32,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Raiden Shogun from Genshin Impact": 1
+      }
+    },
+    "Hu Tao from Genshin Impact": {
+      "total": 32,
+      "top1_correct": 31,
+      "top1_accuracy": 96.88,
+      "top5_correct": 32,
       "top5_accuracy": 100.0,
       "confused_as": {
         "Raiden Shogun from Genshin Impact": 1
@@ -224,26 +220,6 @@
         "Deadpool from Marvel": 1
       }
     },
-    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
-      "total": 16,
-      "top1_correct": 15,
-      "top1_accuracy": 93.75,
-      "top5_correct": 16,
-      "top5_accuracy": 100.0,
-      "confused_as": {
-        "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion": 1
-      }
-    },
-    "Kafka from Honkai Star Rail": {
-      "total": 31,
-      "top1_correct": 29,
-      "top1_accuracy": 93.55,
-      "top5_correct": 31,
-      "top5_accuracy": 100.0,
-      "confused_as": {
-        "Anya Forger from Spy x Family": 2
-      }
-    },
     "D.Va from Overwatch": {
       "total": 29,
       "top1_correct": 27,
@@ -253,6 +229,26 @@
       "confused_as": {
         "Anya Forger from Spy x Family": 1,
         "Inosuke Hashibira from Demon Slayer": 1
+      }
+    },
+    "2B from Nier Automata": {
+      "total": 13,
+      "top1_correct": 12,
+      "top1_accuracy": 92.31,
+      "top5_correct": 13,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Yor Forger from Spy x Family": 1
+      }
+    },
+    "Kafka from Honkai Star Rail": {
+      "total": 31,
+      "top1_correct": 28,
+      "top1_accuracy": 90.32,
+      "top5_correct": 31,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Anya Forger from Spy x Family": 3
       }
     },
     "Anya Forger from Spy x Family": {
@@ -265,16 +261,25 @@
         "Jinx from League of Legends": 1
       }
     },
+    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
+      "total": 16,
+      "top1_correct": 14,
+      "top1_accuracy": 87.5,
+      "top5_correct": 16,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Sailor Moon from Sailor Moon": 1,
+        "Artoria Pendragon from Fate_Stay Night": 1
+      }
+    },
     "Frieren from Frieren": {
       "total": 41,
-      "top1_correct": 33,
-      "top1_accuracy": 80.49,
+      "top1_correct": 35,
+      "top1_accuracy": 85.37,
       "top5_correct": 41,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Yor Forger from Spy x Family": 6,
-        "Daenerys Targaryen from Game of Thrones": 1,
-        "2B from Nier Automata": 1
+        "Yor Forger from Spy x Family": 6
       }
     }
   }

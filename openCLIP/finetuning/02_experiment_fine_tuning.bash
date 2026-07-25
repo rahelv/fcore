@@ -7,7 +7,8 @@ export CUDA_VISIBLE_DEVICES=0,1
 export WANDB_PROJECT=fcore_openclip_finetuning
 
 torchrun --nproc_per_node 2 -m open_clip_train.main -- \
-  --name V4_plain_siglip2_train \
+  --name V4_plain_siglip2_train_seed42 \
+  --seed 42 \
   --dataset-type csv \
   --train-data /home/ubuntu/data/robust_dataset_split_30c_v2/train_metadata_plain.csv \
   --csv-img-key filepath \
@@ -24,7 +25,7 @@ torchrun --nproc_per_node 2 -m open_clip_train.main -- \
   --epochs 5 \
   --save-frequency 1 \
   --report-to wandb \
-  --logs /home/ubuntu/open_clip/logs/V4_plain_siglip2_finetuning
+  --logs /home/ubuntu/open_clip/logs/V4_plain_siglip2_finetuning_seed42
 
  # --siglip — the substantive change.
  # Trains with SigLIP's pairwise sigmoid loss (every image-caption pair scored independently as match/no-match)

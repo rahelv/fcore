@@ -1,14 +1,14 @@
 {
   "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
-  "checkpoint": "/home/ubuntu/open_clip/logs/V4_plain_siglip2_finetuning/V4_plain_siglip2_train/checkpoints/epoch_2.pt",
+  "checkpoint": "/home/ubuntu/open_clip/logs/V3_plain_siglip2_finetuning_seed42/V3_plain_siglip2_train_seed42/checkpoints/epoch_1.pt",
   "metadata": "/home/ubuntu/data/robust_dataset_split_30c_v2/val_metadata_plain.csv",
   "total_images": 779,
   "total_captions": 30,
   "overall": {
-    "top1_accuracy": 95.64,
-    "top1_correct": 745,
-    "top5_accuracy": 99.74,
-    "top5_correct": 777,
+    "top1_accuracy": 96.02,
+    "top1_correct": 748,
+    "top5_accuracy": 99.87,
+    "top5_correct": 778,
     "total": 779
   },
   "per_caption": {
@@ -25,14 +25,6 @@
       "top1_correct": 19,
       "top1_accuracy": 100.0,
       "top5_correct": 19,
-      "top5_accuracy": 100.0,
-      "confused_as": {}
-    },
-    "Ai Hoshino from Oshi no Ko": {
-      "total": 33,
-      "top1_correct": 33,
-      "top1_accuracy": 100.0,
-      "top5_correct": 33,
       "top5_accuracy": 100.0,
       "confused_as": {}
     },
@@ -140,13 +132,35 @@
       "top5_accuracy": 100.0,
       "confused_as": {}
     },
+    "Yor Forger from Spy x Family": {
+      "total": 43,
+      "top1_correct": 42,
+      "top1_accuracy": 97.67,
+      "top5_correct": 43,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Ai Hoshino from Oshi no Ko": 1
+      }
+    },
     "Wolverine from Marvel": {
       "total": 37,
-      "top1_correct": 37,
-      "top1_accuracy": 100.0,
+      "top1_correct": 36,
+      "top1_accuracy": 97.3,
       "top5_correct": 37,
       "top5_accuracy": 100.0,
-      "confused_as": {}
+      "confused_as": {
+        "Deadpool from Marvel": 1
+      }
+    },
+    "Ai Hoshino from Oshi no Ko": {
+      "total": 33,
+      "top1_correct": 32,
+      "top1_accuracy": 96.97,
+      "top5_correct": 33,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Raiden Shogun from Genshin Impact": 1
+      }
     },
     "Furina from Genshin Impact": {
       "total": 32,
@@ -155,7 +169,7 @@
       "top5_correct": 32,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Artoria Pendragon from Fate_Stay Night": 1
+        "Raiden Shogun from Genshin Impact": 1
       }
     },
     "Hu Tao from Genshin Impact": {
@@ -165,18 +179,17 @@
       "top5_correct": 32,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Ai Hoshino from Oshi no Ko": 1
+        "Raiden Shogun from Genshin Impact": 1
       }
     },
-    "Jinx from League of Legends": {
-      "total": 40,
-      "top1_correct": 38,
-      "top1_accuracy": 95.0,
-      "top5_correct": 39,
-      "top5_accuracy": 97.5,
+    "Raiden Shogun from Genshin Impact": {
+      "total": 32,
+      "top1_correct": 31,
+      "top1_accuracy": 96.88,
+      "top5_correct": 32,
+      "top5_accuracy": 100.0,
       "confused_as": {
-        "Furina from Genshin Impact": 1,
-        "Frieren from Frieren": 1
+        "Hu Tao from Genshin Impact": 1
       }
     },
     "Thor from Marvel": {
@@ -199,17 +212,6 @@
         "Deadpool from Marvel": 1
       }
     },
-    "Raiden Shogun from Genshin Impact": {
-      "total": 32,
-      "top1_correct": 30,
-      "top1_accuracy": 93.75,
-      "top5_correct": 31,
-      "top5_accuracy": 96.88,
-      "confused_as": {
-        "Hu Tao from Genshin Impact": 1,
-        "Furina from Genshin Impact": 1
-      }
-    },
     "D.Va from Overwatch": {
       "total": 29,
       "top1_correct": 27,
@@ -221,15 +223,16 @@
         "Inosuke Hashibira from Demon Slayer": 1
       }
     },
-    "Yor Forger from Spy x Family": {
-      "total": 43,
-      "top1_correct": 40,
-      "top1_accuracy": 93.02,
-      "top5_correct": 43,
-      "top5_accuracy": 100.0,
+    "Jinx from League of Legends": {
+      "total": 40,
+      "top1_correct": 37,
+      "top1_accuracy": 92.5,
+      "top5_correct": 39,
+      "top5_accuracy": 97.5,
       "confused_as": {
-        "Inosuke Hashibira from Demon Slayer": 2,
-        "Anya Forger from Spy x Family": 1
+        "Yor Forger from Spy x Family": 1,
+        "Furina from Genshin Impact": 1,
+        "Frieren from Frieren": 1
       }
     },
     "2B from Nier Automata": {
@@ -239,7 +242,7 @@
       "top5_correct": 13,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "9S from Nier Automata": 1
+        "Yor Forger from Spy x Family": 1
       }
     },
     "Anya Forger from Spy x Family": {
@@ -252,38 +255,38 @@
         "Jinx from League of Legends": 1
       }
     },
-    "Frieren from Frieren": {
-      "total": 41,
-      "top1_correct": 35,
-      "top1_accuracy": 85.37,
-      "top5_correct": 41,
+    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
+      "total": 16,
+      "top1_correct": 14,
+      "top1_accuracy": 87.5,
+      "top5_correct": 16,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Yor Forger from Spy x Family": 5,
+        "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion": 1,
         "Artoria Pendragon from Fate_Stay Night": 1
       }
     },
     "Kafka from Honkai Star Rail": {
       "total": 31,
-      "top1_correct": 23,
-      "top1_accuracy": 74.19,
+      "top1_correct": 25,
+      "top1_accuracy": 80.65,
       "top5_correct": 31,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Anya Forger from Spy x Family": 7,
+        "Anya Forger from Spy x Family": 5,
         "Hu Tao from Genshin Impact": 1
       }
     },
-    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
-      "total": 16,
-      "top1_correct": 11,
-      "top1_accuracy": 68.75,
-      "top5_correct": 16,
+    "Frieren from Frieren": {
+      "total": 41,
+      "top1_correct": 33,
+      "top1_accuracy": 80.49,
+      "top5_correct": 41,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Ai Hoshino from Oshi no Ko": 3,
-        "Sailor Moon from Sailor Moon": 1,
-        "Artoria Pendragon from Fate_Stay Night": 1
+        "Yor Forger from Spy x Family": 6,
+        "Artoria Pendragon from Fate_Stay Night": 1,
+        "2B from Nier Automata": 1
       }
     }
   }

@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 
-CKPT_DIR=/home/ubuntu/open_clip/logs/V4_plain_siglip2_finetuning/V4_plain_siglip2_train/checkpoints
+#CKPT_DIR=/home/ubuntu/open_clip/logs/V3_plain_siglip2_finetuning_seed42/V3_plain_siglip2_train_seed42/checkpoints
+CKPT_DIR=/home/ubuntu/open_clip/logs/V4_plain_siglip2_finetuning_seed42/V4_plain_siglip2_train_seed42/checkpoints
 METADATA=/home/ubuntu/data/robust_dataset_split_30c_v2/val_metadata_plain.csv
 
 for e in 1 2 3 4 5; do

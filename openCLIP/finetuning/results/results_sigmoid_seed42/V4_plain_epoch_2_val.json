@@ -1,14 +1,14 @@
 {
   "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
-  "checkpoint": "/home/ubuntu/open_clip/logs/V4_plain_siglip2_finetuning/V4_plain_siglip2_train/checkpoints/epoch_5.pt",
+  "checkpoint": "/home/ubuntu/open_clip/logs/V4_plain_siglip2_finetuning_seed42/V4_plain_siglip2_train_seed42/checkpoints/epoch_2.pt",
   "metadata": "/home/ubuntu/data/robust_dataset_split_30c_v2/val_metadata_plain.csv",
   "total_images": 779,
   "total_captions": 30,
   "overall": {
-    "top1_accuracy": 96.79,
-    "top1_correct": 754,
-    "top5_accuracy": 100.0,
-    "top5_correct": 779,
+    "top1_accuracy": 95.89,
+    "top1_correct": 747,
+    "top5_accuracy": 99.87,
+    "top5_correct": 778,
     "total": 779
   },
   "per_caption": {
@@ -116,14 +116,6 @@
       "top5_accuracy": 100.0,
       "confused_as": {}
     },
-    "Hu Tao from Genshin Impact": {
-      "total": 32,
-      "top1_correct": 32,
-      "top1_accuracy": 100.0,
-      "top5_correct": 32,
-      "top5_accuracy": 100.0,
-      "confused_as": {}
-    },
     "Inosuke Hashibira from Demon Slayer": {
       "total": 15,
       "top1_correct": 15,
@@ -166,35 +158,25 @@
         "Raiden Shogun from Genshin Impact": 1
       }
     },
-    "Raiden Shogun from Genshin Impact": {
+    "Hu Tao from Genshin Impact": {
       "total": 32,
       "top1_correct": 31,
       "top1_accuracy": 96.88,
       "top5_correct": 32,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Hu Tao from Genshin Impact": 1
-      }
-    },
-    "Yor Forger from Spy x Family": {
-      "total": 43,
-      "top1_correct": 41,
-      "top1_accuracy": 95.35,
-      "top5_correct": 43,
-      "top5_accuracy": 100.0,
-      "confused_as": {
-        "Inosuke Hashibira from Demon Slayer": 2
+        "Ai Hoshino from Oshi no Ko": 1
       }
     },
     "Jinx from League of Legends": {
       "total": 40,
       "top1_correct": 38,
       "top1_accuracy": 95.0,
-      "top5_correct": 40,
-      "top5_accuracy": 100.0,
+      "top5_correct": 39,
+      "top5_accuracy": 97.5,
       "confused_as": {
         "Furina from Genshin Impact": 1,
-        "Hatsune Miku from Vocaloid": 1
+        "Frieren from Frieren": 1
       }
     },
     "Thor from Marvel": {
@@ -224,7 +206,19 @@
       "top5_correct": 32,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Raiden Shogun from Genshin Impact": 2
+        "Artoria Pendragon from Fate_Stay Night": 1,
+        "Raiden Shogun from Genshin Impact": 1
+      }
+    },
+    "Raiden Shogun from Genshin Impact": {
+      "total": 32,
+      "top1_correct": 30,
+      "top1_accuracy": 93.75,
+      "top5_correct": 32,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Hu Tao from Genshin Impact": 1,
+        "Furina from Genshin Impact": 1
       }
     },
     "D.Va from Overwatch": {
@@ -238,14 +232,15 @@
         "Inosuke Hashibira from Demon Slayer": 1
       }
     },
-    "Kafka from Honkai Star Rail": {
-      "total": 31,
-      "top1_correct": 28,
-      "top1_accuracy": 90.32,
-      "top5_correct": 31,
+    "Yor Forger from Spy x Family": {
+      "total": 43,
+      "top1_correct": 40,
+      "top1_accuracy": 93.02,
+      "top5_correct": 43,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Anya Forger from Spy x Family": 3
+        "Inosuke Hashibira from Demon Slayer": 2,
+        "Anya Forger from Spy x Family": 1
       }
     },
     "Anya Forger from Spy x Family": {
@@ -258,26 +253,37 @@
         "Jinx from League of Legends": 1
       }
     },
-    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
-      "total": 16,
-      "top1_correct": 14,
-      "top1_accuracy": 87.5,
-      "top5_correct": 16,
-      "top5_accuracy": 100.0,
-      "confused_as": {
-        "Sailor Moon from Sailor Moon": 1,
-        "Artoria Pendragon from Fate_Stay Night": 1
-      }
-    },
     "Frieren from Frieren": {
       "total": 41,
-      "top1_correct": 34,
-      "top1_accuracy": 82.93,
+      "top1_correct": 36,
+      "top1_accuracy": 87.8,
       "top5_correct": 41,
       "top5_accuracy": 100.0,
       "confused_as": {
-        "Yor Forger from Spy x Family": 6,
-        "2B from Nier Automata": 1
+        "Yor Forger from Spy x Family": 4,
+        "Artoria Pendragon from Fate_Stay Night": 1
+      }
+    },
+    "Kafka from Honkai Star Rail": {
+      "total": 31,
+      "top1_correct": 25,
+      "top1_accuracy": 80.65,
+      "top5_correct": 31,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Anya Forger from Spy x Family": 6
+      }
+    },
+    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
+      "total": 16,
+      "top1_correct": 11,
+      "top1_accuracy": 68.75,
+      "top5_correct": 16,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Ai Hoshino from Oshi no Ko": 3,
+        "Sailor Moon from Sailor Moon": 1,
+        "Artoria Pendragon from Fate_Stay Night": 1
       }
     }
   }
