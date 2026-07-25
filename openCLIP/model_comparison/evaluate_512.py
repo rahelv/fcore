@@ -35,14 +35,16 @@ class Evaluator512(BaseEvaluator):
     def encode_images_batch(self, pil_images):
         tensors = [self.preprocess(img) for img in pil_images]
         batch = torch.stack(tensors).to(self.device)
-        features = self.model.encode_image(batch)
+        with torch.amp.autocast(device_type="cuda", enabled=self.device.type == "cuda"):
+            features = self.model.encode_image(batch)
         features /= features.norm(dim=-1, keepdim=True)
         return features.cpu().numpy()
 
     @torch.no_grad()
     def encode_text_batch(self, texts):
         tokens = self.tokenizer(texts).to(self.device)
-        features = self.model.encode_text(tokens)
+        with torch.amp.autocast(device_type="cuda", enabled=self.device.type == "cuda"):
+            features = self.model.encode_text(tokens)
         features /= features.norm(dim=-1, keepdim=True)
         return features.cpu().numpy()
 
