@@ -36,12 +36,12 @@ warmup 50, batch 32, seed 42, default InfoNCE loss — no `--siglip`).
 4. **Pick best epoch per run (by val) and evaluate it on test:**
    ```bash
    cd /home/ubuntu/fcore/openCLIP/domain_transfer
-   python3 mixed_test/select_and_test.py
+   python3 mixed_tests/select_and_test.py
    ```
 
 5. **Aggregate finetuned-5 vs held-out-5:**
    ```bash
-   python3 mixed_test/aggregate_mixed_test.py
+   python3 aggregate_mixed_test.py
    ```
    Produces `results/mixed_test/mixed_test_summary.{json,csv}` and prints
    per-run, across-run (mean±std), and per-class tables. Per-class results sit
