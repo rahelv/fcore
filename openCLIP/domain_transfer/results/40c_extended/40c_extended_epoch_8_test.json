@@ -1,0 +1,379 @@
+{
+  "model": "hf-hub:timm/ViT-B-16-SigLIP2-256",
+  "checkpoint": "/home/ubuntu/open_clip/logs/40c_extended_finetuning/40c_cosplay_and_character_train/checkpoints/epoch_8.pt",
+  "metadata": "/home/ubuntu/data/40c_extended_w_char_dataset/test_metadata_plain.csv",
+  "total_images": 1137,
+  "total_captions": 40,
+  "overall": {
+    "top1_accuracy": 96.22,
+    "top1_correct": 1094,
+    "top5_accuracy": 99.56,
+    "top5_correct": 1132,
+    "total": 1137
+  },
+  "per_caption": {
+    "Aayla Secura from Star Wars": {
+      "total": 14,
+      "top1_correct": 14,
+      "top1_accuracy": 100.0,
+      "top5_correct": 14,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Ai Hoshino from Oshi no Ko": {
+      "total": 24,
+      "top1_correct": 24,
+      "top1_accuracy": 100.0,
+      "top5_correct": 24,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Anya Forger from Spy x Family": {
+      "total": 8,
+      "top1_correct": 8,
+      "top1_accuracy": 100.0,
+      "top5_correct": 8,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Ariel as Human from The Little Mermaid": {
+      "total": 18,
+      "top1_correct": 18,
+      "top1_accuracy": 100.0,
+      "top5_correct": 18,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Artoria Pendragon from Fate_Stay Night": {
+      "total": 16,
+      "top1_correct": 16,
+      "top1_accuracy": 100.0,
+      "top5_correct": 16,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion": {
+      "total": 26,
+      "top1_correct": 26,
+      "top1_accuracy": 100.0,
+      "top5_correct": 26,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion": {
+      "total": 17,
+      "top1_correct": 17,
+      "top1_accuracy": 100.0,
+      "top5_correct": 17,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Batman from DC Comics": {
+      "total": 39,
+      "top1_correct": 39,
+      "top1_accuracy": 100.0,
+      "top5_correct": 39,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Belle from Beauty and the Beast": {
+      "total": 35,
+      "top1_correct": 35,
+      "top1_accuracy": 100.0,
+      "top5_correct": 35,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Captain America from Marvel": {
+      "total": 53,
+      "top1_correct": 53,
+      "top1_accuracy": 100.0,
+      "top5_correct": 53,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Daenerys Targaryen from Game of Thrones": {
+      "total": 24,
+      "top1_correct": 24,
+      "top1_accuracy": 100.0,
+      "top5_correct": 24,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Deadpool from Marvel": {
+      "total": 38,
+      "top1_correct": 38,
+      "top1_accuracy": 100.0,
+      "top5_correct": 38,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Frieren from Frieren": {
+      "total": 17,
+      "top1_correct": 17,
+      "top1_accuracy": 100.0,
+      "top5_correct": 17,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Furina from Genshin Impact": {
+      "total": 36,
+      "top1_correct": 36,
+      "top1_accuracy": 100.0,
+      "top5_correct": 36,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Harley Quinn from DC Comics": {
+      "total": 22,
+      "top1_correct": 22,
+      "top1_accuracy": 100.0,
+      "top5_correct": 22,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Hu Tao from Genshin Impact": {
+      "total": 20,
+      "top1_correct": 20,
+      "top1_accuracy": 100.0,
+      "top5_correct": 20,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Inosuke Hashibira from Demon Slayer": {
+      "total": 15,
+      "top1_correct": 15,
+      "top1_accuracy": 100.0,
+      "top5_correct": 15,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Jinx from League of Legends": {
+      "total": 47,
+      "top1_correct": 47,
+      "top1_accuracy": 100.0,
+      "top5_correct": 47,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Kafka from Honkai Star Rail": {
+      "total": 30,
+      "top1_correct": 30,
+      "top1_accuracy": 100.0,
+      "top5_correct": 30,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Mad Hatter from Alice in Wonderland": {
+      "total": 22,
+      "top1_correct": 22,
+      "top1_accuracy": 100.0,
+      "top5_correct": 22,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Maleficent from Sleeping Beauty": {
+      "total": 40,
+      "top1_correct": 40,
+      "top1_accuracy": 100.0,
+      "top5_correct": 40,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Raiden Shogun from Genshin Impact": {
+      "total": 37,
+      "top1_correct": 37,
+      "top1_accuracy": 100.0,
+      "top5_correct": 37,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Sailor Moon from Sailor Moon": {
+      "total": 25,
+      "top1_correct": 25,
+      "top1_accuracy": 100.0,
+      "top5_correct": 25,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Spider Man from Marvel": {
+      "total": 28,
+      "top1_correct": 28,
+      "top1_accuracy": 100.0,
+      "top5_correct": 28,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Superman from DC Comics": {
+      "total": 12,
+      "top1_correct": 12,
+      "top1_accuracy": 100.0,
+      "top5_correct": 12,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Yor Forger from Spy x Family": {
+      "total": 40,
+      "top1_correct": 40,
+      "top1_accuracy": 100.0,
+      "top5_correct": 40,
+      "top5_accuracy": 100.0,
+      "confused_as": {}
+    },
+    "Jack Sparrow from Pirates of the Caribbean": {
+      "total": 54,
+      "top1_correct": 53,
+      "top1_accuracy": 98.15,
+      "top5_correct": 54,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "D.Va from Overwatch": 1
+      }
+    },
+    "Wolverine from Marvel": {
+      "total": 45,
+      "top1_correct": 44,
+      "top1_accuracy": 97.78,
+      "top5_correct": 45,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Inosuke Hashibira from Demon Slayer": 1
+      }
+    },
+    "Hatsune Miku from Vocaloid": {
+      "total": 26,
+      "top1_correct": 25,
+      "top1_accuracy": 96.15,
+      "top5_correct": 26,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Android 18 from Dragon Ball": 1
+      }
+    },
+    "2B from Nier Automata": {
+      "total": 39,
+      "top1_correct": 37,
+      "top1_accuracy": 94.87,
+      "top5_correct": 39,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Yor Forger from Spy x Family": 1,
+        "Daenerys Targaryen from Game of Thrones": 1
+      }
+    },
+    "D.Va from Overwatch": {
+      "total": 38,
+      "top1_correct": 36,
+      "top1_accuracy": 94.74,
+      "top5_correct": 38,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Jinx from League of Legends": 1,
+        "Ai Hoshino from Oshi no Ko": 1
+      }
+    },
+    "Android 18 from Dragon Ball": {
+      "total": 15,
+      "top1_correct": 14,
+      "top1_accuracy": 93.33,
+      "top5_correct": 15,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Daenerys Targaryen from Game of Thrones": 1
+      }
+    },
+    "Thor from Marvel": {
+      "total": 15,
+      "top1_correct": 14,
+      "top1_accuracy": 93.33,
+      "top5_correct": 15,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Captain America from Marvel": 1
+      }
+    },
+    "Anna from Frozen": {
+      "total": 31,
+      "top1_correct": 28,
+      "top1_accuracy": 90.32,
+      "top5_correct": 31,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Ariel as Human from The Little Mermaid": 2,
+        "D.Va from Overwatch": 1
+      }
+    },
+    "9S from Nier Automata": {
+      "total": 20,
+      "top1_correct": 18,
+      "top1_accuracy": 90.0,
+      "top5_correct": 20,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "2B from Nier Automata": 2
+      }
+    },
+    "Snow White from Snow White and the Seven Dwarfs": {
+      "total": 36,
+      "top1_correct": 32,
+      "top1_accuracy": 88.89,
+      "top5_correct": 36,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Sailor Moon from Sailor Moon": 3,
+        "Belle from Beauty and the Beast": 1
+      }
+    },
+    "Elsa from Frozen": {
+      "total": 38,
+      "top1_correct": 33,
+      "top1_accuracy": 86.84,
+      "top5_correct": 38,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Daenerys Targaryen from Game of Thrones": 4,
+        "Artoria Pendragon from Fate_Stay Night": 1
+      }
+    },
+    "Alice from Alice in Wonderland": {
+      "total": 21,
+      "top1_correct": 18,
+      "top1_accuracy": 85.71,
+      "top5_correct": 21,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "D.Va from Overwatch": 1,
+        "Aurora from Sleeping Beauty": 1,
+        "Belle from Beauty and the Beast": 1
+      }
+    },
+    "Aurora from Sleeping Beauty": {
+      "total": 16,
+      "top1_correct": 13,
+      "top1_accuracy": 81.25,
+      "top5_correct": 16,
+      "top5_accuracy": 100.0,
+      "confused_as": {
+        "Sailor Moon from Sailor Moon": 2,
+        "Alice from Alice in Wonderland": 1
+      }
+    },
+    "Jack Skellington from The Nightmare Before Christmas": {
+      "total": 40,
+      "top1_correct": 26,
+      "top1_accuracy": 65.0,
+      "top5_correct": 35,
+      "top5_accuracy": 87.5,
+      "confused_as": {
+        "2B from Nier Automata": 4,
+        "Artoria Pendragon from Fate_Stay Night": 3,
+        "Maleficent from Sleeping Beauty": 2,
+        "9S from Nier Automata": 1,
+        "Harley Quinn from DC Comics": 1,
+        "Furina from Genshin Impact": 1,
+        "Jinx from League of Legends": 1,
+        "Mad Hatter from Alice in Wonderland": 1
+      }
+    }
+  }
+}
