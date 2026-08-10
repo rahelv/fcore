@@ -1,0 +1,270 @@
+{
+  "per_run": [
+    {
+      "run": 1,
+      "finetuned": [
+        "Ai Hoshino from Oshi no Ko",
+        "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion",
+        "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion",
+        "Deadpool from Marvel",
+        "Frieren from Frieren"
+      ],
+      "heldout": [
+        "Furina from Genshin Impact",
+        "Kafka from Honkai Star Rail",
+        "Sailor Moon from Sailor Moon",
+        "Spider Man from Marvel",
+        "Yor Forger from Spy x Family"
+      ],
+      "ft_macro": 85.72,
+      "ft_micro": 88.52,
+      "ho_macro": 77.0,
+      "ho_micro": 72.96,
+      "overall_macro": 81.36,
+      "overall_micro": 79.72
+    },
+    {
+      "run": 2,
+      "finetuned": [
+        "Furina from Genshin Impact",
+        "Kafka from Honkai Star Rail",
+        "Sailor Moon from Sailor Moon",
+        "Spider Man from Marvel",
+        "Yor Forger from Spy x Family"
+      ],
+      "heldout": [
+        "Ai Hoshino from Oshi no Ko",
+        "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion",
+        "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion",
+        "Deadpool from Marvel",
+        "Frieren from Frieren"
+      ],
+      "ft_macro": 96.17,
+      "ft_micro": 96.23,
+      "ho_macro": 69.3,
+      "ho_micro": 75.41,
+      "overall_macro": 82.73,
+      "overall_micro": 87.19
+    },
+    {
+      "run": 3,
+      "finetuned": [
+        "Ai Hoshino from Oshi no Ko",
+        "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion",
+        "Furina from Genshin Impact",
+        "Kafka from Honkai Star Rail",
+        "Spider Man from Marvel"
+      ],
+      "heldout": [
+        "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion",
+        "Deadpool from Marvel",
+        "Frieren from Frieren",
+        "Sailor Moon from Sailor Moon",
+        "Yor Forger from Spy x Family"
+      ],
+      "ft_macro": 98.0,
+      "ft_micro": 97.78,
+      "ho_macro": 60.15,
+      "ho_micro": 63.01,
+      "overall_macro": 79.08,
+      "overall_micro": 79.72
+    },
+    {
+      "run": 4,
+      "finetuned": [
+        "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion",
+        "Deadpool from Marvel",
+        "Frieren from Frieren",
+        "Sailor Moon from Sailor Moon",
+        "Yor Forger from Spy x Family"
+      ],
+      "heldout": [
+        "Ai Hoshino from Oshi no Ko",
+        "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion",
+        "Furina from Genshin Impact",
+        "Kafka from Honkai Star Rail",
+        "Spider Man from Marvel"
+      ],
+      "ft_macro": 84.99,
+      "ft_micro": 84.25,
+      "ho_macro": 83.1,
+      "ho_micro": 82.96,
+      "overall_macro": 84.05,
+      "overall_micro": 83.63
+    },
+    {
+      "run": 5,
+      "finetuned": [
+        "Ai Hoshino from Oshi no Ko",
+        "Deadpool from Marvel",
+        "Furina from Genshin Impact",
+        "Sailor Moon from Sailor Moon",
+        "Yor Forger from Spy x Family"
+      ],
+      "heldout": [
+        "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion",
+        "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion",
+        "Frieren from Frieren",
+        "Kafka from Honkai Star Rail",
+        "Spider Man from Marvel"
+      ],
+      "ft_macro": 84.5,
+      "ft_micro": 83.44,
+      "ho_macro": 69.13,
+      "ho_micro": 72.03,
+      "overall_macro": 76.81,
+      "overall_micro": 78.65
+    },
+    {
+      "run": 6,
+      "finetuned": [
+        "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion",
+        "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion",
+        "Frieren from Frieren",
+        "Kafka from Honkai Star Rail",
+        "Spider Man from Marvel"
+      ],
+      "heldout": [
+        "Ai Hoshino from Oshi no Ko",
+        "Deadpool from Marvel",
+        "Furina from Genshin Impact",
+        "Sailor Moon from Sailor Moon",
+        "Yor Forger from Spy x Family"
+      ],
+      "ft_macro": 92.27,
+      "ft_micro": 92.37,
+      "ho_macro": 76.55,
+      "ho_micro": 75.46,
+      "overall_macro": 84.41,
+      "overall_micro": 82.56
+    }
+  ],
+  "aggregate": {
+    "ft_macro": [
+      90.28,
+      5.48
+    ],
+    "ft_micro": [
+      90.43,
+      5.51
+    ],
+    "ho_macro": [
+      72.54,
+      7.34
+    ],
+    "ho_micro": [
+      73.64,
+      5.91
+    ],
+    "overall_macro": [
+      81.41,
+      2.72
+    ],
+    "overall_micro": [
+      81.91,
+      2.93
+    ]
+  },
+  "per_class": [
+    {
+      "class": "Ai Hoshino from Oshi no Ko",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 87.5,
+      "heldout_mean": 55.56,
+      "ref_char_only": 100.0,
+      "ref_char_then_cosplay": 95.83,
+      "delta_ft_minus_ho": 31.94
+    },
+    {
+      "class": "Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 91.03,
+      "heldout_mean": 88.46,
+      "ref_char_only": 92.31,
+      "ref_char_then_cosplay": 92.31,
+      "delta_ft_minus_ho": 2.57
+    },
+    {
+      "class": "Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 100.0,
+      "heldout_mean": 98.04,
+      "ref_char_only": 94.12,
+      "ref_char_then_cosplay": 100.0,
+      "delta_ft_minus_ho": 1.96
+    },
+    {
+      "class": "Deadpool from Marvel",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 100.0,
+      "heldout_mean": 100.0,
+      "ref_char_only": 100.0,
+      "ref_char_then_cosplay": 100.0,
+      "delta_ft_minus_ho": 0.0
+    },
+    {
+      "class": "Frieren from Frieren",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 70.59,
+      "heldout_mean": 0.0,
+      "ref_char_only": 64.71,
+      "ref_char_then_cosplay": 100.0,
+      "delta_ft_minus_ho": 70.59
+    },
+    {
+      "class": "Furina from Genshin Impact",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 94.44,
+      "heldout_mean": 83.33,
+      "ref_char_only": 100.0,
+      "ref_char_then_cosplay": 100.0,
+      "delta_ft_minus_ho": 11.11
+    },
+    {
+      "class": "Kafka from Honkai Star Rail",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 86.67,
+      "heldout_mean": 73.33,
+      "ref_char_only": 73.33,
+      "ref_char_then_cosplay": 100.0,
+      "delta_ft_minus_ho": 13.34
+    },
+    {
+      "class": "Sailor Moon from Sailor Moon",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 100.0,
+      "heldout_mean": 100.0,
+      "ref_char_only": 100.0,
+      "ref_char_then_cosplay": 100.0,
+      "delta_ft_minus_ho": 0.0
+    },
+    {
+      "class": "Spider Man from Marvel",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 100.0,
+      "heldout_mean": 100.0,
+      "ref_char_only": 100.0,
+      "ref_char_then_cosplay": 100.0,
+      "delta_ft_minus_ho": 0.0
+    },
+    {
+      "class": "Yor Forger from Spy x Family",
+      "n_finetuned_runs": 3,
+      "n_heldout_runs": 3,
+      "finetuned_mean": 72.5,
+      "heldout_mean": 26.67,
+      "ref_char_only": 100.0,
+      "ref_char_then_cosplay": 97.5,
+      "delta_ft_minus_ho": 45.83
+    }
+  ]
+}

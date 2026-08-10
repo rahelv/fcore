@@ -1,0 +1,11 @@
+class,finetuned_mean,heldout_mean,delta_ft_minus_ho,ref_char_only,ref_char_then_cosplay
+Ai Hoshino from Oshi no Ko,87.5,55.56,31.94,100.0,95.83
+Asuka Langley Soryu in Red Suit from Neon Genesis Evangelion,91.03,88.46,2.57,92.31,92.31
+Asuka Langley Soryu in School Uniform from Neon Genesis Evangelion,100.0,98.04,1.96,94.12,100.0
+Deadpool from Marvel,100.0,100.0,0.0,100.0,100.0
+Frieren from Frieren,70.59,0.0,70.59,64.71,100.0
+Furina from Genshin Impact,94.44,83.33,11.11,100.0,100.0
+Kafka from Honkai Star Rail,86.67,73.33,13.34,73.33,100.0
+Sailor Moon from Sailor Moon,100.0,100.0,0.0,100.0,100.0
+Spider Man from Marvel,100.0,100.0,0.0,100.0,100.0
+Yor Forger from Spy x Family,72.5,26.67,45.83,100.0,97.5

@@ -1,0 +1,11 @@
+Device: Orin  |  torch 2.5.0a0+872d972e41.nv24.08  |  model: vitb32
+Runner: xlm-roberta-base-ViT-B-32  |  input 224px
+
+ batch   ms/batch    ms/img      img/s
+     1      13.76     13.76      72.68
+     8      79.58      9.95     100.53
+    16     143.68      8.98     111.36
+    32     276.51      8.64     115.73
+    64     535.04      8.36     119.62
+
+Best throughput: 119.62 img/s at batch size 64

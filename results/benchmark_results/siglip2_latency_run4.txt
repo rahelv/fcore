@@ -1,0 +1,11 @@
+Device: Orin  |  torch 2.5.0a0+872d972e41.nv24.08  |  model: siglip2
+Runner: ViT-B-16-SigLIP2-256  |  input 256px
+
+ViT-B-16-SigLIP2-256 — latency (bs=1, n=300, 20 warmup excluded):
+  mean   =   49.90 ms
+  median =   47.62 ms
+  std    =    5.05 ms
+  p95    =   62.89 ms
+  min    =   47.44 ms
+  max    =   79.37 ms
+  peak GPU memory = 1.52 GB

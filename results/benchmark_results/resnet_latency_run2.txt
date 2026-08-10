@@ -1,0 +1,11 @@
+Device: Orin  |  torch 2.5.0a0+872d972e41.nv24.08  |  model: resnet
+Runner: ResNet-18 (classifier)  |  input 224px
+
+ResNet-18 (classifier) — latency (bs=1, n=300, 20 warmup excluded):
+  mean   =    6.91 ms
+  median =    6.56 ms
+  std    =    0.71 ms
+  p95    =    7.89 ms
+  min    =    5.60 ms
+  max    =   10.57 ms
+  peak GPU memory = 0.06 GB

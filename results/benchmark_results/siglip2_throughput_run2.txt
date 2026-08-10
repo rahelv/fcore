@@ -1,0 +1,11 @@
+Device: Orin  |  torch 2.5.0a0+872d972e41.nv24.08  |  model: siglip2
+Runner: ViT-B-16-SigLIP2-256  |  input 256px
+
+ batch   ms/batch    ms/img      img/s
+     1      48.29     48.29      20.71
+     8     368.69     46.09      21.70
+    16     719.56     44.97      22.24
+    32    1446.52     45.20      22.12
+    64    2906.80     45.42      22.02
+
+Best throughput: 22.24 img/s at batch size 16

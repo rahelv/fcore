@@ -1,0 +1,11 @@
+Device: Orin  |  torch 2.5.0a0+872d972e41.nv24.08  |  model: vitb32
+Runner: xlm-roberta-base-ViT-B-32  |  input 224px
+
+xlm-roberta-base-ViT-B-32 — latency (bs=1, n=300, 20 warmup excluded):
+  mean   =   13.74 ms
+  median =   13.55 ms
+  std    =    0.86 ms
+  p95    =   14.68 ms
+  min    =   13.53 ms
+  max    =   18.69 ms
+  peak GPU memory = 1.48 GB

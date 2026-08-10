@@ -1,0 +1,11 @@
+Device: Orin  |  torch 2.5.0a0+872d972e41.nv24.08  |  model: resnet
+Runner: ResNet-18 (classifier)  |  input 224px
+
+ batch   ms/batch    ms/img      img/s
+     1       6.82      6.82     146.54
+     8      21.06      2.63     379.87
+    16      37.83      2.36     422.90
+    32      71.12      2.22     449.92
+    64     133.69      2.09     478.74
+
+Best throughput: 478.74 img/s at batch size 64
