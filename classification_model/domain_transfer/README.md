@@ -35,17 +35,3 @@ Stage 2 (after stage 1 — they load the `*_best.pt` checkpoints via `init_check
     CUDA_VISIBLE_DEVICES=1 python3 train_domain_transfer.py --config configs/c10_cosplay_to_character.yaml
 
 Same two-stage order applies to the `*_pretrained.yaml` configs.
-
-## Differences from ../train.py
-
-- `train_dir` / `val_dir` / `test_dir` instead of a single `data_dir`
-  (training source changes per experiment, val/test are shared).
-- `run_name` sets the W&B run name and gives deterministic checkpoint
-  filenames (`<run_name>_best.pt`) so stage 2 can find stage-1 checkpoints.
-- `init_checkpoint` loads stage-1 weights (asserts identical `class_to_idx`).
-- No train-acc ≥ 0.995 overfit guard — stopping is purely val-driven
-  (patience) so all four runs are truncated by the same criterion.
-- Standalone only — no sweep-agent mode.
-
-Adjust `train_dir`/`val_dir`/`test_dir` in the configs if the subfolder
-names inside `domain_transfer_10c_split` differ on the GPU box.
