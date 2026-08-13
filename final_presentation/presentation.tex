@@ -1,0 +1,872 @@
+%%\documentclass[aspectratio=169]{beamer}
+\documentclass[aspectratio=169]{beamer}
+\usepackage{basileabeam}
+\usepackage{verbatim}
+\usepackage{mathrsfs}
+\usepackage{subcaption}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+
+\usepackage{tikz, amssymb}
+\usetikzlibrary{arrows.meta,positioning,fit}
+
+\usepackage{hyperref}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+
+\usepackage{nicematrix}
+\usepackage{animate}
+
+\newcommand{\imgsource}[1]{%
+    \vfill
+    \hfill{\tiny\color{gray!70} Source: #1}%
+}
+
+\addbibresource{references.bib}
+
+% Notes:
+%\pgfpagesuselayout{2 on 1}[a4paper,border shrink=5mm]
+%\setbeamertemplate{note page}[plain]
+%\setbeameroption{show notes on second screen=bottom}
+
+\title              {Costume Recognition System for a Robot}
+\subtitle           {}
+
+\author             {Rahel Kempf}
+\email              {rahel.kempf@unibas.ch}
+\institute          {Department of Mathematics and Computer Science, University of Basel \\ Supervisor: Raphael Waltenspül \\ Examiner: Prof. Dr. Heiko Schuldt}
+
+\date               {12.08.2026}
+
+\ulogo        		{Template/header}
+\ulistelement    	{Template/listelement}
+
+\graphicspath{{Figures/}}
+
+% Options:
+%\totalNoSlidesDisabled % To turn off the total number of slides in the footer. Comment this if you want the total number of slides in the footer
+
+%\headerSectionsDisabled % Comment this if you want a fancy header containing your sections.
+
+\begin{document}
+
+\begin{frame}[t, plain, noframenumbering]
+    \titlepage
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Motivation}
+    \begin{tikzpicture}[remember picture,overlay]
+    \node[xshift=-7mm,yshift=-16.5mm] at (current page.north){%
+    \includegraphics[width=20mm]{spiderman_swinging.png}};
+    \end{tikzpicture}
+
+    \begin{itemize} % Allgemeiner: Roboter --> Muss was erkennen 
+       \item DiMi 
+       \item Visual recognition for a humanoid robot
+       \item Yearly attendance at Fantasy Basel 
+    \end{itemize} 
+    \vspace{5mm}
+    
+    % $\rightarrow$ Train a model for costume recognition  % TODO: umformulieren
+
+    \begin{tikzpicture}[remember picture,overlay]
+    \node[xshift=-32.5mm,yshift=-20mm] at (current page.east){%
+    \includegraphics[width=45mm]{hey_spiderman.png}};
+    \end{tikzpicture}
+    
+\end{frame}
+
+\begin{frame}{Project Idea}
+    \only<1>{
+        \begin{figure}
+            \centering
+            \includegraphics[width=\linewidth]{roboter_concept.pdf}
+        \end{figure}
+    }
+    \only<2>{
+        \begin{figure}
+            \centering
+            \includegraphics[width=\linewidth]{project_idea.pdf}
+        \end{figure}
+    }
+    % \only<3>{
+    %     \begin{figure}
+    %         \centering
+    %         \includegraphics[width=\linewidth]{classifier_transition.pdf}
+    %     \end{figure}
+    % }
+\end{frame}
+
+\begin{frame}{Image Classification}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\linewidth]{classifier_closeup.pdf}
+    \end{figure}
+\end{frame}
+
+\section{Background}
+
+\begin{frame}{Approach 1: Convolutional Neural Network (CNN)} % TODO: better word ?  
+    \begin{figure}
+        \centering
+        \includegraphics[width=\linewidth]{cnn_overview.png}
+        \imgsource{Saha, "A Comprehensive Guide to CNNs", towardsdatascience.com}
+    \end{figure} 
+\end{frame}
+
+\begin{frame}{Approach 2: Vision Language Model} 
+    \begin{figure}
+    \centering
+    \resizebox{\linewidth}{!}{\input{figures/two_tower_figure.tex}}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\linewidth]{clip_vs_cnn.pdf}
+    \end{figure} 
+\end{frame}
+
+
+\begin{frame}{Training a neural network} 
+    % Training a neural net 
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{training_nn.pdf} 
+    \end{figure} 
+
+    \begin{tikzpicture}[remember picture, overlay]
+        \node[
+            anchor=south east,
+            xshift=-1.5cm,
+            yshift=0.7cm
+        ] at (current page.south east)
+        {\tiny\color{gray!70} Adapted from sciencedirect.com};
+    \end{tikzpicture}
+
+\end{frame} 
+
+\begin{frame}{Finetuning a vision language model} 
+    % Training a vision language model 
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{training_clip.pdf}
+    \end{figure} 
+\end{frame} 
+
+% TODO: Training embedding model 
+
+% ----------- Data -----------
+\section{Dataset}
+% Now that we know about the recognition approaches we need the data ..  
+
+\begin{frame} % {What kind of Data do we need?}
+    % What kind of Data do I need --> as much as possible 
+    \centering 
+    \Huge
+    What kind of data do we need ? 
+%    \begin{itemize}
+%         \item Pictures of Cosplayers
+%         \item Intra-Class Variability
+%         \item Between-Class Variability 
+%    \end{itemize} 
+\end{frame}
+
+\begin{frame} % {What kind of Data do we need?}
+    \only<1>{
+        \begin{figure}
+            \begin{minipage}[c]{0.58\linewidth}
+                \includegraphics[width=\linewidth]{different_spidermans.jpg}\\[2pt]
+                {Spiderman Costumes \hfill{\tiny\color{gray!70} Source: Wikimedia Commons}}
+            \end{minipage}%
+            \begin{minipage}[c]{0.4\linewidth}
+                \centering
+                \hspace{10pt}
+                % empty on purpose
+            \end{minipage}
+        \end{figure}
+    }
+    \only<2>{
+        \begin{figure}
+            \begin{minipage}[c]{0.58\linewidth}
+                \includegraphics[width=\linewidth]{different_spidermans.jpg}\\[2pt]
+                {Spiderman Costumes \hfill{\tiny\color{gray!70} Source: Wikimedia Commons}}
+            \end{minipage}%
+            \begin{minipage}[c]{0.4\linewidth}
+                \centering
+                \includegraphics[width=\linewidth]{Deadpool.png}\\[2pt]
+                {Deadpool \hspace{5pt} \tiny\color{gray!70} Source: Marvel Wiki (Fandom)}
+            \end{minipage}
+        \end{figure}
+    }
+    % Spiderman Costumes: https://commons.wikimedia.org/wiki/Category:Cosplay_of_Spider-Man#/media/File:2023-07-15_14-03-32_ILCE-7C_DSC12814_Kiri_(53055917216).jpg
+    % Deadpool: https://marvelcinematicuniverse.fandom.com/wiki/Deadpool
+\end{frame}
+
+\begin{frame}% {What kind of Data do we need?}
+    \begin{figure}
+        \includegraphics[width=0.3\linewidth]{wolverine1.jpg}
+        \includegraphics[width=0.3\linewidth]{wolverine2.jpg}
+        \includegraphics[width=0.3\linewidth]{wolverine3.jpg}
+        {Wolverine Cosplays \hspace{17em} \tiny\color{gray!70} Source: Wikimedia Commons}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Created Dataset}
+    30 Classes 
+
+    \textbf{Sources:} Wikimedia Commons, Reddit 
+    % pre-labelled 
+    \begin{table}[H]
+        \centering
+        \label{tab:dataset-overview}
+        \begin{tabular}{lrrrrr}
+             & Images & Train (70\%) & Val (15\%) & Test (15\%) \\ % TODO: 70/15/15 Split erwähnen 
+            \midrule
+            Cosplay Images   & 5252 & 3669 & 779 & 804 \\
+            \bottomrule 
+        \end{tabular}
+    \end{table} 
+\end{frame}
+
+% \begin{frame}
+%     \begin{figure}
+%         \includegraphics[width=0.85\linewidth]{classes_originals_grid_1.png}
+%     \end{figure}
+% \end{frame}
+
+% \begin{frame}
+%     \begin{figure}
+%         \includegraphics[width=0.85\linewidth]{classes_originals_grid_2.png}
+%     \end{figure}
+% \end{frame}
+
+\section{Training} % Pipeline for Training, Domain Adaptation Experiments 
+% TODO: keine Tabelle sondern Text
+
+\begin{frame}
+    \centering 
+    \Huge 
+    Training the neural network - ResNet-18
+\end{frame}
+
+\begin{frame}{Hyperparameter Sweep}
+    % \textbf{Hyperparameter Sweep} % Bayesian sweep , optimizing validation accuracy. \\[4pt]
+    % \small Fixed: AdamW, ReduceLROnPlateau (patience 5, factor 0.5), batch size 32, crop scale min 0.65, horizontal flip on, grayscale/blur/perspective off.
+
+    \begin{table}[H]
+        \centering
+        \renewcommand{\arraystretch}{1.25}
+        \begin{tabular}{ll}
+        \toprule
+        Parameter & Range \\
+        \midrule
+        Learning rate    & $[3\times10^{-4}$, $3\times10^{-3}]$ \\ % log-uniform,
+        Weight decay     & \{$10^{-4}$, $10^{-3}$\} \\
+        Dropout $p$      & \{0.0, 0.2, 0.4\} \\
+        Label smoothing  & \{0.05, 0.1, 0.15, 0.2\} \\
+        CutMix $\alpha$  & \{0, 0.2, 0.4, 0.6\} \\
+        Jitter strength  & \{mild, strong\} \\
+        Rotation degrees & \{0, 10, 20\} \\
+        Random erasing   & \{true, false\} \\
+        \bottomrule
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}{Candidate Configurations}
+    \only<1>{
+        \begin{table}
+            \centering
+            \renewcommand{\arraystretch}{1.15}
+            \footnotesize
+            \begin{tabular}{lcccc}
+            \toprule
+            Parameter & fiery-6 & treasured-22 & devoted-19 & grateful-11 \\
+            \midrule
+            lr                 & 4.42e-4   & 4.67e-4   & 1.07e-3   & 4.63e-4   \\
+            weight\_decay      & 0.001 & 0.001 & 0.001 & 0.0001 \\
+            dropout\_p         & 0.2       & 0.0       & 0.2       & 0.2       \\ 
+            label\_smoothing   & 0.2       & 0.2       & 0.2       & 0.2       \\
+            cutmix\_alpha      & 0.6       & 0.6       & 0.6       & 0.6       \\
+            jitter\_strength   & strong    & strong    & strong    & strong    \\
+            rotation\_degrees  & 0         & 0         & 10        & 10        \\
+            aug\_erasing       & false     & true      & false     & true      \\
+            \bottomrule
+            \end{tabular}
+        \end{table}
+    }
+    \only<2>{
+        \begin{table}
+            \centering
+            \renewcommand{\arraystretch}{1.15}
+            \footnotesize
+            \begin{tabular}{lcccc}
+            \toprule
+            Parameter & fiery-6 & treasured-22 & devoted-19 & grateful-11 \\
+            \midrule
+            lr                 & 4.42e-4   & 4.67e-4   & 1.07e-3   & 4.63e-4   \\
+            weight\_decay      & 0.001 & 0.001 & 0.001 & 0.0001 \\
+            dropout\_p         & 0.2       & 0.0       & 0.2       & 0.2       \\ 
+            \rowcolor{green!15}
+            label\_smoothing   & 0.2       & 0.2       & 0.2       & 0.2       \\
+            \rowcolor{green!15}
+            cutmix\_alpha      & 0.6       & 0.6       & 0.6       & 0.6       \\
+            \rowcolor{green!15}
+            jitter\_strength   & strong    & strong    & strong    & strong    \\
+            rotation\_degrees  & 0         & 0         & 10        & 10        \\
+            aug\_erasing       & false     & true      & false     & true      \\
+            \bottomrule
+            \end{tabular}
+        \end{table} 
+    }
+    \only<3>{
+         \begin{table}[H]
+        \centering
+        \renewcommand{\arraystretch}{1.25}
+        \begin{tabular}{ll}
+        \toprule
+        Parameter & Range \\
+        \midrule
+        Learning rate    & $[3\times10^{-4}$, $3\times10^{-3}]$ \\ % log-uniform,
+        Weight decay     & \{$10^{-4}$, \colorbox{green!15}{$10^{-3}$}\} \\
+        Dropout $p$      & \{0.0, \colorbox{green!15}{0.2}, 0.4\} \\
+        Label smoothing  & \{0.05, 0.1, 0.15, \colorbox{green!15}{0.2}\} \\
+        CutMix $\alpha$  & \{0, 0.2, \colorbox{green!15}{0.4, 0.6}\} \\
+        Jitter strength  & \{mild, \colorbox{green!15}{strong}\} \\
+        Rotation degrees & \{\colorbox{green!15}{0}, 10, 20\} \\
+        Random erasing   & \{\colorbox{green!15}{0}, 1\} \\
+        \bottomrule
+        \end{tabular}
+    \end{table}
+    }
+\end{frame}
+
+\begin{frame}{Approach 1: ResNet-18 Results} % Results ? 
+    % ResNet-18, AdamW Optimizer
+    % Batch Size 32, Crop Scale 65, 
+        % Two Sweeps: First Baseline, Regularization / Data Augmentations .. 
+    \only<1>{
+        \begin{table}[H]
+            \centering
+            \renewcommand{\arraystretch}{1.25}
+            \begin{tabular}{lcc}
+            & \multicolumn{1}{c}{From Scratch} & \multicolumn{1}{c}{Pretrained} \\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3}
+            Configuration  & Val\,\% & Val\,\% \\
+            \midrule
+            fiery-6      & 81.9 & 93.5  \\
+            treasured-22 & 80.1 & 92.4  \\
+            devoted-19   & 80.9 & 91.4  \\
+            grateful-11  & 81.4 & 91.3  \\
+            \bottomrule
+            \end{tabular}
+        \end{table}
+    }
+    \only<2>{
+        \begin{table}[H]
+            \centering
+            \renewcommand{\arraystretch}{1.25}
+            \begin{tabular}{lcc}
+            & \multicolumn{1}{c}{From Scratch} & \multicolumn{1}{c}{Pretrained} \\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3}
+            Configuration  & Val\,\% & Val\,\% \\
+            \midrule
+            fiery-6      & 81.9 & \fcolorbox{red}{white}{93.5}  \\
+            treasured-22 & 80.1 & 92.4  \\
+            devoted-19   & 80.9 & 91.4  \\
+            grateful-11  & 81.4 & 91.3  \\
+            \bottomrule
+            \end{tabular}
+        \end{table}
+    }
+\end{frame} 
+
+% erasing, batch size, crop scale, cutmix, dropout, jitter, label smoothing, learning rate, 
+% pretrained: 150 max epochs, min 40, patience 20 
+% from scratch: 200 max epochs, min 60, patience 30 
+% horizontal flip 
+
+\begin{frame}{Finetuning the Embedding Model} % Results ? 
+   
+    \textbf{Model Selection:} xlm-roberta-base-ViT-B-32 (CLIP) or ViT-B-16-SigLip2 (SigLIP2)
+
+    \begin{table}[h]
+        \centering
+        \begin{minipage}[t]{0.48\textwidth}
+            \centering
+            \small
+            \begin{tabular}{lcc}
+            \toprule
+            Model & Latency Mean / Median & Throughput \\
+            \midrule
+            CLIP & 13.7\,ms / 13.6\,ms & 119\,img/s \\
+            SigLIP2 & 48.8\,ms / 47.6\,ms & 22\,img/s \\
+            \bottomrule
+            \end{tabular}
+            \caption{Inference cost}
+            \label{tab:runtime}
+        \end{minipage}
+        \hfill
+        \begin{minipage}[t]{0.48\textwidth}
+            \centering
+            \small
+            \begin{tabular}{ccc}
+            \toprule
+            Dim & Top-1 & Top-5 \\
+            \midrule
+            512 & 61.6\% & 81.0\% \\
+            768 & 84.5\% & 93.8\% \\
+            \bottomrule
+            \end{tabular}
+            \caption{Zero-shot evaluation}
+            \label{tab:zeroshot-selection}
+        \end{minipage}
+    \end{table}
+\end{frame}
+
+\begin{frame}{Finetuning the Embedding Model} % Results ? 
+    \begin{description}
+        \item[\textcolor{black}{\textbf{Caption Design:}}] "\textcolor{blue}{\textit{character}} from \textcolor{blue}{\textit{franchise}}" vs. \\
+        \hspace{1.8em} "A person dressed up as \textcolor{blue}{\textit{character}} from \textcolor{blue}{\textit{franchise}}"
+    \end{description}
+        % 2 percentage points loss --> for implementation later ! 
+\end{frame}
+
+\begin{frame}{Finetuning the Embedding Model}
+    Finetuning with Batch Size 32, Learning Rate $10^{-6}$, Weight Decay 0.1
+    \only<1>{
+        \begin{table}[h]
+            \centering
+            \begin{tabular}{lcccc}
+            \toprule
+            % \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+            Checkpoint & Val Top-1 & Val Top-5 \\
+            \midrule
+            Pretrained baseline & 84.5\% & 93.8\%   \\
+            Epoch 1             & 96.0\% & 99.9\%   \\
+            Epoch 2             & 96.9\% & 100.0\%  \\
+            Epoch 3             & 97.7\% & 100.0\%  \\
+            Epoch 4             & 97.8\% & 100.0\%  \\
+            Epoch 5             & 97.9\% & 100.0\%  \\
+            \bottomrule
+            \end{tabular}
+        \end{table}
+    }
+    \only<2>{
+        \begin{table}[h]
+            \centering
+            \begin{tabular}{lcccc}
+            \toprule
+            % \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+            Checkpoint & Val Top-1 & Val Top-5 \\
+            \midrule
+            Pretrained baseline & 84.5\% & 93.8\%   \\
+            Epoch 1             & 96.0\% & 99.9\%   \\
+            Epoch 2             & 96.9\% & 100.0\%  \\
+            Epoch 3             & 97.7\% & 100.0\%  \\
+            Epoch 4             & 97.8\% & 100.0\%  \\
+            Epoch 5             & \fcolorbox{red}{white}{97.9\%} & 100.0\%  \\
+            \bottomrule
+            \end{tabular}
+        \end{table}    
+    }
+\end{frame}
+
+% \begin{frame}{Finetuning the Embedding Model}
+%     \only<1>{
+%         \textbf{Finetuning Objective:} Softmax vs. Sigmoid Loss 
+
+%         \begin{table}[h]
+%             \centering
+%             \caption{Finetuning with Batch Size 32, Learning Rate $10^{-6}$, Weight Decay 0.1}
+%             \begin{tabular}{lcccc}
+%             \toprule
+%             & \multicolumn{2}{c}{Softmax loss} & \multicolumn{2}{c}{Sigmoid loss} \\
+%             \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+%             Checkpoint & Val Top-1 & Val Top-5 & Val Top-1 & Val Top-5 \\
+%             \midrule
+%             Pretrained baseline & 84.5\% & 93.8\%  & 84.5\% & 93.8\% \\
+%             Epoch 1             & 96.0\% & 99.9\%  & 93.7\% & 99.6\% \\
+%             Epoch 2             & 96.9\% & 100.0\% & 95.9\% & 99.9\% \\
+%             Epoch 3             & 97.7\% & 100.0\% & 96.2\% & 99.9\% \\
+%             Epoch 4             & 97.8\% & 100.0\% & 96.9\% & 99.9\% \\
+%             Epoch 5             & 97.9\% & 100.0\% & 96.8\% & 99.9\% \\
+%             \bottomrule
+%             \end{tabular}
+%         \end{table}
+%     }
+%     \only<2>{
+%         \textbf{Finetuning Objective:} Softmax vs. Sigmoid Loss 
+
+%         \begin{table}[h]
+%             \centering
+%             \caption{Finetuning with Batch Size 32, Learning Rate $10^{-6}$, Weight Decay 0.1}
+%             \begin{tabular}{lcccc}
+%             \toprule
+%             & \multicolumn{2}{c}{Softmax loss} & \multicolumn{2}{c}{Sigmoid loss} \\
+%             \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+%             Checkpoint & Val Top-1 & Val Top-5 & Val Top-1 & Val Top-5 \\
+%             \midrule
+%             Pretrained baseline & \cellcolor{green!15}84.5\% & 93.8\%  & \cellcolor{green!15}84.5\% & 93.8\% \\
+%             Epoch 1             & \cellcolor{green!15}96.0\% & 99.9\%  & \cellcolor{green!15}93.7\% & 99.6\% \\
+%             Epoch 2             & \cellcolor{green!15}96.9\% & 100.0\% & \cellcolor{green!15}95.9\% & 99.9\% \\
+%             Epoch 3             & \cellcolor{green!15}97.7\% & 100.0\% & \cellcolor{green!15}96.2\% & 99.9\% \\
+%             Epoch 4             & \cellcolor{green!15}97.8\% & 100.0\% & \cellcolor{green!15}96.9\% & 99.9\% \\
+%             Epoch 5             & \cellcolor{green!15}97.9\% & 100.0\% & \cellcolor{green!15}96.8\% & 99.9\% \\
+%             \bottomrule
+%             \end{tabular}
+%         \end{table}
+%     }
+%     \only<3>{
+%         \textbf{Finetuning Objective:} Softmax vs. Sigmoid Loss 
+
+%         \begin{table}[h]
+%             \centering
+%             \caption{Finetuning with Batch Size 32, Learning Rate $10^{-6}$, Weight Decay 0.1}
+%             \begin{tabular}{lcccc}
+%             \toprule
+%             & \multicolumn{2}{c}{Softmax loss} & \multicolumn{2}{c}{Sigmoid loss} \\
+%             \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+%             Checkpoint & Val Top-1 & Val Top-5 & Val Top-1 & Val Top-5 \\
+%             \midrule
+%             Pretrained baseline & 84.5\% & \cellcolor{green!15}93.8\%  & 84.5\% & \cellcolor{green!15}93.8\% \\
+%             Epoch 1             & 96.0\% & \cellcolor{green!15}99.9\%  & 93.7\% & \cellcolor{green!15}99.6\% \\
+%             Epoch 2             & 96.9\% & \cellcolor{green!15}100.0\% & 95.9\% & \cellcolor{green!15}99.9\% \\
+%             Epoch 3             & 97.7\% & \cellcolor{green!15}100.0\% & 96.2\% & \cellcolor{green!15}99.9\% \\
+%             Epoch 4             & 97.8\% & \cellcolor{green!15}100.0\% & 96.9\% & \cellcolor{green!15}99.9\% \\
+%             Epoch 5             & 97.9\% & \cellcolor{green!15}100.0\% & 96.8\% & \cellcolor{green!15}99.9\% \\
+%             \bottomrule
+%             \end{tabular}
+%         \end{table}
+%     }
+%     \only<4>{
+%         \textbf{Finetuning Objective:} Softmax vs. Sigmoid Loss 
+
+%         \begin{table}[h]
+%             \centering
+%             \caption{Finetuning with Batch Size 32, Learning Rate $10^{-6}$, Weight Decay 0.1}
+%             \begin{tabular}{lcccc}
+%             \toprule
+%             & \multicolumn{2}{c}{Softmax loss} & \multicolumn{2}{c}{Sigmoid loss} \\
+%             \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+%             Checkpoint & Val Top-1 & Val Top-5 & Val Top-1 & Val Top-5 \\
+%             \midrule
+%             Pretrained baseline & 84.5\% & 93.8\%  & 84.5\% & 93.8\% \\
+%             Epoch 1             & 96.0\% & 99.9\%  & 93.7\% & 99.6\% \\
+%             Epoch 2             & 96.9\% & 100.0\% & 95.9\% & 99.9\% \\
+%             Epoch 3             & 97.7\% & 100.0\% & 96.2\% & 99.9\% \\
+%             Epoch 4             & 97.8\% & 100.0\% & 96.9\% & 99.9\% \\
+%             Epoch 5             & \fcolorbox{red}{white}{97.9\%} & 100.0\% & 96.8\% & 99.9\% \\
+%             \bottomrule
+%             \end{tabular}
+%         \end{table}
+%     }
+% \end{frame} % TODO: insert final test acc of best model .. -> Comparison 
+
+% \begin{frame}{Finetuning the Embedding Model}
+%     \textbf{Model Selection:} ViT-B-16-SigLip2 (SigLIP2)
+
+%     \textbf{Caption Design:} \textit{character} from \textit{franchise} % 2 percentage points loss --> for implementation later ! 
+    
+%     \textbf{Finetuning Objective:} Softmax Loss 
+% \end{frame}
+
+% TODO: compare results 
+\begin{frame}{Comparison of Approaches} 
+    % TODO: best test accuracies vergleichen. --> Pro/Contra ansprechen --> Multicolumn 2 
+    \only<1>{
+        \begin{table}[H]
+            \centering
+            \caption{Top-1 Accuracy of the final models } 
+            \renewcommand{\arraystretch}{1.25}
+            \begin{tabular}{lr}
+            \toprule
+            Model & Test \% \\
+            \midrule
+            ResNet-18, from scratch     & 78.1 \\ 
+            ResNet-18, pretrained        & 90.7  \\
+            SigLIP2, zero-shot          & 87.6  \\
+            SigLIP2, finetuned          & 97.4  \\
+            \bottomrule
+            \end{tabular}
+        \end{table}
+    }
+    \only<2>{
+       \begin{table}[H]
+            \centering
+            \caption{Top-1 Accuracy of the final models } 
+            \renewcommand{\arraystretch}{1.25}
+            \begin{tabular}{lr}
+            \toprule
+            Model &  Test \% \\
+            \midrule
+            \rowcolor{green!15}
+            ResNet-18, from scratch        & 78.1 \\ 
+            ResNet-18, pretrained           & 90.7  \\
+            \rowcolor{green!15}
+            SigLIP2, zero-shot           & 87.6  \\
+            SigLIP2, finetuned           & 97.4  \\
+            \bottomrule
+            \end{tabular}
+        \end{table} 
+    }
+    \only<3>{
+        \begin{table}[H]
+            \centering
+            \caption{Top-1 Accuracy of the final models } 
+            \renewcommand{\arraystretch}{1.25}
+            \begin{tabular}{lr}
+            \toprule
+            Model  & Test \% \\
+            \midrule
+            ResNet-18, from scratch & 78.1 \\ 
+            \rowcolor{green!15}
+            ResNet-18, pretrained   & 90.7  \\
+            SigLIP2, zero-shot  & 87.6  \\
+            \rowcolor{green!15} 
+            SigLIP2, finetuned  & 97.4  \\
+            \bottomrule
+            \end{tabular}
+        \end{table}
+    } 
+\end{frame}
+
+% Überleitung: Frage kam auf, mehr Bilder ?! 
+
+% ----------- Domain Adaptation -----------
+\section{Experiments}
+\begin{frame}{Domain Adaptation} 
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\linewidth]{domain_adaptation.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Updated Dataset}
+    \begin{table}[H]
+        \centering
+        % \caption{Overview of the curated dataset.} 
+        \label{tab:dataset-overview}
+        \begin{tabular}{lrrrrr}
+            \toprule
+            & Classes & Images & Train & Val & Test \\ % TODO: 70/15/15 Split erwähnen 
+            \midrule
+            \textcolor{gray}{Cosplay Images}   & \textcolor{gray}{30} & \textcolor{gray}{5252} & \textcolor{gray}{3669} & \textcolor{gray}{779} & \textcolor{gray}{804} \\
+            % TODO: maybe different color? 
+            Subset of Character images & 10 &  & 1626 &  &  \\
+            New Character Images & 10 & 2610 & 1934 & 341 & 335 \\
+            \bottomrule 
+        \end{tabular}
+    \end{table} 
+\end{frame}
+
+\begin{frame}{Domain Adaptation Experiments}
+    \begin{itemize}
+        \item How feasible is training on Character Images compared to Cosplay Images ?
+    \end{itemize}
+    \begin{table}[htbp]
+        \centering
+        % \caption{The four training conditions of the controlled comparison.}
+        \label{tab:transfer-conditions}
+        \begin{tabular}{lll}
+            \toprule
+            Training condition & First domain & Second domain \\
+            \midrule
+            Cosplay                         & Cosplay   & ---       \\
+            Character                       & Character & ---       \\
+            Character $\rightarrow$ Cosplay & Character & Cosplay   \\
+            Cosplay $\rightarrow$ Character & Cosplay   & Character \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+
+    \begin{itemize}
+        \item Extensibility: How easily can the dataset be extended ? % TODO: phrase as question 
+    \end{itemize}
+\end{frame}
+
+% \begin{frame}{Domain Adaptation Experiments}
+%     \begin{itemize}
+%         \item Does learning generalize ? % TODO: umformulieren ? 
+%     \end{itemize}
+
+%     \begin{figure}
+%         \centering
+%         \includegraphics[width=0.8\linewidth]{mixed_experiment.png}
+%     \end{figure}
+% \end{frame}
+
+\begin{frame}{Results of Domain Adaptation Experiments} % TODO: besserer titel
+    % \only<1>{
+    %     Top-1 test accuracy of the four domain conditions. 
+    %     \vspace{1em}
+
+    %     \begin{minipage}[t]{0.48\textwidth}
+    %         \centering
+    %         \begingroup
+    %         \renewcommand{\arraystretch}{1.25}
+    %         \begin{tabular}{lc}
+    %         \multicolumn{2}{c}{\textbf{ResNet-18 (pretrained)}} \\
+    %         \midrule
+    %         Condition & Test\,\% \\
+    %         \midrule
+    %         Zero-shot baseline              & --   \\
+    %         Cosplay                         & 89.3 \\
+    %         Character                       & 77.2 \\
+    %         Character $\rightarrow$ Cosplay & 91.1 \\
+    %         Cosplay $\rightarrow$ Character & 89.3 \\
+    %         \bottomrule
+    %         \end{tabular}
+    %         \endgroup
+    %     \end{minipage}%
+    %     \hfill
+    %     \begin{minipage}[t]{0.48\textwidth}
+    %         \centering
+    %         \begingroup
+    %         \renewcommand{\arraystretch}{1.25}
+    %         \begin{tabular}{lc}
+    %         \multicolumn{2}{c}{\textbf{Embedding model}} \\
+    %         \midrule
+    %         Condition & Test\,\% \\
+    %         \midrule
+    %         Zero-shot baseline              & 75.8 \\
+    %         Cosplay                         & 97.5 \\
+    %         Character                       & 94.0 \\
+    %         Character $\rightarrow$ Cosplay & 98.6 \\
+    %         Cosplay $\rightarrow$ Character & 94.0 \\
+    %         \bottomrule
+    %         \end{tabular}
+    %         \endgroup
+    %     \end{minipage}
+    % } 
+    \only<1>{
+       \begin{figure}
+            \centering
+            \includegraphics[width=\linewidth]{domain_adaptation_graphic_0.pdf}
+        \end{figure} 
+    }
+     \only<2>{
+        \centering
+        \includegraphics[width=\linewidth]{domain_adaptation_graphic_1-flat.pdf} 
+    }
+    \only<3>{
+        \textbf{ResNet-Training }
+        \centering
+        \includegraphics[width=\linewidth]{domain_adaptation_resnet.pdf} 
+    }
+    \only<4>{
+       \begin{figure}
+            \centering
+            \includegraphics[width=\linewidth]{domain_adaptation_graphic_0.pdf}
+        \end{figure} 
+    }
+    \only<5>{
+         \centering
+        \includegraphics[width=\linewidth]{domain_adaptation_graphic_3.pdf}  
+    }
+\end{frame}
+
+
+
+\begin{frame}{Extensibility}
+    \begin{itemize}
+        \item Training on Character Images is feasible for Embedding Model 
+        \item 30 Cosplay Classes + 10 Character Classes
+        \item[]
+    \end{itemize}
+
+    \textbf{Final model with 40 classes and 96.2\% Top-1 Test Accuracy}
+
+    % new classes don't degrade old ones .. Twenty classes are unchanged, nine improve and one declines. The only loss is Android 18, which falls from 100% to 93.3%.
+\end{frame}
+
+\section{Demo}
+
+\begin{frame}{System Overview}
+    \only<1>{
+        % Show how I used the model --> What system I set up 
+        \begin{figure}
+            \centering
+            \includegraphics[width=\linewidth]{project_idea.pdf}
+        \end{figure}
+    }
+    \only<2>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=\linewidth]{pipeline.pdf}
+        \end{figure}
+    }
+\end{frame}
+
+\begin{frame}
+   \centering
+   \Huge
+   Demo 
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+    \begin{itemize}
+        \item Successful Prototype with 40 recognized characters  
+        \item[] % Limitations: experiments not general, evaluation of the method is always also evaluation of the dataset .. image collection ... 
+    \end{itemize}
+
+    \textbf{Limitations}: 
+    \begin{itemize} 
+        \item Dataset
+        \item Experiments 
+        \item[] % Limitations: experiments not general, evaluation of the method is always also evaluation of the dataset .. image collection ... 
+    \end{itemize}
+
+    \textbf{Future Work}: 
+    \begin{itemize} 
+        \item Extend the dataset
+        \item Further develop embedding model % caption design, finetuning 
+        \item Test the system at the next Fantasy Basel
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \centering 
+    \Huge 
+    Questions ? 
+\end{frame}
+
+      \begin{frame}{Image Sources}
+\scriptsize
+
+\begin{description}
+
+    \item[\textcolor{black}{\textbf{Slide 1}}]
+    Spiderman: \url{https://www.freepnglogos.com/images/spiderman-10243.html}\\
+    Robot: PAL Robotics / ROS Robots --- \url{https://robots.ros.org/tiago++/}
+
+    \item[\textcolor{black}{\textbf{Slide 2}}]
+    Spider-Man: \url{https://marvels-spider-man.fandom.com/wiki/Stark_Suit}\\
+    Robot: PAL Robotics --- \url{https://pal-robotics.com/}\\
+    ZED BOX: Generated with ChatGPT
+
+    \item[\textcolor{black}{\textbf{Slides 3, 5, 6}}]
+    Spider-Man: Wikimedia Commons ---
+    \url{https://commons.wikimedia.org/}
+
+    \item[\textcolor{black}{\textbf{Slide 19}}]
+    Spider-Man: Marvel, \url{https://beyondamazingexhibition.com/}\\
+    Spider-Man: The Bradley Scout, \textit{Rumored Three Spider-Mans in One} ---
+    \url{https://www.bradleyscout.com/voice/rumored-three-spider-mans-in-one/}\\
+    Lego Spider-Man: \url{https://www.lego.com/en-ch/product/spider-man-hero-figure-76346}\\
+    Additional images: Wikimedia Commons ---
+    \url{https://commons.wikimedia.org/}
+
+\end{description}
+
+\end{frame}
+
+\end{document}
