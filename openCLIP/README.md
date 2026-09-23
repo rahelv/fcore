@@ -25,8 +25,6 @@ Creates the embedding database used for the midterm demo.
 
 Domain adaptation experiments testing how well the model transfers between the **character** domain (official artwork/promo images) and the **cosplay** domain (real-world photos of people in costume).
 
-![Domain adaptation](./docs/images/domain_adaptation.png) 
-
 *Character images are used as the source (train) domain, adapted toward cosplay images as the target domain (val/test).*
 
 To test it, four training conditions are compared:

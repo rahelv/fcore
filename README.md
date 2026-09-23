@@ -4,6 +4,8 @@
 
 **fcore** is a prototype costume recognition system developed for **DiMi**, a humanoid robot. The system runs on a **ZED Box Orin** paired with a **ZED X camera**. Given a person detected by the camera, the system classifies which of 30 cosplay characters they are dressed as, in real time.
 
+![image](docs/images/example_2.png)
+
 ### Comparison of two approaches
 
 The core research question is how a traditional discriminative classifier compares to  a finetuned vision-language embedding model for this task. Two approaches were built and evaluated: 
